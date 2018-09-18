@@ -1,12 +1,14 @@
 package pl.kurcaba;
 
 import java.io.IOException;
+import javafx.application.Application;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
-
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.auth.oauth2.Credential;
@@ -23,8 +25,9 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-
-public class Main {
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
+public class Main extends Application {
 
 	private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -34,6 +37,8 @@ public class Main {
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
     private static final String CREDENTIALS_FILE_PATH = "credentials.json";
     
+    
+    private static List filesMeta;
 	public static void main(String... args) throws GeneralSecurityException, IOException
 	{
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -42,20 +47,21 @@ public class Main {
 	                .build();
 	  
 		 
-		FileDownloader downloader = new FileDownloader();
+		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
         List<File> files = downloader.getAllFilesList(service);
         
-        if (files == null || files.isEmpty()) {
-            System.out.println("No files found.");
-        } else {
-            System.out.println("Files:");
-            for (File file : files) {
-                System.out.printf("%s (%s)\n", file.getName(), file.getId());
-            }
-        }
+        GoogleFileConverter converter = new GoogleFileConverter();
+        filesMeta = converter.convert(files); 
         
-        downloader.downloadFile("1kWZm8ryvXG0iIJjSOYwrp-YxcrDPIW0P", "java.png", service);
-		
+        launch();
+        
+        
+        
+//        downloader.downloadFile("1kWZm8ryvXG0iIJjSOYwrp-YxcrDPIW0P", "java.png", service);
+//        
+//        FileUploader uploader = new FileUploader();
+//        uploader.uploadFile(new java.io.File("java2.png"), service);
+        
 	}
 	
 	private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
@@ -78,4 +84,20 @@ public class Main {
                 .build();
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("testAccount3");
     }
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		  
+		  FXMLLoader loader  = new FXMLLoader(getClass().getResource("GuiFilesList.fxml"));
+		  loader.load();
+		  Parent root = loader.getRoot();
+		  primaryStage.setTitle("Cloud files Client");
+		  primaryStage.setScene(new Scene(root));
+		  GuiFilesListViewController<GoogleFileMetadata> controller = loader.getController();
+		  controller.initData(filesMeta);
+		  
+		  primaryStage.show();
+		  
+		
+	}
 }

@@ -13,12 +13,12 @@ import com.google.api.services.drive.Drive.Files;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
-public class FileDownloader {
+public class GoogleDriveFileDownloader {
 	
 	public List<File> getAllFilesList(Drive aService) throws IOException
 	{
 		List<File> resultFileList = new ArrayList<File>();
-		Files.List request = aService.files().list();
+		Files.List request = aService.files().list().setFields("files(id,name,size,modifiedTime)");
 		do
 		{
 			try
@@ -36,12 +36,9 @@ public class FileDownloader {
 	
 	public void downloadFile(String aFileId, String aTargetPath,Drive aService) throws IOException
 	{
-		
 		FileOutputStream fileOutputStream = new FileOutputStream(aTargetPath);
 		aService.files().get(aFileId).executeMediaAndDownloadTo(fileOutputStream);
 		fileOutputStream.close();
-		
-		
 	}
 	
 	
