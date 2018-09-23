@@ -20,11 +20,13 @@ public class GuiFilesListViewController<T> {
 	private TextField selectedFileSizeTextField;
 	@FXML
 	private TextField lastModifiedTimeTextView;
+	
 	private ObservableList<FileMetaDataIf<T>> filesList;
 	
 	public void initData(List<FileMetaDataIf<T>> aFileList)
 	{
 		filesList = FXCollections.observableList(aFileList);
+		filesListView.setItems(filesList);
 		filesListView.setOnMouseClicked( event ->{
 			itemSelectedAction();
 		});

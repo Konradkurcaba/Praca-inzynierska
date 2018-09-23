@@ -34,5 +34,22 @@
   		<artifactId>google-oauth-client-jetty</artifactId>
   		<version>1.24.1</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.amazonaws</groupId>
+  		<artifactId>aws-java-sdk-bom</artifactId>
+  		<version>1.11.414</version>
+  		<type>pom</type>
+  		<scope>import</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.amazonaws</groupId>
+  		<artifactId>aws-java-sdk-s3</artifactId>
+  		<version>1.11.414</version>
+  	</dependency>
+  	<dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-java-sdk-dynamodb</artifactId>
+    <version>1.11.414</version>
+</dependency>
   </dependencies>
 </project>

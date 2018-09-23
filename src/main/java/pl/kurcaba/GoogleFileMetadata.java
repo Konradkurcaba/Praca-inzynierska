@@ -15,7 +15,7 @@ public class GoogleFileMetadata implements FileMetaDataIf<File> {
 			size = String.valueOf(orginalFile.getSize() / 1000) + " KB";
 		}else
 		{
-			size = "0 KB";
+			size = "Google Drive File";
 		}
 		lastModifiedDate = new Date(orginalFile.getModifiedTime().getValue());
 	}
