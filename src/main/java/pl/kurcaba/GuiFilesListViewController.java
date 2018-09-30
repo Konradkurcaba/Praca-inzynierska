@@ -15,19 +15,23 @@ public class GuiFilesListViewController<T> {
 	
 	
 	@FXML
-	private ListView filesListView;
+	private ListView filesListViewL;
 	@FXML
-	private TextField selectedFileSizeTextField;
+	private TextField selectedFileSizeTextFieldL;
 	@FXML
-	private TextField lastModifiedTimeTextView;
+	private TextField lastModifiedTimeTextViewL;
+	@FXML 
+	private ComboBox filesServerComboL;
+	@FXML
+	private ComboBox filesServerComboR;
 	
 	private ObservableList<FileMetaDataIf<T>> filesList;
 	
 	public void initData(List<FileMetaDataIf<T>> aFileList)
 	{
 		filesList = FXCollections.observableList(aFileList);
-		filesListView.setItems(filesList);
-		filesListView.setOnMouseClicked( event ->{
+		filesListViewL.setItems(filesList);
+		filesListViewL.setOnMouseClicked( event ->{
 			itemSelectedAction();
 		});
 		
@@ -35,10 +39,10 @@ public class GuiFilesListViewController<T> {
 	
 	private void itemSelectedAction()
 	{
-		FileMetaDataIf<T> selectedFileMetaData = (FileMetaDataIf<T>) filesListView.getSelectionModel().getSelectedItem();
-		selectedFileSizeTextField.setText(selectedFileMetaData.getSize());
+		FileMetaDataIf<T> selectedFileMetaData = (FileMetaDataIf<T>) filesListViewL.getSelectionModel().getSelectedItem();
+		selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-		lastModifiedTimeTextView.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
+		lastModifiedTimeTextViewL.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
 	}
 	
 	
