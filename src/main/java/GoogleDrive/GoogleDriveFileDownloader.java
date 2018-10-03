@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package GoogleDrive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;

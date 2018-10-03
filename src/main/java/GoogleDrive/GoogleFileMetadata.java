@@ -1,8 +1,10 @@
-package pl.kurcaba;
+package GoogleDrive;
 
 import java.util.Date;
 
 import com.google.api.services.drive.model.File;
+
+import pl.kurcaba.FileMetaDataIf;
 
 public class GoogleFileMetadata implements FileMetaDataIf<File> {
 

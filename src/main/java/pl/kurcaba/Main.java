@@ -24,78 +24,35 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+
+import GoogleDrive.GoogleDriveFileDownloader;
+import GoogleDrive.GoogleDriveSupporter;
+import GoogleDrive.GoogleFileConverter;
+import GoogleDrive.GoogleFileMetadata;
+
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 public class Main extends Application {
 
-	private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
-	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private static final String TOKENS_DIRECTORY_PATH = "tokens";
-	
-
-    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
-    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
     
-    
-    private static List filesMeta;
+   
 	public static void main(String... args) throws GeneralSecurityException, IOException
 	{
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		 Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-	                .setApplicationName(APPLICATION_NAME)
-	                .build();
-	  
-		 
-		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
-        List<File> files = downloader.getAllFilesList(service);
-        
-        GoogleFileConverter converter = new GoogleFileConverter();
-        filesMeta = converter.convert(files); 
-        
         launch();
-        
-        
-        
-//        downloader.downloadFile("1kWZm8ryvXG0iIJjSOYwrp-YxcrDPIW0P", "java.png", service);
-//        
-//        FileUploader uploader = new FileUploader();
-//        uploader.uploadFile(new java.io.File("java2.png"), service);
-        
 	}
 	
-	private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Load client secrets.
-        InputStream in = ClassLoader.getSystemResourceAsStream(CREDENTIALS_FILE_PATH);
-        GoogleClientSecrets clientSecrets = null;
-        try
-        {
-        	clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-        }catch(IOException aEx)
-        {
-        	aEx.printStackTrace();
-        }
-        
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("testAccount3");
-    }
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		  
-		  FXMLLoader loader  = new FXMLLoader(getClass().getResource("GuiFilesList.fxml"));
+		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();
 		  primaryStage.setTitle("Cloud files Client");
 		  primaryStage.setScene(new Scene(root));
 		  GuiFilesListViewController<GoogleFileMetadata> controller = loader.getController();
-		  controller.initData(filesMeta);
-		  
+		  GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
+		  controller.initComponents();
 		  primaryStage.show();
 		  
 		

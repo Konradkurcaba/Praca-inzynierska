@@ -64,7 +64,7 @@
                                  <items>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
-                                          <ComboBox fx:id="filesServerComboL" layoutX="23.0" layoutY="46.0" prefWidth="150.0" />
+                                          <ComboBox fx:id="filesServerComboR" layoutX="23.0" layoutY="46.0" prefWidth="150.0" />
                                           <Text layoutX="81.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server" />
                                        </children>
                                     </AnchorPane>
