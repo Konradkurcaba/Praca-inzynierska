@@ -4,9 +4,9 @@ import java.util.Date;
 
 import com.google.api.services.drive.model.File;
 
-import pl.kurcaba.FileMetaDataIf;
+import pl.kurcaba.ObjectMetaDataIf;
 
-public class GoogleFileMetadata implements FileMetaDataIf<File> {
+public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 
 	public GoogleFileMetadata(File aOriginalFile)
 	{
@@ -23,10 +23,10 @@ public class GoogleFileMetadata implements FileMetaDataIf<File> {
 	}
 	
 	
-	private String name;
-	private String size;
-	private File orginalFile;
-	private Date lastModifiedDate;
+	private final String name;
+	private final String size;
+	private final File orginalFile;
+	private final Date lastModifiedDate;
 	
 	
 	@Override
@@ -40,7 +40,7 @@ public class GoogleFileMetadata implements FileMetaDataIf<File> {
 	}
 
 	@Override
-	public File getOrginalFile() {
+	public File getOrginalObject() {
 		return orginalFile;
 	}
 	

@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import AmazonS3.AmazonS3DownloadService;
+import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveDownloadService;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
@@ -39,8 +41,9 @@ public class GuiFilesListViewController<T> {
 	private ComboBox filesServerComboR;
 	
 	GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
+	AmazonS3Supporter s3Supporter = new AmazonS3Supporter();
 	
-	private ObservableList<FileMetaDataIf<T>> filesList;
+	private ObservableList<ObjectMetaDataIf<T>> filesList;
 	
 	public void initComponents()
 	{
@@ -53,7 +56,7 @@ public class GuiFilesListViewController<T> {
 		
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {
 			
-			FileMetaDataIf<T> selectedFileMetaData = (FileMetaDataIf<T>) filesListViewL.getSelectionModel().getSelectedItem();
+			ObjectMetaDataIf<T> selectedFileMetaData = (ObjectMetaDataIf<T>) filesListViewL.getSelectionModel().getSelectedItem();
 			selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 			lastModifiedTimeTextViewL.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
@@ -61,7 +64,7 @@ public class GuiFilesListViewController<T> {
 		});
 		filesListViewR.getSelectionModel().selectedItemProperty().addListener((event) ->{
 			
-			FileMetaDataIf<T> selectedFileMetaData = (FileMetaDataIf<T>) filesListViewR.getSelectionModel().getSelectedItem();
+			ObjectMetaDataIf<T> selectedFileMetaData = (ObjectMetaDataIf<T>) filesListViewR.getSelectionModel().getSelectedItem();
 			selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 			lastModifiedTimeTextViewR.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
@@ -89,19 +92,21 @@ public class GuiFilesListViewController<T> {
 		{
 			if(newValue == FileServer.Google)
 			{
-				try
-				{
-					GoogleDriveDownloadService downloadService = new GoogleDriveDownloadService(driveSupporter);
-					downloadService.setOnSucceeded((Event) -> {
-							aListView.setItems((ObservableList<GoogleFileMetadata>)downloadService.getValue());
-						});
-					
-					downloadService.start();
-				}catch(Exception aException)
-				{
-					//to do 
-					System.out.println("Error");
-				}
+				GoogleDriveDownloadService downloadService = new GoogleDriveDownloadService(driveSupporter);
+				downloadService.setOnSucceeded((Event) -> {
+						aListView.setItems(downloadService.getValue());
+					});
+				
+				downloadService.start();
+			}
+			if(newValue == FileServer.Amazon)
+			{
+				AmazonS3DownloadService downloadService = new AmazonS3DownloadService(s3Supporter);
+				downloadService.setOnSucceeded( Event -> {
+					aListView.setItems(downloadService.getValue());
+				});
+				downloadService.start();
+				
 			}
 		}
 	}

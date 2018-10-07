@@ -4,7 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-public class GoogleDriveDownloadService extends Service {
+public class GoogleDriveDownloadService extends Service<ObservableList<GoogleFileMetadata>> {
 
 	GoogleDriveSupporter driveSupporter;
 	
@@ -19,7 +19,7 @@ public class GoogleDriveDownloadService extends Service {
 		{
 
 			@Override
-			protected Object call() throws Exception {
+			protected ObservableList<GoogleFileMetadata> call() throws Exception {
 				return driveSupporter.getFilesList();
 			}
 	

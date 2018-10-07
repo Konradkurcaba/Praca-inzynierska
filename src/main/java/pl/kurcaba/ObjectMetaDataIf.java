@@ -2,11 +2,11 @@ package pl.kurcaba;
 
 import java.util.Date;
 
-public interface FileMetaDataIf<T> {
+public interface ObjectMetaDataIf<T> {
 
 	String getName();
 	String getSize();
 	Date getLastModifiedDate();
-	T getOrginalFile();
+	T getOrginalObject();
 	
 }
