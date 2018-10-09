@@ -4,9 +4,13 @@ import java.util.List;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import pl.kurcaba.ObjectMetaDataIf;
 
 public class AmazonS3Supporter {
 
@@ -35,6 +39,22 @@ public class AmazonS3Supporter {
 		return FXCollections.observableArrayList(bucketsMetadata);
 	}
 	
+	public ObservableList<ObjectMetaDataIf> listBucketFiles(String bucketName)
+	{
+		if(!isLoggedIn)
+		{
+			getClient();
+		}
+		ListObjectsV2Request listRequest = new ListObjectsV2Request().withBucketName(bucketName);
+		ListObjectsV2Result listResult;
+		
+		listResult = s3Client.listObjectsV2(listRequest);
+		for(S3ObjectSummary objectSummary : listResult.getObjectSummaries())
+		{
+			System.out.println(objectSummary.getKey());
+		}
+		return null;
+	}
 	
 	
 }

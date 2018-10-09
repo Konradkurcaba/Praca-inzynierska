@@ -1,5 +1,7 @@
-package GoogleDrive;
+package Threads;
 
+import GoogleDrive.GoogleDriveSupporter;
+import GoogleDrive.GoogleFileMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;

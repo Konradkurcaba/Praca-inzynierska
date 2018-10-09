@@ -50,7 +50,7 @@ public class Main extends Application {
 		  Parent root = loader.getRoot();
 		  primaryStage.setTitle("Cloud files Client");
 		  primaryStage.setScene(new Scene(root));
-		  GuiFilesListViewController<GoogleFileMetadata> controller = loader.getController();
+		  GuiFilesListViewController controller = loader.getController();
 		  GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
 		  controller.initComponents();
 		  primaryStage.show();

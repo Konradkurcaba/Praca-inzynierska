@@ -1,8 +1,10 @@
-package AmazonS3;
+package Threads;
 
 
 import com.amazonaws.services.s3.AmazonS3Client;
 
+import AmazonS3.AmazonS3BucketMetadata;
+import AmazonS3.AmazonS3Supporter;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
