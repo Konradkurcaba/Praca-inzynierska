@@ -40,17 +40,19 @@ public class AmazonS3Supporter {
 		return FXCollections.observableArrayList(bucketsMetadata);
 	}
 	
-	public ObservableList<ObjectMetaDataIf> listBucketFiles(String bucketName)
+	public ObservableList<ObjectMetaDataIf> listBucketFiles(AmazonS3BucketMetadata aBucket)
 	{
 		if(!isLoggedIn)
 		{
 			getClient();
 		}
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, bucketName);
+		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName());
 		
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
 		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult);
+		PreviousContainer previousContainer = new PreviousContainer(aBucket);
+		convertedList.add(0,previousContainer);
 		return FXCollections.observableArrayList(convertedList);
 	}
 	

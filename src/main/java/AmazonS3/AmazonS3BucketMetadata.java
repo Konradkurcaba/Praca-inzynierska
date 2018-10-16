@@ -1,5 +1,6 @@
 package AmazonS3;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.amazonaws.services.s3.model.Bucket;
@@ -31,8 +32,11 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 	}
 
 	@Override
-	public Date getLastModifiedDate() {
-		return creationDate;
+	public String getLastModifiedDate() {
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		return dateFormat.format(creationDate);
+		
 	}
 
 	@Override

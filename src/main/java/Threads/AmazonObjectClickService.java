@@ -28,7 +28,7 @@ public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaD
 			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
 				if(clickedObject instanceof AmazonS3BucketMetadata)
 				{
-					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles(clickedObject.getName());
+					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles((AmazonS3BucketMetadata)clickedObject);
 					return files;
 				}
 				else return null;

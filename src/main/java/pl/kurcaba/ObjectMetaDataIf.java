@@ -6,7 +6,7 @@ public interface ObjectMetaDataIf<T> {
 
 	String getName();
 	String getSize();
-	Date getLastModifiedDate();
+	String getLastModifiedDate();
 	T getOrginalObject();
 	
 }

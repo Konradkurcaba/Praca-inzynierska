@@ -1,5 +1,6 @@
 package AmazonS3;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -36,8 +37,9 @@ public class AmazonS3FileMetadata implements ObjectMetaDataIf<S3ObjectSummary> {
 	}
 
 	@Override
-	public Date getLastModifiedDate() {
-		return lastModifiedDate;
+	public String getLastModifiedDate() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		return dateFormat.format(lastModifiedDate);
 	}
 
 	@Override

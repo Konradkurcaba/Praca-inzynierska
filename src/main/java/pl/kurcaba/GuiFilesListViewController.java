@@ -57,18 +57,16 @@ public class GuiFilesListViewController {
 		
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {
 			
-			ObjectMetaDataIf selectedFileMetaData = (ObjectMetaDataIf) filesListViewL.getSelectionModel().getSelectedItem();
+			ObjectMetaDataIf selectedFileMetaData = filesListViewL.getSelectionModel().getSelectedItem();
 			selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			lastModifiedTimeTextViewL.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
+			lastModifiedTimeTextViewL.setText(selectedFileMetaData.getLastModifiedDate());
 			
 		});
 		filesListViewR.getSelectionModel().selectedItemProperty().addListener((event) ->{
 			
-			ObjectMetaDataIf selectedFileMetaData = (ObjectMetaDataIf) filesListViewR.getSelectionModel().getSelectedItem();
+			ObjectMetaDataIf selectedFileMetaData = filesListViewR.getSelectionModel().getSelectedItem();
 			selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			lastModifiedTimeTextViewR.setText(dateFormat.format(selectedFileMetaData.getLastModifiedDate()));
+			lastModifiedTimeTextViewR.setText(selectedFileMetaData.getLastModifiedDate());
 		});
 		
 		filesListViewL.setOnMouseClicked(MouseEvent -> {

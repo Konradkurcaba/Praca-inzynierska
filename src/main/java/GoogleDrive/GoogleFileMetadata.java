@@ -1,5 +1,6 @@
 package GoogleDrive;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.google.api.services.drive.model.File;
@@ -51,9 +52,10 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	}
 
 	@Override
-	public Date getLastModifiedDate()
+	public String getLastModifiedDate()
 	{
-		return lastModifiedDate;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		return dateFormat.format(lastModifiedDate);
 	}
 	
 
