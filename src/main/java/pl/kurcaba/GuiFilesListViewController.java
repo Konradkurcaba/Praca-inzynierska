@@ -9,7 +9,7 @@ import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
 import Threads.AmazonObjectClickService;
-import Threads.AmazonS3DownloadService;
+import Threads.AmazonS3DownloadBucketsService;
 import Threads.GoogleDriveDownloadService;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -105,7 +105,7 @@ public class GuiFilesListViewController {
 			}
 			if(newValue == FileServer.Amazon)
 			{
-				AmazonS3DownloadService downloadService = new AmazonS3DownloadService(s3Supporter);
+				AmazonS3DownloadBucketsService downloadService = new AmazonS3DownloadBucketsService(s3Supporter);
 				downloadService.setOnSucceeded( Event -> {
 					aListView.setItems(downloadService.getValue());
 				});
@@ -122,6 +122,10 @@ public class GuiFilesListViewController {
 		{
 			ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem(); 
 			AmazonObjectClickService s3ClickService = new AmazonObjectClickService(s3Supporter, clickedObject );
+			s3ClickService.setOnSucceeded( event -> 
+			{
+				aClickedListView.setItems(s3ClickService.getValue());
+			});
 			s3ClickService.start();
 		}
 			

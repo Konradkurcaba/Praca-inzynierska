@@ -2,11 +2,12 @@ package Threads;
 
 import AmazonS3.AmazonS3BucketMetadata;
 import AmazonS3.AmazonS3Supporter;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.ObjectMetaDataIf;
 
-public class AmazonObjectClickService extends Service {
+public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaDataIf>> {
 
 	
 	private final AmazonS3Supporter s3Supporter;
@@ -18,16 +19,20 @@ public class AmazonObjectClickService extends Service {
 	}
 	
 	@Override
-	protected Task createTask() {
+	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
 		
-		if(clickedObject instanceof AmazonS3BucketMetadata)
+		return new Task<ObservableList<ObjectMetaDataIf>>()
 		{
-			s3Supporter.listBucketFiles(clickedObject.getName());
-		}
-		
-		
-		
-		return null;
-	}
 
+			@Override
+			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+				if(clickedObject instanceof AmazonS3BucketMetadata)
+				{
+					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles(clickedObject.getName());
+					return files;
+				}
+				else return null;
+			}
+		};
+	}
 }

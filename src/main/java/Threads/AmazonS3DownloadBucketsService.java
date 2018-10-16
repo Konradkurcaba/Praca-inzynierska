@@ -9,12 +9,12 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-public class AmazonS3DownloadService extends Service<ObservableList<AmazonS3BucketMetadata>>{
+public class AmazonS3DownloadBucketsService extends Service<ObservableList<AmazonS3BucketMetadata>>{
 
 	AmazonS3Supporter amazonS3Supporter;
 	
 	
-	public AmazonS3DownloadService(AmazonS3Supporter aAmazonS3Supporter) {
+	public AmazonS3DownloadBucketsService(AmazonS3Supporter aAmazonS3Supporter) {
 		amazonS3Supporter = aAmazonS3Supporter;
 	}
 

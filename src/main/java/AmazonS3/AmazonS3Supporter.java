@@ -1,5 +1,6 @@
 package AmazonS3;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -45,15 +46,12 @@ public class AmazonS3Supporter {
 		{
 			getClient();
 		}
-		ListObjectsV2Request listRequest = new ListObjectsV2Request().withBucketName(bucketName);
-		ListObjectsV2Result listResult;
+		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
+		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, bucketName);
 		
-		listResult = s3Client.listObjectsV2(listRequest);
-		for(S3ObjectSummary objectSummary : listResult.getObjectSummaries())
-		{
-			System.out.println(objectSummary.getKey());
-		}
-		return null;
+		AmazonS3Converter s3Converter = new AmazonS3Converter();
+		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult);
+		return FXCollections.observableArrayList(convertedList);
 	}
 	
 	
