@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.PreviousContainer;
 
 public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaDataIf>> {
 
@@ -31,7 +32,12 @@ public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaD
 					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles((AmazonS3BucketMetadata)clickedObject);
 					return files;
 				}
-				else return null;
+				if(clickedObject instanceof PreviousContainer )
+				{
+					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer((PreviousContainer)clickedObject);
+					return files;
+				}
+				return null;
 			}
 		};
 	}

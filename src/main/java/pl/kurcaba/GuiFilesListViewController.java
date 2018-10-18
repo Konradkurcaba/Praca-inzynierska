@@ -69,8 +69,11 @@ public class GuiFilesListViewController {
 			lastModifiedTimeTextViewR.setText(selectedFileMetaData.getLastModifiedDate());
 		});
 		
-		filesListViewL.setOnMouseClicked(MouseEvent -> {
-			listViewClicked(MouseEvent,filesListViewL);
+		filesListViewL.setOnMouseClicked(mouseEvent -> {
+			listViewClicked(mouseEvent,filesListViewL);
+		});
+		filesListViewR.setOnMouseClicked(mouseEvent ->{
+			listViewClicked(mouseEvent, filesListViewR);
 		});
 	}
 	
@@ -116,7 +119,8 @@ public class GuiFilesListViewController {
 	private void listViewClicked(MouseEvent aMouseEvent,ListView<ObjectMetaDataIf> aClickedListView)
 	{
 		boolean isDoubleClick = aMouseEvent.getClickCount() == 2;
-		if(isDoubleClick)
+		boolean isSomethinkSelected = aClickedListView.getSelectionModel().getSelectedItem() != null; 
+		if(isDoubleClick && isSomethinkSelected )
 		{
 			ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem(); 
 			AmazonObjectClickService s3ClickService = new AmazonObjectClickService(s3Supporter, clickedObject );

@@ -1,8 +1,6 @@
-package AmazonS3;
+package pl.kurcaba;
 
 import java.util.Date;
-
-import pl.kurcaba.ObjectMetaDataIf;
 
 public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 

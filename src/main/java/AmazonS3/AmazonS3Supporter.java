@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.PreviousContainer;
 
 public class AmazonS3Supporter {
 
@@ -54,6 +55,15 @@ public class AmazonS3Supporter {
 		PreviousContainer previousContainer = new PreviousContainer(aBucket);
 		convertedList.add(0,previousContainer);
 		return FXCollections.observableArrayList(convertedList);
+	}
+	
+	public ObservableList getFilesFromPreviousContainer(PreviousContainer aContainer)
+	{
+		if(aContainer.getOrginalObject() instanceof AmazonS3BucketMetadata)
+		{
+			return getBucketsMetadata();
+		}
+		return null;
 	}
 	
 	
