@@ -32,12 +32,11 @@ public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaD
 					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles((AmazonS3BucketMetadata)clickedObject);
 					return files;
 				}
-				if(clickedObject instanceof PreviousContainer )
+				else if(clickedObject instanceof PreviousContainer )
 				{
 					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer((PreviousContainer)clickedObject);
 					return files;
-				}
-				return null;
+				}else throw new IllegalArgumentException("Passed argument cannot be recognized");
 			}
 		};
 	}
