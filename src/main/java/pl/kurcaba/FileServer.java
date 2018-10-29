@@ -1,5 +1,5 @@
 package pl.kurcaba;
 
 public enum FileServer {
-	Google,Amazon;
+	Google,Amazon,Local;
 }

@@ -1,6 +1,7 @@
 package pl.kurcaba;
 
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -8,9 +9,13 @@ import java.util.List;
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
+import Local.LocalFileMetadata;
+import Local.LocalFileSupporter;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
 import Threads.GoogleDriveDownloadService;
+import Threads.LocalFileExploreService;
+import Threads.LocalObjectClickService;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.collections.FXCollections;
@@ -44,6 +49,7 @@ public class GuiFilesListViewController {
 	
 	GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
 	AmazonS3Supporter s3Supporter = new AmazonS3Supporter();
+	LocalFileSupporter localSupporter = new LocalFileSupporter();
 	
 	
 	public void initComponents()
@@ -70,17 +76,17 @@ public class GuiFilesListViewController {
 		});
 		
 		filesListViewL.setOnMouseClicked(mouseEvent -> {
-			listViewClicked(mouseEvent,filesListViewL);
+			listViewClicked(mouseEvent,filesListViewL,filesServerComboL);
 		});
 		filesListViewR.setOnMouseClicked(mouseEvent ->{
-			listViewClicked(mouseEvent, filesListViewR);
+			listViewClicked(mouseEvent, filesListViewR,filesServerComboR);
 		});
 	}
 	
 	private void initComboBoxes()
 	{
-		filesServerComboL.getItems().addAll(FileServer.Google,FileServer.Amazon);
-		filesServerComboR.getItems().addAll(FileServer.Google,FileServer.Amazon);
+		filesServerComboL.getItems().addAll(FileServer.Google,FileServer.Amazon,FileServer.Local);
+		filesServerComboR.getItems().addAll(FileServer.Google,FileServer.Amazon,FileServer.Local);
 		
 		filesServerComboL.getSelectionModel().selectedItemProperty().addListener( (event, oldValue, newValue ) -> {
 			comboBoxSelected(event,oldValue,newValue,filesListViewL);
@@ -113,22 +119,42 @@ public class GuiFilesListViewController {
 				downloadService.start();
 				
 			}
+			if(newValue == FileServer.Local)
+			{
+				LocalFileExploreService exploreService = new LocalFileExploreService(localSupporter);
+				exploreService.setOnSucceeded(Event -> {
+					aListView.setItems(exploreService.getValue());
+				});
+				exploreService.start();
+			}
 		}
 	}
 	
-	private void listViewClicked(MouseEvent aMouseEvent,ListView<ObjectMetaDataIf> aClickedListView)
+	private void listViewClicked(MouseEvent aMouseEvent,ListView<ObjectMetaDataIf> aClickedListView,ComboBox aConnectedComboBox)
 	{
 		boolean isDoubleClick = aMouseEvent.getClickCount() == 2;
 		boolean isSomethinkSelected = aClickedListView.getSelectionModel().getSelectedItem() != null; 
 		if(isDoubleClick && isSomethinkSelected )
 		{
-			ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem(); 
-			AmazonObjectClickService s3ClickService = new AmazonObjectClickService(s3Supporter, clickedObject );
-			s3ClickService.setOnSucceeded( event -> 
+			if(aConnectedComboBox.getSelectionModel().getSelectedItem() == FileServer.Amazon)
 			{
-				aClickedListView.setItems(s3ClickService.getValue());
-			});
-			s3ClickService.start();
+				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem(); 
+				AmazonObjectClickService s3ClickService = new AmazonObjectClickService(s3Supporter, clickedObject );
+				s3ClickService.setOnSucceeded( event -> 
+				{
+					aClickedListView.setItems(s3ClickService.getValue());
+				});
+				s3ClickService.start();
+			}
+			if(aConnectedComboBox.getSelectionModel().getSelectedItem() == FileServer.Local)
+			{
+				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
+				LocalObjectClickService localClickService = new LocalObjectClickService(localSupporter, clickedObject);
+				localClickService.setOnSucceeded(event ->{
+					aClickedListView.setItems(localClickService.getValue());
+				});
+				localClickService.start();
+			}
 		}
 			
 	}

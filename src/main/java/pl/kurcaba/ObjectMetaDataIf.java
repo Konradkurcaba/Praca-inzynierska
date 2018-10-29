@@ -9,4 +9,5 @@ public interface ObjectMetaDataIf<T> {
 	String getLastModifiedDate();
 	T getOrginalObject();
 	
+	
 }

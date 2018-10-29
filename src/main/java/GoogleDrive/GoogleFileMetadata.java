@@ -23,7 +23,6 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 		lastModifiedDate = new Date(orginalFile.getModifiedTime().getValue());
 	}
 	
-	
 	private final String name;
 	private final String size;
 	private final File orginalFile;
