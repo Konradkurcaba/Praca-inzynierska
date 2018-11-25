@@ -1,6 +1,7 @@
 package Threads;
 
 import AmazonS3.AmazonS3BucketMetadata;
+import Local.FileType;
 import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
 import javafx.collections.ObservableList;
@@ -27,7 +28,14 @@ public class LocalObjectClickService extends Service<ObservableList<ObjectMetaDa
 			protected ObservableList call() {
 				if(clickedObject instanceof LocalFileMetadata)
 				{
-					return localSupporter.getFilesList((LocalFileMetadata)clickedObject);
+					LocalFileMetadata localFile = (LocalFileMetadata) clickedObject;
+					if(localFile.isRoot() && localFile.getFileType() == FileType.previousContainer)
+					{
+						return localSupporter.getRootsList();
+					}else
+					{
+						return localSupporter.getFilesList(localFile);
+					}
 				}
 				else throw new IllegalArgumentException("Passed argument cannot be recognized");
 			}

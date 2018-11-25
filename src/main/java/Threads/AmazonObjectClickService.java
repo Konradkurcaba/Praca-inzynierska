@@ -1,6 +1,7 @@
 package Threads;
 
 import AmazonS3.AmazonS3BucketMetadata;
+import AmazonS3.AmazonS3ObjectMetadata;
 import AmazonS3.AmazonS3Supporter;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -34,9 +35,20 @@ public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaD
 				}
 				else if(clickedObject instanceof PreviousContainer )
 				{
-					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer((PreviousContainer)clickedObject);
+					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer();
 					return files;
-				}else throw new IllegalArgumentException("Passed argument cannot be recognized");
+				}else if(clickedObject instanceof AmazonS3ObjectMetadata)
+				{
+					AmazonS3ObjectMetadata s3ObjectMetadata = (AmazonS3ObjectMetadata) clickedObject;
+					if (s3ObjectMetadata.isDirectory())
+					{
+						ObservableList<ObjectMetaDataIf> files = s3Supporter.listFiles(s3ObjectMetadata.getName());
+						return files;
+					}
+					else throw new IllegalArgumentException("Given object is not a Container");
+					
+				}
+				else throw new IllegalArgumentException("Passed argument cannot be recognized");
 			}
 		};
 	}

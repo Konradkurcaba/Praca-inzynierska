@@ -1,5 +1,7 @@
 package AmazonS3;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +22,8 @@ public class AmazonS3Supporter {
 	private boolean isLoggedIn = false;
 	private AmazonS3 s3Client;
 	
-	private void getClient()
-	{
-		AmazonS3LogInSupporter loginSupporter = new AmazonS3LogInSupporter();
-		s3Client = loginSupporter.getAmazonS3Client();
-		isLoggedIn = true;
-	}
-	
+	AmazonS3BucketMetadata currentBucket;
+	String currentPrefix;
 	
 	public ObservableList<AmazonS3BucketMetadata> getBucketsMetadata()
 	{
@@ -38,6 +35,7 @@ public class AmazonS3Supporter {
 		List<Bucket> buckets = s3Downloader.getAllBucketsList(s3Client);
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
 		List<AmazonS3BucketMetadata> bucketsMetadata = s3Converter.convertBuckets(buckets);
+		currentBucket = null;
 		return FXCollections.observableArrayList(bucketsMetadata);
 	}
 	
@@ -48,23 +46,71 @@ public class AmazonS3Supporter {
 			getClient();
 		}
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName());
+		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName(),"");
 		
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
-		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult);
+		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult,"");
 		PreviousContainer previousContainer = new PreviousContainer(aBucket);
 		convertedList.add(0,previousContainer);
+		currentBucket = aBucket;
+		currentPrefix = "";
 		return FXCollections.observableArrayList(convertedList);
 	}
 	
-	public ObservableList getFilesFromPreviousContainer(PreviousContainer aContainer)
+	public ObservableList<ObjectMetaDataIf> listFiles(String aPrefix)
 	{
-		if(aContainer.getOrginalObject() instanceof AmazonS3BucketMetadata)
+		if(!isLoggedIn)
 		{
-			return getBucketsMetadata();
+			getClient();
 		}
-		return null;
+		
+		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
+		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client,currentBucket.getName()
+				, aPrefix);
+		AmazonS3Converter s3Converter = new AmazonS3Converter();
+		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix);
+		convertedList.add(0,new PreviousContainer());
+		currentPrefix = aPrefix;
+		return FXCollections.observableArrayList(convertedList);
 	}
 	
+	public ObservableList getFilesFromPreviousContainer()
+	{
+		if(currentPrefix.equals("")) return getBucketsMetadata();
+		else
+		{
+			currentPrefix = prepareBackPrefix(currentPrefix);
+			return listFiles(currentPrefix);
+		}
+	}
 	
+	public File getAmazonS3Object(AmazonS3ObjectMetadata aObjectMetadata, File aTargetDirectory) throws IOException
+	{
+		S3ObjectSummary orginalSummary = aObjectMetadata.getOrginalObject();
+		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
+		File file = s3Downloader.getObject(s3Client, orginalSummary.getBucketName(), orginalSummary.getKey(),aTargetDirectory);
+		return file;
+	}
+	
+	private String prepareBackPrefix(String aCurrentPrefix)
+	{
+		
+		if(aCurrentPrefix.equals("")) return "";
+		
+		aCurrentPrefix = aCurrentPrefix.substring(0,aCurrentPrefix.lastIndexOf('/'))
+				.substring(0,aCurrentPrefix.lastIndexOf('/'));
+		
+		aCurrentPrefix = aCurrentPrefix.substring(0,aCurrentPrefix.lastIndexOf('/')+1);
+		boolean previousIsRoot = !aCurrentPrefix.contains("/");
+		if(previousIsRoot) aCurrentPrefix = "";
+		
+		return aCurrentPrefix;
+	}
+	
+	private void getClient()
+	{
+		AmazonS3LogInSupporter loginSupporter = new AmazonS3LogInSupporter();
+		s3Client = loginSupporter.getAmazonS3Client();
+		isLoggedIn = true;
+	}
 }

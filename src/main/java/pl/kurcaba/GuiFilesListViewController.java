@@ -2,6 +2,7 @@ package pl.kurcaba;
 
 
 import java.io.File;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -13,9 +14,11 @@ import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
+import Threads.CopyService;
 import Threads.GoogleDriveDownloadService;
 import Threads.LocalFileExploreService;
 import Threads.LocalObjectClickService;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.collections.FXCollections;
@@ -25,6 +28,9 @@ import javafx.scene.control.ComboBox;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.ClipboardContent;
 
 public class GuiFilesListViewController {
 	
@@ -47,9 +53,7 @@ public class GuiFilesListViewController {
 	private ComboBox filesServerComboR;
 	
 	
-	GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
-	AmazonS3Supporter s3Supporter = new AmazonS3Supporter();
-	LocalFileSupporter localSupporter = new LocalFileSupporter();
+	SupportersBundle supportersBundle = new SupportersBundle();
 	
 	
 	public void initComponents()
@@ -81,6 +85,47 @@ public class GuiFilesListViewController {
 		filesListViewR.setOnMouseClicked(mouseEvent ->{
 			listViewClicked(mouseEvent, filesListViewR,filesServerComboR);
 		});
+		
+		filesListViewL.setOnDragDetected(mouseEvent -> {
+			
+			Dragboard db = filesListViewL.startDragAndDrop(TransferMode.ANY);
+			
+			ClipboardContent content = new ClipboardContent();
+			content.putString("copy");
+			db.setContent(content);
+			
+			mouseEvent.consume();
+			
+			
+		});
+		
+		filesListViewR.setOnDragOver(mouseEvent ->{
+			
+			if(mouseEvent.getGestureSource() != filesListViewR && mouseEvent.getDragboard().hasString())
+			{
+				mouseEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+			}
+			mouseEvent.consume();
+			
+		});
+		
+		filesListViewR.setOnDragDropped(mouseEvent ->{
+			
+			if (filesServerComboR.getSelectionModel().getSelectedItem() == FileServer.Amazon)
+			{
+				
+			}
+			if(filesServerComboR.getSelectionModel().getSelectedItem() == FileServer.Google)
+			{
+				
+			}
+			if(filesServerComboR.getSelectionModel().getSelectedItem() == FileServer.Local)
+			{
+				CopyService copyService = new CopyService(supportersBundle
+						, filesListViewL.getSelectionModel().getSelectedItem(),FileServer.Local);
+				copyService.start();
+			}
+		});
 	}
 	
 	private void initComboBoxes()
@@ -103,7 +148,7 @@ public class GuiFilesListViewController {
 		{
 			if(newValue == FileServer.Google)
 			{
-				GoogleDriveDownloadService downloadService = new GoogleDriveDownloadService(driveSupporter);
+				GoogleDriveDownloadService downloadService = new GoogleDriveDownloadService(supportersBundle.getGoogleDriveSupporter());
 				downloadService.setOnSucceeded((Event) -> {
 						aListView.setItems(downloadService.getValue());
 					});
@@ -112,7 +157,7 @@ public class GuiFilesListViewController {
 			}
 			if(newValue == FileServer.Amazon)
 			{
-				AmazonS3DownloadBucketsService downloadService = new AmazonS3DownloadBucketsService(s3Supporter);
+				AmazonS3DownloadBucketsService downloadService = new AmazonS3DownloadBucketsService(supportersBundle.getAmazonS3Supporter());
 				downloadService.setOnSucceeded( Event -> {
 					aListView.setItems(downloadService.getValue());
 				});
@@ -121,7 +166,7 @@ public class GuiFilesListViewController {
 			}
 			if(newValue == FileServer.Local)
 			{
-				LocalFileExploreService exploreService = new LocalFileExploreService(localSupporter);
+				LocalFileExploreService exploreService = new LocalFileExploreService(supportersBundle.getLocalFileSupporter());
 				exploreService.setOnSucceeded(Event -> {
 					aListView.setItems(exploreService.getValue());
 				});
@@ -136,20 +181,20 @@ public class GuiFilesListViewController {
 		boolean isSomethinkSelected = aClickedListView.getSelectionModel().getSelectedItem() != null; 
 		if(isDoubleClick && isSomethinkSelected )
 		{
-			if(aConnectedComboBox.getSelectionModel().getSelectedItem() == FileServer.Amazon)
+			if(aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Amazon))
 			{
 				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem(); 
-				AmazonObjectClickService s3ClickService = new AmazonObjectClickService(s3Supporter, clickedObject );
+				AmazonObjectClickService s3ClickService = new AmazonObjectClickService(supportersBundle.getAmazonS3Supporter(), clickedObject );
 				s3ClickService.setOnSucceeded( event -> 
 				{
 					aClickedListView.setItems(s3ClickService.getValue());
 				});
 				s3ClickService.start();
 			}
-			if(aConnectedComboBox.getSelectionModel().getSelectedItem() == FileServer.Local)
+			if(aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Local))
 			{
 				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
-				LocalObjectClickService localClickService = new LocalObjectClickService(localSupporter, clickedObject);
+				LocalObjectClickService localClickService = new LocalObjectClickService(supportersBundle.getLocalFileSupporter(), clickedObject);
 				localClickService.setOnSucceeded(event ->{
 					aClickedListView.setItems(localClickService.getValue());
 				});

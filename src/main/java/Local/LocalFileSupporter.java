@@ -1,6 +1,9 @@
 package Local;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import javafx.collections.FXCollections;
@@ -9,10 +12,14 @@ import pl.kurcaba.ObjectMetaDataIf;
 
 public class LocalFileSupporter {
 
+	
+	private File currentDirectory;
+	
+	
 	public ObservableList<ObjectMetaDataIf> getFilesList(LocalFileMetadata file)
 	{
 		File directory;
-		if(file.getName().equals("..."))
+		if(file.getFileType() == FileType.previousContainer)
 		{
 			directory = file.getOrginalObject().getParentFile();
 		}
@@ -20,13 +27,18 @@ public class LocalFileSupporter {
 		{
 			directory = file.getOrginalObject();
 		}
+		
 		LocalFileExplorer filesExplorer = new LocalFileExplorer();
 		List<File> files = filesExplorer.getFilesFromDirectory(directory);
 		LocalFileConverter filesConverter = new LocalFileConverter();
 		List<ObjectMetaDataIf> convertedFiles = filesConverter.convert(files);
 		ObservableList<ObjectMetaDataIf> observableList = FXCollections.observableList(convertedFiles);
-		file.setName("...");
-		observableList.add(0,file);
+		
+		LocalFileMetadata previousContainer = new LocalFileMetadata(directory);
+		previousContainer.setFileType(FileType.previousContainer);
+		observableList.add(0,previousContainer);
+		
+		currentDirectory = directory;
 		return FXCollections.observableList(convertedFiles);
 	}
 	
@@ -36,6 +48,14 @@ public class LocalFileSupporter {
 		List<File> files = filesExplorer.getRoots();
 		LocalFileConverter filesConverter = new LocalFileConverter();
 		List<ObjectMetaDataIf> convertedFiles = filesConverter.convert(files);
+		currentDirectory = null;
 		return FXCollections.observableList(convertedFiles);
 	}
+	
+	public void moveFileToCurrentDirectory(Path aPath) throws IOException
+	{
+		Files.move(aPath, new File(currentDirectory.getAbsolutePath() + "//" + aPath.getFileName()).toPath());
+	}
+	
+	
 }

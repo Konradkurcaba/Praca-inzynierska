@@ -13,12 +13,16 @@ import com.google.api.services.drive.Drive.Files;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
+
 public class GoogleDriveFileDownloader {
 	
 	public List<File> getAllFilesList(Drive aService) throws IOException
 	{
 		List<File> resultFileList = new ArrayList<File>();
-		Files.List request = aService.files().list().setFields("files(id,name,size,modifiedTime)");
+		Files.List request = aService.files().list()
+				.setQ("'root' in parents")
+				.setFields("files(id,name,size,modifiedTime,parents)");
+
 		do
 		{
 			try
@@ -34,11 +38,15 @@ public class GoogleDriveFileDownloader {
 		return resultFileList;
 	}
 	
-	public void downloadFile(String aFileId, String aTargetPath,Drive aService) throws IOException
+	public java.io.File downloadFile(GoogleFileMetadata aFileMetadata, String aTargetPath,Drive aService) throws IOException
 	{
-		FileOutputStream fileOutputStream = new FileOutputStream(aTargetPath);
-		aService.files().get(aFileId).executeMediaAndDownloadTo(fileOutputStream);
+		String fileId = aFileMetadata.getOrginalObject().getId();
+		String fileName = aFileMetadata.getName();
+		java.io.File downloadedFile = new java.io.File(aTargetPath + "\\" + fileName);
+		FileOutputStream fileOutputStream = new FileOutputStream(downloadedFile);
+		aService.files().get(fileId).executeMediaAndDownloadTo(fileOutputStream);
 		fileOutputStream.close();
+		return downloadedFile;
 	}
 	
 	

@@ -10,6 +10,10 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	public PreviousContainer(ObjectMetaDataIf aPreviousContainer) {
 		previousContainer = aPreviousContainer;
 	}
+	public PreviousContainer()
+	{
+		previousContainer = null;
+	}
 	
 	@Override
 	public String getName() {

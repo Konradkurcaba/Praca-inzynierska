@@ -24,14 +24,27 @@ public class AmazonS3Converter {
 		return buckets;
 	}
 	
-	public List<ObjectMetaDataIf> convertFileList(ListObjectsV2Result aFilesList)
+	public List<ObjectMetaDataIf> convertFileList(ListObjectsV2Result aFilesList,String aPrefix)
 	{
 		List<ObjectMetaDataIf> convertedList = new ArrayList();
 		
 		for(S3ObjectSummary objectSummary : aFilesList.getObjectSummaries())
 		{
-			AmazonS3FileMetadata objectMetadata = new AmazonS3FileMetadata(objectSummary);
-			convertedList.add(objectMetadata);
+			
+			String key = objectSummary.getKey();
+			String nameWithoutPrefix = key.replace(aPrefix, "");
+			boolean isNextLevelDirectory = nameWithoutPrefix.contains("/") 
+					&& (nameWithoutPrefix.lastIndexOf('/') == nameWithoutPrefix.indexOf('/') 
+					&& nameWithoutPrefix.lastIndexOf('/') == nameWithoutPrefix.length()-1);
+			boolean isFileInThisDirectory = !nameWithoutPrefix.contains("/")
+					&& nameWithoutPrefix.length() >0;
+			
+			if(isNextLevelDirectory || isFileInThisDirectory)
+			{
+				AmazonS3ObjectMetadata objectMetadata = new AmazonS3ObjectMetadata(objectSummary);
+				convertedList.add(objectMetadata);
+			}
+
 		}
 		return convertedList;
 	}

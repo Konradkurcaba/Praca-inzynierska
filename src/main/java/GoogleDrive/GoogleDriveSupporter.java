@@ -1,9 +1,11 @@
 package GoogleDrive;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -40,4 +42,26 @@ public class GoogleDriveSupporter {
     	isLoggedIn = true;
     }
 	
+    public ObservableList<GoogleFileMetadata> uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException
+    {
+    	if(!isLoggedIn) 
+    	{
+    		getService();
+    	}
+    	GoogleDriveUploader uploader = new GoogleDriveUploader();
+    	uploader.uploadFile(aFile, driveService);
+    	return getFilesList();
+    }
+    
+    public java.io.File downloadFile(GoogleFileMetadata aMetadata, Path targetDirectory) throws IOException
+    {
+    	GoogleDriveFileDownloader googleFileDownloader = new GoogleDriveFileDownloader();
+    	String fileId = aMetadata.getOrginalObject().getId();
+    	return googleFileDownloader.downloadFile(aMetadata, targetDirectory.toString(), driveService);
+    }
+    
+//    public void uploadFile(java.io.File aFileToUpload,)
+//    {
+//    	
+//    }
 }
