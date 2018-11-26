@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.api.services.drive.model.File;
+
+import pl.kurcaba.ObjectMetaDataIf;
 /**
  * 
  * @author Konrad
@@ -11,9 +13,9 @@ import com.google.api.services.drive.model.File;
  */
 public class GoogleFileConverter {
 
-	public List<GoogleFileMetadata> convert(List<File> aFiles)
+	public List<ObjectMetaDataIf> convert(List<File> aFiles)
 	{
-		List<GoogleFileMetadata> files = aFiles.stream().map( f -> {
+		List<ObjectMetaDataIf> files = aFiles.stream().map( f -> {
 			GoogleFileMetadata fileMeta = new GoogleFileMetadata(f);
 			return fileMeta;
 		}).collect(Collectors.toList());

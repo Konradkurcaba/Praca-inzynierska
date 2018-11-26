@@ -5,8 +5,9 @@ import GoogleDrive.GoogleFileMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import pl.kurcaba.ObjectMetaDataIf;
 
-public class GoogleDriveDownloadService extends Service<ObservableList<GoogleFileMetadata>> {
+public class GoogleDriveDownloadService extends Service<ObservableList<ObjectMetaDataIf>> {
 
 	GoogleDriveSupporter driveSupporter;
 	
@@ -15,14 +16,14 @@ public class GoogleDriveDownloadService extends Service<ObservableList<GoogleFil
 	}
 	
 	@Override
-	protected Task<ObservableList<GoogleFileMetadata>> createTask() {
+	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
 		
 		return new Task()
 		{
 
 			@Override
-			protected ObservableList<GoogleFileMetadata> call() throws Exception {
-				return driveSupporter.getFilesList();
+			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+				return driveSupporter.getFilesList("root");
 			}
 	
 		};

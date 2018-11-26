@@ -15,34 +15,45 @@ import com.google.api.services.drive.model.File;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.PreviousContainer;
 
 public class GoogleDriveSupporter {
 
 	
     private boolean isLoggedIn = false;
     private Drive driveService;
+    private String currentDirectoryId;
     
-    
-    public ObservableList<GoogleFileMetadata> getFilesList() throws IOException, GeneralSecurityException
+    public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException, GeneralSecurityException
     {
     	if(!isLoggedIn) 
     	{
     		getService();
     	}
     	GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
-        List<File> files = downloader.getAllFilesList(driveService);
+        List<File> files = downloader.getFilesList(driveService,aParentId,false);
+        currentDirectoryId = aParentId;
         GoogleFileConverter converter = new GoogleFileConverter();
-        return FXCollections.observableArrayList(converter.convert(files));
+        boolean isRootFolder;
+        if(aParentId.equals("root")) isRootFolder = true;
+        else isRootFolder = false;
+        return createObservableList(converter.convert(files),isRootFolder);
     }
     
-    private void getService() throws GeneralSecurityException, IOException
+    public ObservableList<ObjectMetaDataIf> backToPreviousContainer() throws IOException, GeneralSecurityException
     {
-    	GoogleDriveLogInSupporter driveLogInSupporter = new GoogleDriveLogInSupporter();
-    	driveService = driveLogInSupporter.getDriveService();
-    	isLoggedIn = true;
+    	if(!isLoggedIn) 
+    	{
+    		getService();
+    	}
+    	GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
+        List<File> files = downloader.getFilesList(driveService,currentDirectoryId,true);
+        GoogleFileConverter converter = new GoogleFileConverter();
+        return createObservableList(converter.convert(files),true);
+
     }
-	
-    public ObservableList<GoogleFileMetadata> uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException
+    public ObservableList<ObjectMetaDataIf> uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException
     {
     	if(!isLoggedIn) 
     	{
@@ -50,18 +61,23 @@ public class GoogleDriveSupporter {
     	}
     	GoogleDriveUploader uploader = new GoogleDriveUploader();
     	uploader.uploadFile(aFile, driveService);
-    	return getFilesList();
+    	return getFilesList(currentDirectoryId);
     }
-    
     public java.io.File downloadFile(GoogleFileMetadata aMetadata, Path targetDirectory) throws IOException
     {
     	GoogleDriveFileDownloader googleFileDownloader = new GoogleDriveFileDownloader();
     	String fileId = aMetadata.getOrginalObject().getId();
     	return googleFileDownloader.downloadFile(aMetadata, targetDirectory.toString(), driveService);
     }
-    
-//    public void uploadFile(java.io.File aFileToUpload,)
-//    {
-//    	
-//    }
+    private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,boolean isRootDirectory)
+    {
+    	 if(!isRootDirectory)aListToConvert.add(0,new PreviousContainer());
+    	 return FXCollections.observableArrayList(aListToConvert);
+    }
+    private void getService() throws GeneralSecurityException, IOException
+    {
+    	GoogleDriveLogInSupporter driveLogInSupporter = new GoogleDriveLogInSupporter();
+    	driveService = driveLogInSupporter.getDriveService();
+    	isLoggedIn = true;
+    }
 }

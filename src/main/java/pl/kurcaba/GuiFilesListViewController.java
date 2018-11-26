@@ -16,6 +16,7 @@ import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
 import Threads.CopyService;
 import Threads.GoogleDriveDownloadService;
+import Threads.GoogleObjectClickService;
 import Threads.LocalFileExploreService;
 import Threads.LocalObjectClickService;
 
@@ -191,10 +192,19 @@ public class GuiFilesListViewController {
 				});
 				s3ClickService.start();
 			}
-			if(aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Local))
+			else if(aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Local))
 			{
 				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
 				LocalObjectClickService localClickService = new LocalObjectClickService(supportersBundle.getLocalFileSupporter(), clickedObject);
+				localClickService.setOnSucceeded(event ->{
+					aClickedListView.setItems(localClickService.getValue());
+				});
+				localClickService.start();
+			}
+			else if(aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Google))
+			{
+				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
+				GoogleObjectClickService localClickService = new GoogleObjectClickService(supportersBundle.getGoogleDriveSupporter(), clickedObject);
 				localClickService.setOnSucceeded(event ->{
 					aClickedListView.setItems(localClickService.getValue());
 				});

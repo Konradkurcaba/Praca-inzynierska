@@ -16,9 +16,15 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 		if(orginalFile.getSize() != null)
 		{
 			size = String.valueOf(orginalFile.getSize() / 1000) + " KB";
+			fileType = GoogleFileType.File;
 		}else
 		{
-			size = "Google Drive File";
+			if(aOriginalFile.getMimeType().equals("application/vnd.google-apps.folder"))
+			{
+				fileType = GoogleFileType.Folder;
+			}
+			else fileType = GoogleFileType.Document;
+			size = "0";
 		}
 		lastModifiedDate = new Date(orginalFile.getModifiedTime().getValue());
 	}
@@ -27,7 +33,7 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	private final String size;
 	private final File orginalFile;
 	private final Date lastModifiedDate;
-	
+	private final GoogleFileType fileType;
 	
 	@Override
 	public String getName() {
@@ -36,7 +42,9 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 
 	@Override
 	public String getSize() {
-		return size;
+		if(fileType == GoogleFileType.Document) return "Google Document";
+		else if(fileType == GoogleFileType.Folder) return "Folder";
+		else return size;
 	}
 
 	@Override
@@ -55,6 +63,11 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	{
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		return dateFormat.format(lastModifiedDate);
+	}
+	
+	public GoogleFileType getFileType()
+	{
+		return fileType;
 	}
 	
 

@@ -16,13 +16,24 @@ import com.google.api.services.drive.model.FileList;
 
 public class GoogleDriveFileDownloader {
 	
-	public List<File> getAllFilesList(Drive aService) throws IOException
+	public List<File> getFilesList(Drive aService,String fileId,boolean isBackToPreviousContainer) throws IOException
 	{
+		String query;
+		if(isBackToPreviousContainer)
+			{
+			
+			query = "'"+ fileId + "'=parents";
+			
+			Files.Get request = aService.files().get(query)
+					.setFields("files(id,name,size,modifiedTime,parents,mimeType)");
+			File files = request.execute();
+			
+			}
+		else query = "'" + fileId +"' in parents";
 		List<File> resultFileList = new ArrayList<File>();
 		Files.List request = aService.files().list()
-				.setQ("'root' in parents")
-				.setFields("files(id,name,size,modifiedTime,parents)");
-
+				.setQ(query)
+				.setFields("files(id,name,size,modifiedTime,parents,mimeType)");
 		do
 		{
 			try
