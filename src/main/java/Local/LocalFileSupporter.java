@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.collections.FXCollections;
@@ -57,5 +58,27 @@ public class LocalFileSupporter {
 		Files.move(aPath, new File(currentDirectory.getAbsolutePath() + "//" + aPath.getFileName()).toPath());
 	}
 	
+	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()
+	{
+		return getFilesList(new LocalFileMetadata(currentDirectory));
+	}
+	
+	public ObservableList<ObjectMetaDataIf> deleteFile(LocalFileMetadata aLocalFile) throws IOException
+	{
+		if(aLocalFile.getFileType().equals(FileType.normal))
+		{
+			if(aLocalFile.getOrginalObject().isDirectory())
+			{
+				Files.walk(aLocalFile.getOrginalObject().toPath())
+					.filter(Files::isRegularFile)
+					.map(Path::toFile)
+					.forEach(File::delete);
+			}
+			else {
+				aLocalFile.getOrginalObject().delete();
+			}
+		}
+		return getFilesList(new LocalFileMetadata(currentDirectory));
+	}
 	
 }

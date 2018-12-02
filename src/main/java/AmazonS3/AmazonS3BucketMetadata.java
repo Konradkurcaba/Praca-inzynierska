@@ -9,10 +9,10 @@ import pl.kurcaba.ObjectMetaDataIf;
 
 public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 
-	public final String name;
-	public final String size;
-	public final Date creationDate;
-	public final Bucket bucket;
+	private final String name;
+	private final String size;
+	private final Date creationDate;
+	private final Bucket bucket;
 	
 	public AmazonS3BucketMetadata(Bucket aOrginalObject) {
 		bucket = aOrginalObject;

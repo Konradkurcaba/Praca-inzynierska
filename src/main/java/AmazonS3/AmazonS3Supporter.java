@@ -92,6 +92,17 @@ public class AmazonS3Supporter {
 		return file;
 	}
 	
+	public void uploadFile(File aFileToUpload)
+	{
+		AmazonS3FileUploader amazonUploader = new AmazonS3FileUploader();
+		amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix);
+	}
+	
+	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()
+	{
+		return listFiles(currentPrefix);
+	}
+	
 	private String prepareBackPrefix(String aCurrentPrefix)
 	{
 		

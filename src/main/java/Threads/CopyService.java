@@ -3,6 +3,7 @@ package Threads;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 
 import com.google.common.io.Files;
 
@@ -18,7 +19,7 @@ import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.Settings;
 import pl.kurcaba.SupportersBundle;
 
-public class CopyService extends Service {
+public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 
 	private final SupportersBundle bundle;
 	private final FileServer targetServer;
@@ -31,7 +32,7 @@ public class CopyService extends Service {
 	}
 
 	@Override
-	protected Task createTask() {
+	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
@@ -41,7 +42,16 @@ public class CopyService extends Service {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				return null;
+				switch(targetServer)
+				{
+				case Google:
+					return bundle.getGoogleDriveSupporter().getFilesFromCurrentDir();
+				case Amazon:
+					return bundle.getAmazonS3Supporter().getFilesFromCurrentDir();
+				case Local:
+					return bundle.getLocalFileSupporter().getFilesFromCurrentDir();
+				}
+				throw new IllegalArgumentException("not supporter value");
 			}
 		};
 	}
@@ -89,9 +99,17 @@ public class CopyService extends Service {
 		return downloadedFile;
 	}
 
-	private void moveFile(File aFileToCopy) throws IOException {
+	private void moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
 		if (targetServer.equals(FileServer.Local)) {
 			bundle.getLocalFileSupporter().moveFileToCurrentDirectory(aFileToCopy.toPath());
+		}
+		else if(targetServer.equals(FileServer.Google))
+		{
+			bundle.getGoogleDriveSupporter().uploadFile(aFileToCopy);
+		}
+		else if(targetServer.equals(FileServer.Amazon))
+		{
+			bundle.getAmazonS3Supporter().uploadFile(aFileToCopy);
 		}
 	}
 
