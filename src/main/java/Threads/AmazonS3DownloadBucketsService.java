@@ -8,8 +8,9 @@ import AmazonS3.AmazonS3Supporter;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import pl.kurcaba.ObjectMetaDataIf;
 
-public class AmazonS3DownloadBucketsService extends Service<ObservableList<AmazonS3BucketMetadata>>{
+public class AmazonS3DownloadBucketsService extends Service<ObservableList<ObjectMetaDataIf>>{
 
 	AmazonS3Supporter amazonS3Supporter;
 	
@@ -20,12 +21,12 @@ public class AmazonS3DownloadBucketsService extends Service<ObservableList<Amazo
 
 
 	@Override
-	protected Task<ObservableList<AmazonS3BucketMetadata>> createTask() {
+	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
 		
-		return new Task<ObservableList<AmazonS3BucketMetadata>>() {
+		return new Task<ObservableList<ObjectMetaDataIf>>() {
 
 			@Override
-			protected ObservableList<AmazonS3BucketMetadata> call() throws Exception {
+			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
 				return amazonS3Supporter.getBucketsMetadata();
 			}
 		};

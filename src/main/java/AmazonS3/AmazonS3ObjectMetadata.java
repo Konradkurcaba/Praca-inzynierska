@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 
 public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary> {
@@ -16,7 +17,7 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary>
 	private final Date lastModifiedDate;
 	private final S3ObjectSummary s3Object;
 	private final boolean isDirectory;
-	
+	private final FileServer fileServer = FileServer.Amazon;
 	
 	public AmazonS3ObjectMetadata(S3ObjectSummary aS3Object) {
 		
@@ -67,6 +68,12 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary>
 	public boolean isDirectory()
 	{
 		return isDirectory;
+	}
+
+
+	@Override
+	public FileServer getFileServer() {
+		return fileServer;
 	}
 
 }

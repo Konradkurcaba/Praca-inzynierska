@@ -40,6 +40,10 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	{
 		return "...";
 	}
+	@Override
+	public FileServer getFileServer() {
+		return previousContainer.getFileServer();
+	}
 
 	
 }

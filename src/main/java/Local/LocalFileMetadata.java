@@ -3,6 +3,7 @@ package Local;
 import java.io.File;
 import java.text.SimpleDateFormat;
 
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 
 public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
@@ -13,6 +14,7 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 	private final File orginalObject;
 	private boolean isRoot;
 	private FileType fileType;
+	private final FileServer fileServer = FileServer.Local;
 	
 	
 	public LocalFileMetadata(File aOrginalObject) {
@@ -86,5 +88,10 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 	{
 		return getName();
 		
+	}
+
+	@Override
+	public FileServer getFileServer() {
+		return fileServer;
 	}
 }

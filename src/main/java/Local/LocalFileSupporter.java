@@ -65,20 +65,31 @@ public class LocalFileSupporter {
 	
 	public ObservableList<ObjectMetaDataIf> deleteFile(LocalFileMetadata aLocalFile) throws IOException
 	{
-		if(aLocalFile.getFileType().equals(FileType.normal))
+		if(currentDirectory != null)
 		{
-			if(aLocalFile.getOrginalObject().isDirectory())
+			if(aLocalFile.getFileType().equals(FileType.normal))
 			{
-				Files.walk(aLocalFile.getOrginalObject().toPath())
-					.filter(Files::isRegularFile)
-					.map(Path::toFile)
-					.forEach(File::delete);
+				if(aLocalFile.getOrginalObject().isDirectory())
+				{
+					Files.walk(aLocalFile.getOrginalObject().toPath())
+						.filter(Files::isRegularFile)
+						.map(Path::toFile)
+						.forEach(File::delete);
+					
+				}
+				
+				Files.delete(aLocalFile.getOrginalObject().toPath());
+				
 			}
-			else {
-				aLocalFile.getOrginalObject().delete();
-			}
-		}
-		return getFilesList(new LocalFileMetadata(currentDirectory));
+			return getFilesList(new LocalFileMetadata(currentDirectory));
+		} else throw new IOException("Cannot delete root directory");
 	}
+	
+	public ObservableList<ObjectMetaDataIf> createFolder(String aFolderName)
+	{
+		new File(currentDirectory.getPath() + "\\" + aFolderName).mkdir();
+		return getFilesFromCurrentDir();
+	}
+	
 	
 }

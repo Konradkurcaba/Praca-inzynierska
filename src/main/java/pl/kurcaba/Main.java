@@ -51,7 +51,6 @@ public class Main extends Application {
 		  primaryStage.setTitle("Cloud files Client");
 		  primaryStage.setScene(new Scene(root));
 		  GuiFilesListViewController controller = loader.getController();
-		  GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
 		  controller.initComponents();
 		  primaryStage.show();
 		  

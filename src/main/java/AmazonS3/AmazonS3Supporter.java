@@ -25,7 +25,7 @@ public class AmazonS3Supporter {
 	AmazonS3BucketMetadata currentBucket;
 	String currentPrefix;
 	
-	public ObservableList<AmazonS3BucketMetadata> getBucketsMetadata()
+	public ObservableList<ObjectMetaDataIf> getBucketsMetadata()
 	{
 		if(!isLoggedIn)
 		{
@@ -98,9 +98,34 @@ public class AmazonS3Supporter {
 		amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix);
 	}
 	
+	public void deleteObject(AmazonS3ObjectMetadata aObjectMetadata)
+	{
+		AmazonS3FileDeleting amazonFileDeleting = new AmazonS3FileDeleting();
+		
+		if (aObjectMetadata.isDirectory())
+		{
+			amazonFileDeleting.deleteObjectsByPrefix(s3Client, currentBucket.getName(), aObjectMetadata.getName());
+		}
+		else
+		{
+			amazonFileDeleting.deleteObject(s3Client, currentBucket.getName(), aObjectMetadata.getOrginalObject().getKey());
+		}
+	}
+	
 	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()
 	{
-		return listFiles(currentPrefix);
+		if(currentBucket != null) return listFiles(currentPrefix);
+		else
+		{
+			return getBucketsMetadata();
+		}
+	}
+	
+	public void createFolder(String aFolderName)
+	{
+		AmazonS3FolderCreator folderCreator = new AmazonS3FolderCreator();
+		folderCreator.createFolder(s3Client, currentBucket.getName(),currentPrefix + "/" + aFolderName + "/");
+		
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)

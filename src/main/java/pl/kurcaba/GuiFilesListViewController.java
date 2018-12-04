@@ -1,10 +1,12 @@
 package pl.kurcaba;
 
 import java.io.File;
-
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
 
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
@@ -19,12 +21,15 @@ import Threads.GoogleDriveDownloadService;
 import Threads.GoogleObjectClickService;
 import Threads.LocalFileExploreService;
 import Threads.LocalObjectClickService;
-
+import Threads.RefreshService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
@@ -37,6 +42,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.stage.Stage;
 
 public class GuiFilesListViewController {
 
@@ -59,9 +65,10 @@ public class GuiFilesListViewController {
 
 	SupportersBundle supportersBundle = new SupportersBundle();
 
-	public void initComponents() {
+	public void initComponents() throws IOException {
 		initListView();
 		initComboBoxes();
+		showInputWindow("dupa8");
 	}
 
 	private void initListView() {
@@ -222,18 +229,45 @@ public class GuiFilesListViewController {
 	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView) {
 		final ContextMenu contextMenu = new ContextMenu();
 
-		MenuItem menuItem = new MenuItem("Usuñ");
-		menuItem.setOnAction(event -> {
+		MenuItem deleteItem = new MenuItem("Usuñ");
+		deleteItem.setOnAction(event -> {
 			DeleteService deleteService = new DeleteService(supportersBundle, aCellValue );
 			deleteService.setOnSucceeded(succesEvent ->{
 				aSourceListView.setItems(deleteService.getValue());
 			});
 			deleteService.start();
-			
 		});
-		contextMenu.getItems().add(menuItem);
+		
+		MenuItem refreshItem = new MenuItem("Odœwie¿");
+		refreshItem.setOnAction(event ->
+		{
+			RefreshService refreshService = new RefreshService(supportersBundle, aCellValue );
+			refreshService.setOnSucceeded(succesEvent ->{
+				aSourceListView.setItems(refreshService.getValue());
+			});
+			refreshService.start();
+		});
+		
+		contextMenu.getItems().add(refreshItem);
+		contextMenu.getItems().add(deleteItem);
 
 		return contextMenu;
+	}
+	
+	
+	private void showInputWindow(String aTitle) throws IOException
+	{
+
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/InputWindow.fxml"));
+		loader.load();
+		Parent root = loader.getRoot();
+		Stage inputWindow = new Stage();
+		inputWindow.setTitle(aTitle);
+		inputWindow.setScene(new Scene(root));
+		InputWindowController controller = loader.getController();
+		
+		inputWindow.show();
+		
 	}
 
 }

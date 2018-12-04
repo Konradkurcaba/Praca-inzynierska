@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.amazonaws.services.s3.model.Bucket;
 
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 
 public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
@@ -13,6 +14,7 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 	private final String size;
 	private final Date creationDate;
 	private final Bucket bucket;
+	private final FileServer fileServer = FileServer.Amazon;
 	
 	public AmazonS3BucketMetadata(Bucket aOrginalObject) {
 		bucket = aOrginalObject;
@@ -48,6 +50,11 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 	public String toString()
 	{
 		return name;
+	}
+
+	@Override
+	public FileServer getFileServer() {
+		return fileServer;
 	}
 
 	
