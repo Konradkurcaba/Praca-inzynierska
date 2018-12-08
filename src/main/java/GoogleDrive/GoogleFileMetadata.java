@@ -76,6 +76,11 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	public FileServer getFileServer() {
 		return fileServer;
 	}
+
+	@Override
+	public boolean isRoot() {
+		return false;
+	}
 	
 
 

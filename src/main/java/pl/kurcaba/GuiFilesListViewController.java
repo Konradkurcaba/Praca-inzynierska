@@ -21,6 +21,7 @@ import Threads.GoogleDriveDownloadService;
 import Threads.GoogleObjectClickService;
 import Threads.LocalFileExploreService;
 import Threads.LocalObjectClickService;
+import Threads.NewFolderService;
 import Threads.RefreshService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -43,6 +44,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import javafx.stage.Modality;
 
 public class GuiFilesListViewController {
 
@@ -68,7 +70,7 @@ public class GuiFilesListViewController {
 	public void initComponents() throws IOException {
 		initListView();
 		initComboBoxes();
-		showInputWindow("dupa8");
+		
 	}
 
 	private void initListView() {
@@ -229,14 +231,6 @@ public class GuiFilesListViewController {
 	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView) {
 		final ContextMenu contextMenu = new ContextMenu();
 
-		MenuItem deleteItem = new MenuItem("Usuñ");
-		deleteItem.setOnAction(event -> {
-			DeleteService deleteService = new DeleteService(supportersBundle, aCellValue );
-			deleteService.setOnSucceeded(succesEvent ->{
-				aSourceListView.setItems(deleteService.getValue());
-			});
-			deleteService.start();
-		});
 		
 		MenuItem refreshItem = new MenuItem("Odœwie¿");
 		refreshItem.setOnAction(event ->
@@ -248,25 +242,57 @@ public class GuiFilesListViewController {
 			refreshService.start();
 		});
 		
+		
 		contextMenu.getItems().add(refreshItem);
-		contextMenu.getItems().add(deleteItem);
+
+		if(!aCellValue.isRoot())
+		{
+			
+			MenuItem deleteItem = new MenuItem("Usuñ");
+			deleteItem.setOnAction(event -> {
+				DeleteService deleteService = new DeleteService(supportersBundle, aCellValue );
+				deleteService.setOnSucceeded(succesEvent ->{
+					aSourceListView.setItems(deleteService.getValue());
+				});
+				deleteService.start();
+			});
+			
+			contextMenu.getItems().add(deleteItem);
+			
+			MenuItem createNewFolderItem = new MenuItem("Stwórz nowy folder");
+			createNewFolderItem.setOnAction(event ->{
+				try {
+					String newFolderName = showInputWindow("Nowy folder","Wprowadz nazwê nowego folderu");
+					NewFolderService newFolderService = new NewFolderService(supportersBundle, aCellValue.getFileServer(), newFolderName);
+					newFolderService.setOnSucceeded(success ->{
+						aSourceListView.setItems(newFolderService.getValue());
+					});
+					newFolderService.start();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			contextMenu.getItems().add(createNewFolderItem);
+		}
 
 		return contextMenu;
 	}
 	
 	
-	private void showInputWindow(String aTitle) throws IOException
+	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
 	{
-
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/InputWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage inputWindow = new Stage();
-		inputWindow.setTitle(aTitle);
+		inputWindow.initModality(Modality.WINDOW_MODAL);
+		inputWindow.initOwner(filesListViewL.getScene().getWindow());
+		inputWindow.setTitle(aWindowTitle);
 		inputWindow.setScene(new Scene(root));
-		InputWindowController controller = loader.getController();
-		
-		inputWindow.show();
+		InputWindowController inputWindowController = loader.getController();
+		inputWindowController.init("Nazwa nowego folderu");
+		inputWindow.showAndWait();
+		return(inputWindowController.getTextFieldValue());
 		
 	}
 

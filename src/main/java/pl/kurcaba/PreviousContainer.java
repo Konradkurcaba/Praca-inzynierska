@@ -44,6 +44,12 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	public FileServer getFileServer() {
 		return previousContainer.getFileServer();
 	}
+	@Override
+	public boolean isRoot() {
+		return false;
+	}
+	
+	
 
 	
 }

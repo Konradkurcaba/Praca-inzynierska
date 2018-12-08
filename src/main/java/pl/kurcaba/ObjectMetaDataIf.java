@@ -10,5 +10,6 @@ public interface ObjectMetaDataIf<T> {
 	String getLastModifiedDate();
 	T getOrginalObject();
 	FileServer getFileServer(); 
+	boolean isRoot();
 	
 }

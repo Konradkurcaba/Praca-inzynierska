@@ -124,7 +124,7 @@ public class AmazonS3Supporter {
 	public void createFolder(String aFolderName)
 	{
 		AmazonS3FolderCreator folderCreator = new AmazonS3FolderCreator();
-		folderCreator.createFolder(s3Client, currentBucket.getName(),currentPrefix + "/" + aFolderName + "/");
+		folderCreator.createFolder(s3Client, currentBucket.getName(),currentPrefix + aFolderName + "/");
 		
 	}
 	

@@ -76,4 +76,10 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary>
 		return fileServer;
 	}
 
+
+	@Override
+	public boolean isRoot() {
+		return false;
+	}
+
 }

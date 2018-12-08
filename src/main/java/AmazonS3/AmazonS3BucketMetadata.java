@@ -57,5 +57,10 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 		return fileServer;
 	}
 
+	@Override
+	public boolean isRoot() {
+		return true;
+	}
+
 	
 }
