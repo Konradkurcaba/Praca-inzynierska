@@ -75,21 +75,23 @@ public class LocalFileSupporter {
 						.filter(Files::isRegularFile)
 						.map(Path::toFile)
 						.forEach(File::delete);
-					
 				}
-				
 				Files.delete(aLocalFile.getOrginalObject().toPath());
-				
 			}
 			return getFilesList(new LocalFileMetadata(currentDirectory));
 		} else throw new IOException("Cannot delete root directory");
 	}
 	
-	public ObservableList<ObjectMetaDataIf> createFolder(String aFolderName)
+	public void createFolder(String aFolderName)
 	{
 		new File(currentDirectory.getPath() + "\\" + aFolderName).mkdir();
-		return getFilesFromCurrentDir();
 	}
 	
+	public void changeName(LocalFileMetadata aFileMetadata,String aNewName)
+	{
+		File file = aFileMetadata.getOrginalObject();
+		File newFile = new File(file.getParentFile().toString() + "\\" + aNewName);
+		file.renameTo(newFile);
+	}
 	
 }

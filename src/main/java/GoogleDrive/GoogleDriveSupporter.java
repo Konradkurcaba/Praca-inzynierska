@@ -15,6 +15,7 @@ import com.google.api.services.drive.model.File;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
 
@@ -77,13 +78,19 @@ public class GoogleDriveSupporter {
 	public void createFolder(String aFolderName) throws IOException
 	{
 		GoogleDriveFolderCreator folderCreator = new GoogleDriveFolderCreator();
-		folderCreator.createFolder(driveService, aFolderName);
+		folderCreator.createFolder(driveService, aFolderName, currentDirectoryId);
+	}
+	
+	public void changeName(GoogleFileMetadata aMetadata,String aNewName) throws IOException
+	{
+		GoogleDriveNameChanger nameChanger = new GoogleDriveNameChanger();
+		nameChanger.changeName(driveService, aMetadata.getOrginalObject().getId(), aNewName);
 	}
 
 	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,
 			boolean isRootDirectory) {
 		if (!isRootDirectory)
-			aListToConvert.add(0, new PreviousContainer());
+			aListToConvert.add(0, new PreviousContainer(FileServer.Google));
 		return FXCollections.observableArrayList(aListToConvert);
 	}
 

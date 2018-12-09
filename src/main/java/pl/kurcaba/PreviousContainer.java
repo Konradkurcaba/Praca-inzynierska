@@ -4,15 +4,10 @@ import java.util.Date;
 
 public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 
+	private final FileServer fileServer;
 	
-	final ObjectMetaDataIf previousContainer;
-	
-	public PreviousContainer(ObjectMetaDataIf aPreviousContainer) {
-		previousContainer = aPreviousContainer;
-	}
-	public PreviousContainer()
-	{
-		previousContainer = null;
+	public PreviousContainer(FileServer aFileServer) {
+		fileServer = aFileServer;
 	}
 	
 	@Override
@@ -32,7 +27,7 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 
 	@Override
 	public ObjectMetaDataIf getOrginalObject() {
-		return previousContainer;
+		return this;
 	}
 	
 	@Override
@@ -42,7 +37,7 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	}
 	@Override
 	public FileServer getFileServer() {
-		return previousContainer.getFileServer();
+		return fileServer;
 	}
 	@Override
 	public boolean isRoot() {

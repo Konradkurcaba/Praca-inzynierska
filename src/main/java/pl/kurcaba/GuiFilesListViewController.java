@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
+import com.google.api.services.drive.model.Change;
 
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
@@ -15,6 +16,7 @@ import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
+import Threads.ChangeNameService;
 import Threads.CopyService;
 import Threads.DeleteService;
 import Threads.GoogleDriveDownloadService;
@@ -262,7 +264,7 @@ public class GuiFilesListViewController {
 			MenuItem createNewFolderItem = new MenuItem("Stwórz nowy folder");
 			createNewFolderItem.setOnAction(event ->{
 				try {
-					String newFolderName = showInputWindow("Nowy folder","Wprowadz nazwê nowego folderu");
+					String newFolderName = showInputWindow("Nowy folder","WprowadŸ nazwê nowego folderu");
 					NewFolderService newFolderService = new NewFolderService(supportersBundle, aCellValue.getFileServer(), newFolderName);
 					newFolderService.setOnSucceeded(success ->{
 						aSourceListView.setItems(newFolderService.getValue());
@@ -273,8 +275,23 @@ public class GuiFilesListViewController {
 				}
 			});
 			contextMenu.getItems().add(createNewFolderItem);
+			
+			MenuItem changeNameItem = new MenuItem("Zmieñ nazwê");
+			changeNameItem.setOnAction(event -> {
+				try {
+					String newName = showInputWindow("Zmiana nazwy", "WprowadŸ now¹ nazwê");
+					ChangeNameService changeNameService = new ChangeNameService(supportersBundle, aCellValue, newName);
+					changeNameService.setOnSucceeded(success -> {
+						aSourceListView.setItems(changeNameService.getValue());
+					});
+					changeNameService.start();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			
+			contextMenu.getItems().add(changeNameItem);
 		}
-
 		return contextMenu;
 	}
 	

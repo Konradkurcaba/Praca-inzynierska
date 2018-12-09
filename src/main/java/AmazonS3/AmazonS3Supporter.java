@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
 
@@ -50,7 +51,7 @@ public class AmazonS3Supporter {
 		
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
 		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult,"");
-		PreviousContainer previousContainer = new PreviousContainer(aBucket);
+		PreviousContainer previousContainer = new PreviousContainer(FileServer.Amazon);
 		convertedList.add(0,previousContainer);
 		currentBucket = aBucket;
 		currentPrefix = "";
@@ -69,7 +70,7 @@ public class AmazonS3Supporter {
 				, aPrefix);
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
 		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix);
-		convertedList.add(0,new PreviousContainer());
+		convertedList.add(0,new PreviousContainer(FileServer.Amazon));
 		currentPrefix = aPrefix;
 		return FXCollections.observableArrayList(convertedList);
 	}
@@ -125,7 +126,12 @@ public class AmazonS3Supporter {
 	{
 		AmazonS3FolderCreator folderCreator = new AmazonS3FolderCreator();
 		folderCreator.createFolder(s3Client, currentBucket.getName(),currentPrefix + aFolderName + "/");
-		
+	}
+	
+	public void changeName(AmazonS3ObjectMetadata aMetadata,String newName)
+	{
+		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
+		nameChanger.changeName(aClient, aObjectMetadata, aBucketName, aNewName);
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)
