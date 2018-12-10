@@ -1,5 +1,6 @@
 package Threads;
 
+import AmazonS3.AmazonS3ObjectMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import javafx.collections.ObservableList;
@@ -29,11 +30,11 @@ public class ChangeNameService extends Service<ObservableList<ObjectMetaDataIf>>
 				switch(objectToChange.getFileServer())
 				{
 					case Amazon:
-						
+						supportersBundle.getAmazonS3Supporter().changeName((AmazonS3ObjectMetadata) objectToChange, newName );
+						return supportersBundle.getAmazonS3Supporter().getFilesFromCurrentDir();
 					case Google:
 						supportersBundle.getGoogleDriveSupporter().changeName((GoogleFileMetadata)objectToChange,newName);
 						return supportersBundle.getGoogleDriveSupporter().getFilesFromCurrentDir();
-						
 					case Local:
 						supportersBundle.getLocalFileSupporter().changeName((LocalFileMetadata)objectToChange, newName);
 						return supportersBundle.getLocalFileSupporter().getFilesFromCurrentDir();

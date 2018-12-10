@@ -131,7 +131,7 @@ public class AmazonS3Supporter {
 	public void changeName(AmazonS3ObjectMetadata aMetadata,String newName)
 	{
 		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
-		nameChanger.changeName(aClient, aObjectMetadata, aBucketName, aNewName);
+		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix + newName);
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)
