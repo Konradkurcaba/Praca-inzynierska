@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
+import pl.kurcaba.S3SyncFileData;
 
 public class GoogleDriveSupporter {
 
@@ -86,7 +87,13 @@ public class GoogleDriveSupporter {
 		GoogleDriveNameChanger nameChanger = new GoogleDriveNameChanger();
 		nameChanger.changeName(driveService, aMetadata.getOrginalObject().getId(), aNewName);
 	}
-
+	
+	public ObjectMetaDataIf getFileMetadata(String aFileId) throws IOException
+	{
+		GoogleDriveFileDownloader driveDownloader = new GoogleDriveFileDownloader();
+		return new GoogleFileMetadata(driveDownloader.getFileMetadata(driveService, aFileId));
+	}
+	
 	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,
 			boolean isRootDirectory) {
 		if (!isRootDirectory)

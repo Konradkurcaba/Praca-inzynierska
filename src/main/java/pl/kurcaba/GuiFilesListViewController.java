@@ -263,13 +263,18 @@ public class GuiFilesListViewController {
 			
 			MenuItem createNewFolderItem = new MenuItem("Stwórz nowy folder");
 			createNewFolderItem.setOnAction(event ->{
-				try {
+				try 
+				{
 					String newFolderName = showInputWindow("Nowy folder","WprowadŸ nazwê nowego folderu");
-					NewFolderService newFolderService = new NewFolderService(supportersBundle, aCellValue.getFileServer(), newFolderName);
-					newFolderService.setOnSucceeded(success ->{
-						aSourceListView.setItems(newFolderService.getValue());
+					if (newFolderName != null && newFolderName.length() > 0)
+					{
+						NewFolderService newFolderService = new NewFolderService(supportersBundle, aCellValue.getFileServer()
+								, newFolderName);
+						newFolderService.setOnSucceeded(success ->{
+							aSourceListView.setItems(newFolderService.getValue());
 					});
 					newFolderService.start();
+				}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -280,11 +285,14 @@ public class GuiFilesListViewController {
 			changeNameItem.setOnAction(event -> {
 				try {
 					String newName = showInputWindow("Zmiana nazwy", "WprowadŸ now¹ nazwê");
-					ChangeNameService changeNameService = new ChangeNameService(supportersBundle, aCellValue, newName);
-					changeNameService.setOnSucceeded(success -> {
-						aSourceListView.setItems(changeNameService.getValue());
-					});
-					changeNameService.start();
+					if (newName != null && newName.length() > 0)
+					{
+						ChangeNameService changeNameService = new ChangeNameService(supportersBundle, aCellValue, newName);
+						changeNameService.setOnSucceeded(success -> {
+							aSourceListView.setItems(changeNameService.getValue());
+						});
+						changeNameService.start();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -294,7 +302,6 @@ public class GuiFilesListViewController {
 		}
 		return contextMenu;
 	}
-	
 	
 	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
 	{
@@ -307,10 +314,9 @@ public class GuiFilesListViewController {
 		inputWindow.setTitle(aWindowTitle);
 		inputWindow.setScene(new Scene(root));
 		InputWindowController inputWindowController = loader.getController();
-		inputWindowController.init("Nazwa nowego folderu");
+		inputWindowController.init(aMessage);
 		inputWindow.showAndWait();
 		return(inputWindowController.getTextFieldValue());
-		
 	}
 
 }

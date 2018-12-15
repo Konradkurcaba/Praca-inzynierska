@@ -9,18 +9,23 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 public class AmazonS3NameChanger {
 
 	public void changeName(AmazonS3 aClient, AmazonS3ObjectMetadata aObjectMetadata, String aBucketName,
-			String aNewName) {
+			String aPrefix,String aNewName) {
 		if (aObjectMetadata.isDirectory()) {
-			aNewName = aNewName + "/";X	
 			AmazonS3FileDownloader amazonDownloader = new AmazonS3FileDownloader();
 			ListObjectsV2Result result = amazonDownloader.getFilesFromBucket(aClient, aBucketName,
 					aObjectMetadata.getName());
+			
+			String newFolderName = aPrefix + aNewName + "/";
+			String oldFolderName = aObjectMetadata.getOrginalObject().getKey();
+			
 			for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
-				changeObjectName(aClient, aBucketName, objectSummary.getKey(), aNewName + objectSummary.getKey());
+				String newFullName = objectSummary.getKey().replaceFirst(oldFolderName, newFolderName);
+				changeObjectName(aClient, aBucketName, objectSummary.getKey(), newFullName );
 			}
+		}else
+		{
+			changeObjectName(aClient, aBucketName, aObjectMetadata.getName(),aPrefix + aNewName);
 		}
-
-		changeObjectName(aClient, aBucketName, aObjectMetadata.getName(), aNewName);
 	}
 
 	private void changeObjectName(AmazonS3 aClient, String aBucketName, String aOldName, String aNewName)

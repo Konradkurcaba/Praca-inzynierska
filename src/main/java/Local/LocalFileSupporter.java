@@ -94,4 +94,10 @@ public class LocalFileSupporter {
 		file.renameTo(newFile);
 	}
 	
+	public ObjectMetaDataIf getLocalFile(String aPath)
+	{
+		File file = new File(aPath);
+		return new LocalFileMetadata(file);
+	}
+	
 }

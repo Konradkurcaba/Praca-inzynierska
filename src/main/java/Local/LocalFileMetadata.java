@@ -10,6 +10,7 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 
 	private String name;
 	private final String size;
+	private final String path;
 	private final Long lastModifiedDate;
 	private final File orginalObject;
 	private boolean isRoot;
@@ -28,7 +29,7 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 			name = orginalObject.toString(); 
 			isRoot = true;
 		}
-		
+		path = orginalObject.getPath();
 		if(orginalObject.isDirectory())
 		{
 			size = "Directory";
@@ -93,5 +94,10 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 	@Override
 	public FileServer getFileServer() {
 		return fileServer;
+	}
+
+	@Override
+	public String getOrginalId() {
+		return path;
 	}
 }

@@ -27,6 +27,12 @@ public class GoogleDriveFileDownloader {
 		return downloadedFile;
 	}
 
+	public File getFileMetadata(Drive aService,String aFileId) throws IOException
+	{
+		Files.Get request = aService.files().get(aFileId);
+		return request.execute();
+	}
+	
 	public String getFilesParentId(Drive aService, String aFileId) throws IOException {
 
 		Files.Get request = aService.files().get(aFileId).setFields("parents");

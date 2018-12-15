@@ -14,6 +14,7 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	{
 		orginalFile = aOriginalFile;
 		name = orginalFile.getName();
+		id = aOriginalFile.getId();
 		if(orginalFile.getSize() != null)
 		{
 			size = String.valueOf(orginalFile.getSize() / 1000) + " KB";
@@ -32,6 +33,7 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	
 	private final String name;
 	private final String size;
+	private final String id;
 	private final File orginalFile;
 	private final Date lastModifiedDate;
 	private final GoogleFileType fileType;
@@ -80,6 +82,11 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	@Override
 	public boolean isRoot() {
 		return false;
+	}
+
+	@Override
+	public String getOrginalId() {
+		return id;
 	}
 	
 

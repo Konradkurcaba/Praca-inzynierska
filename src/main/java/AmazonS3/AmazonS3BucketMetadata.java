@@ -62,5 +62,10 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 		return true;
 	}
 
+	@Override
+	public String getOrginalId() {
+		return name;
+	}
+
 	
 }

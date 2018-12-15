@@ -14,6 +14,7 @@ import Local.LocalFileMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import pl.kurcaba.AnyFileDownloader;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.Settings;
@@ -36,7 +37,8 @@ public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
-				File downloadedfile = downloadFile();
+				AnyFileDownloader anyFileDownloader = new AnyFileDownloader();
+				File downloadedfile = anyFileDownloader.downloadFile(objectToCopy,bundle);
 				try {
 					moveFile(downloadedfile);
 				} catch (IOException e) {
@@ -56,48 +58,7 @@ public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 		};
 	}
 
-	private File downloadFile() throws IOException
-	{	File downloadedFile = null;
-		File targetDirectory = new File(Settings.WORKING_DIRECTORY);
-		if(objectToCopy instanceof AmazonS3ObjectMetadata)
-		{
-			AmazonS3ObjectMetadata s3ObjectMetadata = (AmazonS3ObjectMetadata) objectToCopy;
-			
-			try {
-				
-				downloadedFile = bundle.getAmazonS3Supporter().getAmazonS3Object(s3ObjectMetadata,targetDirectory );
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-		}
-		else if(objectToCopy instanceof GoogleFileMetadata)
-		{
-			GoogleFileMetadata googleFileMetadata = (GoogleFileMetadata) objectToCopy;
-			
-			try
-			{
-				downloadedFile = bundle.getGoogleDriveSupporter().downloadFile(googleFileMetadata
-						,targetDirectory.toPath());
-			}catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else if(objectToCopy instanceof LocalFileMetadata)
-		{
-			LocalFileMetadata localFileMetadata = (LocalFileMetadata) objectToCopy;
-			if (!localFileMetadata.getOrginalObject().isDirectory())
-			{
-				 File copyOfFile = new File(targetDirectory.toString() 
-						 + "\\" + localFileMetadata.getName());
-				 Files.copy(localFileMetadata.getOrginalObject(),copyOfFile);
-				 downloadedFile = copyOfFile;
-			}
-		}
-		return downloadedFile;
-	}
+
 
 	private void moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
 		if (targetServer.equals(FileServer.Local)) {

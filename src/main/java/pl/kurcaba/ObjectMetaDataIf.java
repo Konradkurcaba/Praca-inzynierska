@@ -8,6 +8,7 @@ public interface ObjectMetaDataIf<T> {
 	String getName();
 	String getSize();
 	String getLastModifiedDate();
+	String getOrginalId();
 	T getOrginalObject();
 	FileServer getFileServer(); 
 	boolean isRoot();

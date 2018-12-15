@@ -3,14 +3,13 @@ package AmazonS3;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 
 public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary> {
-
-	
 	
 	private final String name;
 	private final String size;
@@ -80,6 +79,12 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<S3ObjectSummary>
 	@Override
 	public boolean isRoot() {
 		return false;
+	}
+
+
+	@Override
+	public String getOrginalId() {
+		return name;
 	}
 
 }

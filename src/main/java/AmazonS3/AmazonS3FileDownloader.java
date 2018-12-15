@@ -7,14 +7,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.S3ClientCache;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 
+import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.Settings;
 
 public class AmazonS3FileDownloader {
@@ -36,8 +39,12 @@ public class AmazonS3FileDownloader {
 		return listResult;
 	}
 	
+	public ObjectMetadata getFileMetadata(AmazonS3 aS3Client,String aBucketName,String aKey)
+	{
+		return aS3Client.getObjectMetadata(aBucketName, aKey);
+	}
 	
-	public File getObject(AmazonS3 aS3Client,String aBucketName,String aKey,File aTargetDirectory) throws IOException
+	public File DownloadObject(AmazonS3 aS3Client,String aBucketName,String aKey,File aTargetDirectory) throws IOException
 	{
 		S3Object fullObject;
 		fullObject = aS3Client.getObject(new GetObjectRequest(aBucketName,aKey));

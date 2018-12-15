@@ -16,6 +16,8 @@ import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
+import pl.kurcaba.S3SyncFileData;
+import pl.kurcaba.SyncFileData;
 
 public class AmazonS3Supporter {
 
@@ -89,8 +91,15 @@ public class AmazonS3Supporter {
 	{
 		S3ObjectSummary orginalSummary = aObjectMetadata.getOrginalObject();
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		File file = s3Downloader.getObject(s3Client, orginalSummary.getBucketName(), orginalSummary.getKey(),aTargetDirectory);
+		File file = s3Downloader.DownloadObject(s3Client, orginalSummary.getBucketName(), orginalSummary.getKey(),aTargetDirectory);
 		return file;
+	}
+	
+	public SyncFileData getAmazons3ObjMetadata(String aKey,String aBucketName)
+	{
+		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
+		SyncFileData downloadedMetadata = new S3SyncFileData(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey));
+		return downloadedMetadata;
 	}
 	
 	public void uploadFile(File aFileToUpload)
@@ -131,7 +140,7 @@ public class AmazonS3Supporter {
 	public void changeName(AmazonS3ObjectMetadata aMetadata,String newName)
 	{
 		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
-		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix + newName);
+		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix, newName);
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)

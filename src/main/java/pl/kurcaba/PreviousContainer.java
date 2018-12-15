@@ -43,6 +43,11 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	public boolean isRoot() {
 		return false;
 	}
+
+	@Override
+	public String getOrginalId() {
+		return "...";
+	}
 	
 	
 
