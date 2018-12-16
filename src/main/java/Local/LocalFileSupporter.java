@@ -94,10 +94,19 @@ public class LocalFileSupporter {
 		file.renameTo(newFile);
 	}
 	
-	public ObjectMetaDataIf getLocalFile(String aPath)
+	public ObjectMetaDataIf getLocalWrappedFile(String aPath)
 	{
 		File file = new File(aPath);
 		return new LocalFileMetadata(file);
 	}
 	
+	public File getLocalFile(String aPath)
+	{
+		File file = new File(aPath);
+		return file;
+	}
+	public void moveFile()
+	{
+		
+	}
 }

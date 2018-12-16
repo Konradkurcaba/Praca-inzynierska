@@ -11,13 +11,13 @@ import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import Synchronization.S3SyncFileData;
+import Synchronization.SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
-import pl.kurcaba.S3SyncFileData;
-import pl.kurcaba.SyncFileData;
 
 public class AmazonS3Supporter {
 
@@ -95,6 +95,13 @@ public class AmazonS3Supporter {
 		return file;
 	}
 	
+	public File getAmazonS3Object(String aKey, String aBucketName, File aTargetDirectory) throws IOException
+	{
+		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
+		File file = s3Downloader.DownloadObject(s3Client, aBucketName, aKey, aTargetDirectory);
+		return file;
+	}
+	
 	public SyncFileData getAmazons3ObjMetadata(String aKey,String aBucketName)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
@@ -102,10 +109,15 @@ public class AmazonS3Supporter {
 		return downloadedMetadata;
 	}
 	
-	public void uploadFile(File aFileToUpload)
+	public void uploadFileToCurrentDir(File aFileToUpload)
 	{
 		AmazonS3FileUploader amazonUploader = new AmazonS3FileUploader();
-		amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix);
+		amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix + aFileToUpload.getName());
+	}
+	public void uploadFile(String aKey,String aBucketName,File aFile)
+	{
+		AmazonS3FileUploader amazonUploader = new AmazonS3FileUploader();
+		amazonUploader.uploadFile(aFile, s3Client, aBucketName, aKey);
 	}
 	
 	public void deleteObject(AmazonS3ObjectMetadata aObjectMetadata)

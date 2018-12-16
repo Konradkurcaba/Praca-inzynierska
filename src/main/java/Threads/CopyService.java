@@ -11,10 +11,10 @@ import AmazonS3.AmazonS3FileDownloader;
 import AmazonS3.AmazonS3ObjectMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
+import Synchronization.SyncFileDownloader;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.AnyFileDownloader;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.Settings;
@@ -37,7 +37,7 @@ public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
-				AnyFileDownloader anyFileDownloader = new AnyFileDownloader();
+				SyncFileDownloader anyFileDownloader = new SyncFileDownloader();
 				File downloadedfile = anyFileDownloader.downloadFile(objectToCopy,bundle);
 				try {
 					moveFile(downloadedfile);
@@ -70,7 +70,7 @@ public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 		}
 		else if(targetServer.equals(FileServer.Amazon))
 		{
-			bundle.getAmazonS3Supporter().uploadFile(aFileToCopy);
+			bundle.getAmazonS3Supporter().uploadFileToCurrentDir(aFileToCopy);
 		}
 	}
 

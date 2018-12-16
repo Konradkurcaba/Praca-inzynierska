@@ -1,6 +1,8 @@
-package pl.kurcaba;
+package Synchronization;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+
+import pl.kurcaba.FileServer;
 
 public class S3SyncFileData extends SyncFileData {
 
@@ -12,7 +14,7 @@ public class S3SyncFileData extends SyncFileData {
 		setSize(String.valueOf(aFile.getContentLength()));
 		setLastModifyDate(aFile.getLastModified().toString());
 		setFileServer(FileServer.Amazon);
-		bucketName = aFile.
+		bucketName = aFile.getB
 	}
 	
 	public String getBucketName()

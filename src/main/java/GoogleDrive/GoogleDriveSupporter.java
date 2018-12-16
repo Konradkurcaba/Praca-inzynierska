@@ -7,18 +7,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.api.client.http.FileContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
+import Synchronization.S3SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
-import pl.kurcaba.S3SyncFileData;
 
 public class GoogleDriveSupporter {
 
@@ -60,11 +61,23 @@ public class GoogleDriveSupporter {
 		GoogleDriveUploader uploader = new GoogleDriveUploader();
 		uploader.uploadFile(aFile, driveService, currentDirectoryId);
 	}
+	
+	public void updateFile(java.io.File aFile,String aFileId) throws IOException 
+	{
+		File file = driveService.files().get(aFileId).execute();
+		FileContent mediaContent = new FileContent(null,aFile);
+		driveService.files().update(aFileId,file, mediaContent);
+	}
 
 	public java.io.File downloadFile(GoogleFileMetadata aMetadata, Path targetDirectory) throws IOException {
 		GoogleDriveFileDownloader googleFileDownloader = new GoogleDriveFileDownloader();
 		String fileId = aMetadata.getOrginalObject().getId();
-		return googleFileDownloader.downloadFile(aMetadata, targetDirectory.toString(), driveService);
+		return googleFileDownloader.downloadFile(fileId, targetDirectory.toString(), driveService);
+	}
+	
+	public java.io.File downloadFile(String aId, java.io.File targetDirectory) throws IOException {
+		GoogleDriveFileDownloader googleFileDownloader = new GoogleDriveFileDownloader();
+		return googleFileDownloader.downloadFile(aId, targetDirectory.toString(), driveService);
 	}
 
 	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir() throws IOException, GeneralSecurityException {

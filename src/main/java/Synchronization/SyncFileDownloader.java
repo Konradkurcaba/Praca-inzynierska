@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package Synchronization;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +8,11 @@ import com.google.common.io.Files;
 import AmazonS3.AmazonS3ObjectMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
+import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.Settings;
+import pl.kurcaba.SupportersBundle;
 
-public class AnyFileDownloader {
+public class SyncFileDownloader {
 
 	public File downloadFile(ObjectMetaDataIf aFileToDownload, SupportersBundle aBundle) throws IOException {
 		
@@ -40,6 +43,31 @@ public class AnyFileDownloader {
 				Files.copy(localFileMetadata.getOrginalObject(), copyOfFile);
 				downloadedFile = copyOfFile;
 			}
+		}
+		return downloadedFile;
+	}
+	
+	
+	public File downloadFile(SyncFileData aFileToDownload,SupportersBundle aSupportersBundle) throws IOException
+	{
+		File downloadedFile = null;
+		File targetDirectory = new File(Settings.WORKING_DIRECTORY);
+		switch(aFileToDownload.getFileServer())
+		{
+		case Amazon:
+			if(aFileToDownload instanceof S3SyncFileData)
+			{
+				S3SyncFileData s3File = (S3SyncFileData) aFileToDownload;
+				downloadedFile = aSupportersBundle.getAmazonS3Supporter().getAmazonS3Object(s3File.getFileId()
+						, s3File.getBucketName(),targetDirectory);
+			}
+		break;
+		case Local:
+			downloadedFile = aSupportersBundle.getLocalFileSupporter().getLocalFile(aFileToDownload.getFileId());
+			break;
+		case Google:
+			downloadedFile = aSupportersBundle.getGoogleDriveSupporter().downloadFile(aFileToDownload.getFileId(), targetDirectory);
+			break;
 		}
 		return downloadedFile;
 	}

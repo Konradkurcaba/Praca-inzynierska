@@ -16,13 +16,13 @@ import com.google.api.services.drive.model.FileList;
 
 public class GoogleDriveFileDownloader {
 
-	public java.io.File downloadFile(GoogleFileMetadata aFileMetadata, String aTargetPath, Drive aService)
+	public java.io.File downloadFile(String aFileId, String aTargetPath, Drive aService)
 			throws IOException {
-		String fileId = aFileMetadata.getOrginalObject().getId();
-		String fileName = aFileMetadata.getName();
+
+		String fileName = getFileMetadata(aService, aFileId).getName();
 		java.io.File downloadedFile = new java.io.File(aTargetPath + "\\" + fileName);
 		FileOutputStream fileOutputStream = new FileOutputStream(downloadedFile);
-		aService.files().get(fileId).executeMediaAndDownloadTo(fileOutputStream);
+		aService.files().get(aFileId).executeMediaAndDownloadTo(fileOutputStream);
 		fileOutputStream.close();
 		return downloadedFile;
 	}

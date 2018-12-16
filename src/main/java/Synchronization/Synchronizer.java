@@ -1,11 +1,15 @@
-package pl.kurcaba;
+package Synchronization;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.spi.AsynchronousChannelProvider;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.SupportersBundle;
 
 public class Synchronizer {
 	
@@ -35,8 +39,9 @@ public class Synchronizer {
 		SyncFileData actualFileMetadata = getActualFileData(aFileToSynchronize);
 		if(!actualFileMetadata.equals(aFileToSynchronize))
 		{
-			AnyFileDownloader anyFileDownloader = new AnyFileDownloader();
-			File syncFile = anyFileDownloader.downloadFile(aFileToDownload, supportersBundle);
+			SyncFileDownloader downloader = new SyncFileDownloader();
+			File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
+			
 		}
 		
 	}
@@ -53,14 +58,10 @@ public class Synchronizer {
 					.getFileMetadata(aFileToUpdate.getFileId()));
 		case Local:
 			return new SyncFileData(supportersBundle.getLocalFileSupporter()
-					.getLocalFile(aFileToUpdate.getFileId()));
+					.getLocalWrappedFile(aFileToUpdate.getFileId()));
 			default: throw new IllegalArgumentException("Not supported server");	
 		}
 	}
-	
-	
-	
-	
 	
 	
 	

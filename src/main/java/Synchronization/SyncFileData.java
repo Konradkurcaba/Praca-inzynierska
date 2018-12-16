@@ -1,10 +1,12 @@
-package pl.kurcaba;
+package Synchronization;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.api.services.drive.model.File;
 
 import AmazonS3.AmazonS3ObjectMetadata;
+import pl.kurcaba.FileServer;
+import pl.kurcaba.ObjectMetaDataIf;
 
 public class SyncFileData {
 
