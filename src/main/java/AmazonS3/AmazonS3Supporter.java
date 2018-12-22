@@ -102,10 +102,10 @@ public class AmazonS3Supporter {
 		return file;
 	}
 	
-	public SyncFileData getAmazons3ObjMetadata(String aKey,String aBucketName)
+	public S3SyncFileData getAmazons3ObjMetadata(String aKey,String aBucketName)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		SyncFileData downloadedMetadata = new S3SyncFileData(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey));
+		S3SyncFileData downloadedMetadata = new S3SyncFileData(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey),aBucketName);
 		return downloadedMetadata;
 	}
 	

@@ -29,6 +29,7 @@ import GoogleDrive.GoogleDriveFileDownloader;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileConverter;
 import GoogleDrive.GoogleFileMetadata;
+import Synchronization.DatabaseSupervisor;
 
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import javafx.fxml.FXMLLoader;
@@ -46,12 +47,14 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		  
+		  DatabaseSupervisor  database= new DatabaseSupervisor();
+		  database.connectToDatabase();
 		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();
 		  primaryStage.setTitle("Cloud files Client");
 		  primaryStage.setScene(new Scene(root));
-		  GuiFilesListViewController controller = loader.getController();
+		  GuiMainController controller = loader.getController();
 		  controller.initComponents();
 		  primaryStage.show();
 		  

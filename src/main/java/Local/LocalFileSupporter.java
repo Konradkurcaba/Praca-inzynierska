@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -105,8 +106,8 @@ public class LocalFileSupporter {
 		File file = new File(aPath);
 		return file;
 	}
-	public void moveFile()
+	public void moveFile(File aFileToMove,String aDestPath) throws IOException
 	{
-		
+		Files.move(aFileToMove.toPath(), Paths.get(aDestPath));
 	}
 }

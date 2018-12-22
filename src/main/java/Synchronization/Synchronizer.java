@@ -41,7 +41,8 @@ public class Synchronizer {
 		{
 			SyncFileDownloader downloader = new SyncFileDownloader();
 			File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
-			
+			SyncFileUpdater updater = new SyncFileUpdater();
+			updater.upload(newVersionFile, aSynchronizeTargetFile, supportersBundle);
 		}
 		
 	}

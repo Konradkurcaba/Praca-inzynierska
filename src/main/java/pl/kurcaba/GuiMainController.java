@@ -48,7 +48,7 @@ import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 
-public class GuiFilesListViewController {
+public class GuiMainController {
 
 	@FXML
 	private ListView<ObjectMetaDataIf> filesListViewL;

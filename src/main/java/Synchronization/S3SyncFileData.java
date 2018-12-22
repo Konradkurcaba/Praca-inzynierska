@@ -8,13 +8,13 @@ public class S3SyncFileData extends SyncFileData {
 
 	private String bucketName;
 	
-	public S3SyncFileData(ObjectMetadata aFile)
+	public S3SyncFileData(ObjectMetadata aFile,String aBucketName)
 	{
 		setFileId(aFile.getSSEAwsKmsKeyId());
 		setSize(String.valueOf(aFile.getContentLength()));
 		setLastModifyDate(aFile.getLastModified().toString());
 		setFileServer(FileServer.Amazon);
-		bucketName = aFile.getB
+		bucketName = aBucketName;
 	}
 	
 	public String getBucketName()
