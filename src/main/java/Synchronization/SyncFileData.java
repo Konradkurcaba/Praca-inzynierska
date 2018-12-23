@@ -17,8 +17,16 @@ public class SyncFileData {
 	
 	protected SyncFileData()
 	{
-		
 	}
+	
+	public SyncFileData(String aId,String aSize,String aModifyDate, String aServer)
+	{
+		fileId = aId;
+		size = aSize;
+		lastModifyDate = aModifyDate;
+		fileServer = FileServer.valueOf(aServer);
+	}
+	
 	public SyncFileData(ObjectMetaDataIf aFile)
 	{
 		fileId = aFile.getOrginalId();

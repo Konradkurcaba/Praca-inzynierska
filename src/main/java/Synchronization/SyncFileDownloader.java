@@ -58,7 +58,7 @@ public class SyncFileDownloader {
 			if(aFileToDownload instanceof S3SyncFileData)
 			{
 				S3SyncFileData s3File = (S3SyncFileData) aFileToDownload;
-				downloadedFile = aSupportersBundle.getAmazonS3Supporter().getAmazonS3Object(s3File.getFileId()
+				downloadedFile = aSupportersBundle.getAmazonS3Supporter().getAmazonS3Object(s3File.getKey()
 						, s3File.getBucketName(),targetDirectory);
 			}
 		break;

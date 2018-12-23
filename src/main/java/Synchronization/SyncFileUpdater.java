@@ -14,7 +14,7 @@ public class SyncFileUpdater {
 		{
 		case Amazon:
 			S3SyncFileData s3Metadata = (S3SyncFileData) aFileToUpdate;
-			aBundle.getAmazonS3Supporter().uploadFile(s3Metadata.getFileId(), s3Metadata.getBucketName(), aFileToUpload);
+			aBundle.getAmazonS3Supporter().uploadFile(s3Metadata.getKey(), s3Metadata.getBucketName(), aFileToUpload);
 			break;
 		case Google:
 			aBundle.getGoogleDriveSupporter().updateFile(aFileToUpload, aFileToUpdate.getFileId());
