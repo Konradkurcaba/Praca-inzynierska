@@ -54,12 +54,13 @@ public class GoogleDriveSupporter {
 
 	}
 
-	public void uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException {
+	public GoogleFileMetadata uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException {
 		if (!isLoggedIn) {
 			getServiceAndRootId();
 		}
 		GoogleDriveUploader uploader = new GoogleDriveUploader();
-		uploader.uploadFile(aFile, driveService, currentDirectoryId);
+		File uploadedFile = uploader.uploadFile(aFile, driveService, currentDirectoryId);
+		return new GoogleFileMetadata(uploadedFile);
 	}
 	
 	public void updateFile(java.io.File aFile,String aFileId) throws IOException 

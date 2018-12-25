@@ -10,6 +10,14 @@ import pl.kurcaba.ObjectMetaDataIf;
 
 public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 
+	private final String name;
+	private final String size;
+	private final String id;
+	private final File orginalFile;
+	private final Date lastModifiedDate;
+	private final GoogleFileType fileType;
+	private final FileServer fileServer = FileServer.Google;
+	
 	public GoogleFileMetadata(File aOriginalFile)
 	{
 		orginalFile = aOriginalFile;
@@ -31,13 +39,6 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 		lastModifiedDate = new Date(orginalFile.getModifiedTime().getValue());
 	}
 	
-	private final String name;
-	private final String size;
-	private final String id;
-	private final File orginalFile;
-	private final Date lastModifiedDate;
-	private final GoogleFileType fileType;
-	private final FileServer fileServer = FileServer.Google;
 	
 	@Override
 	public String getName() {
@@ -87,6 +88,13 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	@Override
 	public String getOrginalId() {
 		return id;
+	}
+
+
+	@Override
+	public boolean isDirectory() {
+		if(fileType == GoogleFileType.Folder) return true;
+		else return false;
 	}
 	
 

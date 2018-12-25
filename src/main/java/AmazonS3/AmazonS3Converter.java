@@ -41,7 +41,7 @@ public class AmazonS3Converter {
 			
 			if(isNextLevelDirectory || isFileInThisDirectory)
 			{
-				AmazonS3ObjectMetadata objectMetadata = new AmazonS3ObjectMetadata(objectSummary);
+				AmazonS3SummaryMetadata objectMetadata = new AmazonS3SummaryMetadata(objectSummary);
 				convertedList.add(objectMetadata);
 			}
 

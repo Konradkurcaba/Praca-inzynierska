@@ -54,9 +54,11 @@ public class LocalFileSupporter {
 		return FXCollections.observableList(convertedFiles);
 	}
 	
-	public void moveFileToCurrentDirectory(Path aPath) throws IOException
+	public LocalFileMetadata moveFileToCurrentDirectory(Path aPath) throws IOException
 	{
-		Files.move(aPath, new File(currentDirectory.getAbsolutePath() + "//" + aPath.getFileName()).toPath());
+		File targetFile = new File(currentDirectory.getAbsolutePath() + "//" + aPath.getFileName());
+		Files.move(aPath,targetFile.toPath() );
+		return new LocalFileMetadata(targetFile);
 	}
 	
 	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()

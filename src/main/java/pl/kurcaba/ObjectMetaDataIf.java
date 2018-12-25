@@ -12,5 +12,5 @@ public interface ObjectMetaDataIf<T> {
 	T getOrginalObject();
 	FileServer getFileServer(); 
 	boolean isRoot();
-	
+	boolean isDirectory();
 }

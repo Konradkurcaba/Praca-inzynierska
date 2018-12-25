@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import Synchronization.S3SyncFileData;
@@ -87,7 +88,7 @@ public class AmazonS3Supporter {
 		}
 	}
 	
-	public File getAmazonS3Object(AmazonS3ObjectMetadata aObjectMetadata, File aTargetDirectory) throws IOException
+	public File getAmazonS3Object(AmazonS3SummaryMetadata aObjectMetadata, File aTargetDirectory) throws IOException
 	{
 		S3ObjectSummary orginalSummary = aObjectMetadata.getOrginalObject();
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
@@ -109,10 +110,11 @@ public class AmazonS3Supporter {
 		return downloadedMetadata;
 	}
 	
-	public void uploadFileToCurrentDir(File aFileToUpload)
+	public AmazonS3ObjectMetadata uploadFileToCurrentDir(File aFileToUpload)
 	{
 		AmazonS3FileUploader amazonUploader = new AmazonS3FileUploader();
-		amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix + aFileToUpload.getName());
+		ObjectMetadata uploadedFile = amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix + aFileToUpload.getName());
+		return new AmazonS3ObjectMetadata(uploadedFile);
 	}
 	public void uploadFile(String aKey,String aBucketName,File aFile)
 	{
@@ -120,7 +122,7 @@ public class AmazonS3Supporter {
 		amazonUploader.uploadFile(aFile, s3Client, aBucketName, aKey);
 	}
 	
-	public void deleteObject(AmazonS3ObjectMetadata aObjectMetadata)
+	public void deleteObject(AmazonS3SummaryMetadata aObjectMetadata)
 	{
 		AmazonS3FileDeleting amazonFileDeleting = new AmazonS3FileDeleting();
 		
@@ -149,7 +151,7 @@ public class AmazonS3Supporter {
 		folderCreator.createFolder(s3Client, currentBucket.getName(),currentPrefix + aFolderName + "/");
 	}
 	
-	public void changeName(AmazonS3ObjectMetadata aMetadata,String newName)
+	public void changeName(AmazonS3SummaryMetadata aMetadata,String newName)
 	{
 		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
 		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix, newName);

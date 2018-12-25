@@ -1,7 +1,7 @@
 package Threads;
 
 import AmazonS3.AmazonS3BucketMetadata;
-import AmazonS3.AmazonS3ObjectMetadata;
+import AmazonS3.AmazonS3SummaryMetadata;
 import AmazonS3.AmazonS3Supporter;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -37,9 +37,9 @@ public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaD
 				{
 					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer();
 					return files;
-				}else if(clickedObject instanceof AmazonS3ObjectMetadata)
+				}else if(clickedObject instanceof AmazonS3SummaryMetadata)
 				{
-					AmazonS3ObjectMetadata s3ObjectMetadata = (AmazonS3ObjectMetadata) clickedObject;
+					AmazonS3SummaryMetadata s3ObjectMetadata = (AmazonS3SummaryMetadata) clickedObject;
 					if (s3ObjectMetadata.isDirectory())
 					{
 						ObservableList<ObjectMetaDataIf> files = s3Supporter.listFiles(s3ObjectMetadata.getName());

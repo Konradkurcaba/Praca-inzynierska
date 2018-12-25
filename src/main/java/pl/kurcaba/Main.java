@@ -47,8 +47,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		  
-		  DatabaseSupervisor  database= new DatabaseSupervisor();
-		  database.connectToDatabase();
+
 		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();

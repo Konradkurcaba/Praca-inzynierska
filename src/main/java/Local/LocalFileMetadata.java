@@ -100,4 +100,10 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 	public String getOrginalId() {
 		return path;
 	}
+
+	@Override
+	public boolean isDirectory() {
+		if(orginalObject.isDirectory()) return true;
+		else return false;
+	}
 }

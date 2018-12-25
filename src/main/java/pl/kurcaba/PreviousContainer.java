@@ -48,6 +48,11 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	public String getOrginalId() {
 		return "...";
 	}
+
+	@Override
+	public boolean isDirectory() {
+		return true;
+	}
 	
 	
 

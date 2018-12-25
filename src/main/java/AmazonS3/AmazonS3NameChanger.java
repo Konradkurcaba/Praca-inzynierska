@@ -8,7 +8,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class AmazonS3NameChanger {
 
-	public void changeName(AmazonS3 aClient, AmazonS3ObjectMetadata aObjectMetadata, String aBucketName,
+	public void changeName(AmazonS3 aClient, AmazonS3SummaryMetadata aObjectMetadata, String aBucketName,
 			String aPrefix,String aNewName) {
 		if (aObjectMetadata.isDirectory()) {
 			AmazonS3FileDownloader amazonDownloader = new AmazonS3FileDownloader();

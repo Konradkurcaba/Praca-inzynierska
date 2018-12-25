@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.google.common.io.Files;
 
-import AmazonS3.AmazonS3ObjectMetadata;
+import AmazonS3.AmazonS3SummaryMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import pl.kurcaba.ObjectMetaDataIf;
@@ -18,8 +18,8 @@ public class SyncFileDownloader {
 		
 		File downloadedFile = null;
 		File targetDirectory = new File(Settings.WORKING_DIRECTORY);
-		if (aFileToDownload instanceof AmazonS3ObjectMetadata) {
-			AmazonS3ObjectMetadata s3ObjectMetadata = (AmazonS3ObjectMetadata) aFileToDownload;
+		if (aFileToDownload instanceof AmazonS3SummaryMetadata) {
+			AmazonS3SummaryMetadata s3ObjectMetadata = (AmazonS3SummaryMetadata) aFileToDownload;
 
 			try {
 				downloadedFile = aBundle.getAmazonS3Supporter().getAmazonS3Object(s3ObjectMetadata, targetDirectory);

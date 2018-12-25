@@ -8,7 +8,7 @@ import java.security.GeneralSecurityException;
 import com.google.common.io.Files;
 
 import AmazonS3.AmazonS3FileDownloader;
-import AmazonS3.AmazonS3ObjectMetadata;
+import AmazonS3.AmazonS3SummaryMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import Synchronization.SyncFileDownloader;
@@ -20,7 +20,7 @@ import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.Settings;
 import pl.kurcaba.SupportersBundle;
 
-public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
+public class CopyService extends Service<ObjectMetaDataIf> {
 
 	private final SupportersBundle bundle;
 	private final FileServer targetServer;
@@ -33,45 +33,31 @@ public class CopyService extends Service<ObservableList<ObjectMetaDataIf>> {
 	}
 
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
+	protected Task<ObjectMetaDataIf> createTask() {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
 				SyncFileDownloader anyFileDownloader = new SyncFileDownloader();
 				File downloadedfile = anyFileDownloader.downloadFile(objectToCopy,bundle);
-				try {
-					moveFile(downloadedfile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				switch(targetServer)
-				{
-				case Google:
-					return bundle.getGoogleDriveSupporter().getFilesFromCurrentDir();
-				case Amazon:
-					return bundle.getAmazonS3Supporter().getFilesFromCurrentDir();
-				case Local:
-					return bundle.getLocalFileSupporter().getFilesFromCurrentDir();
-				}
-				throw new IllegalArgumentException("not supporter value");
+				return moveFile(downloadedfile);
 			}
 		};
 	}
 
 
 
-	private void moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
+	private ObjectMetaDataIf moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
 		if (targetServer.equals(FileServer.Local)) {
-			bundle.getLocalFileSupporter().moveFileToCurrentDirectory(aFileToCopy.toPath());
+			return bundle.getLocalFileSupporter().moveFileToCurrentDirectory(aFileToCopy.toPath());
 		}
 		else if(targetServer.equals(FileServer.Google))
 		{
-			bundle.getGoogleDriveSupporter().uploadFile(aFileToCopy);
+			return bundle.getGoogleDriveSupporter().uploadFile(aFileToCopy);
 		}
 		else if(targetServer.equals(FileServer.Amazon))
 		{
-			bundle.getAmazonS3Supporter().uploadFileToCurrentDir(aFileToCopy);
-		}
+			return bundle.getAmazonS3Supporter().uploadFileToCurrentDir(aFileToCopy);
+		}else throw new IllegalArgumentException("Not supported file Server");
 	}
 
 }

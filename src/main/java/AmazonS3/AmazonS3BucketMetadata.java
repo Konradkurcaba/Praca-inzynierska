@@ -67,5 +67,10 @@ public class AmazonS3BucketMetadata implements ObjectMetaDataIf<Bucket> {
 		return name;
 	}
 
+	@Override
+	public boolean isDirectory() {
+		return true;
+	}
+
 	
 }

@@ -1,6 +1,6 @@
 package Threads;
 
-import AmazonS3.AmazonS3ObjectMetadata;
+import AmazonS3.AmazonS3SummaryMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;

@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.api.services.drive.model.File;
 
-import AmazonS3.AmazonS3ObjectMetadata;
+import AmazonS3.AmazonS3SummaryMetadata;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 

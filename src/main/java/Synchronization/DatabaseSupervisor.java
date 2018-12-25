@@ -63,7 +63,53 @@ public class DatabaseSupervisor {
 		return syncMap;	
 	}
 	
+	public void removeSyncData(SyncFileData aSource,SyncFileData aTarget) throws SQLException
+	{
+		
+		int sourceId = getFileId(aSource);
+		int targetId = getFileId(aTarget);
+		
+		String sql = "DELETE FROM sync_info_table WHERE source_id = ? AND target_id = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1, sourceId);
+		prepStmt.setInt(2, targetId);
+		prepStmt.executeQuery();
+		deleteFile(sourceId);
+		deleteFile(targetId);
+		
+	}
 	
+	private void deleteFile(int fileId) throws SQLException
+	{
+		String sql ="DELETE FROM sync_file_data WHERE id = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1, fileId);
+		prepStmt.executeQuery();
+	}
+	
+	
+	private int getFileId(SyncFileData aFile) throws SQLException
+	{
+		String query = "SELECT id FROM sync_file_data WHERE key = ? AND bucket_name = ? AND region = ?";
+		PreparedStatement stmt = connection.prepareStatement(query);
+		stmt.setString(1, aFile.getFileId());
+		if(aFile.getFileServer() == FileServer.Amazon)
+		{
+			S3SyncFileData s3File = (S3SyncFileData) aFile;
+			stmt.setString(2, s3File.getBucketName());
+			stmt.setString(3, s3File.getRegion());
+		}else
+		{
+			stmt.setNull(2, java.sql.Types.NULL);
+			stmt.setNull(3, java.sql.Types.NULL);
+		}
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next())
+		{
+			return rs.getInt(1);
+		} else throw new NoSuchElementException("Row doesn't exist in database");
+		
+	}
 	
 	private boolean FileDataExist(SyncFileData aFileData) throws SQLException
 	{

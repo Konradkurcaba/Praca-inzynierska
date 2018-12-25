@@ -14,9 +14,10 @@ import pl.kurcaba.SupportersBundle;
 
 public class Synchronizer {
 	
-	private Map<SyncFileData,SyncFileData> filesToAddToSynchronize = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
+	private Map<SyncFileData,SyncFileData> filesToAddToSync = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
+	private Map<SyncFileData,SyncFileData> filesToDeleteFromSync = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
 	private final SupportersBundle supportersBundle;
-
+	private Thread syncThread;
 	
 	public Synchronizer(SupportersBundle aSupportersBundle)  {
 		supportersBundle = aSupportersBundle;
@@ -24,71 +25,29 @@ public class Synchronizer {
 	
 	public void addFilesToSynchronize(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile) throws SQLException
 	{
-		synchronized(filesToAddToSynchronize)
+		synchronized(filesToAddToSync)
 		{
-			filesToAddToSynchronize.put(new SyncFileData(aFileToSynchronize),new SyncFileData(aSynchronizeTargetFile));
+			filesToAddToSync.put(new SyncFileData(aFileToSynchronize),new SyncFileData(aSynchronizeTargetFile));
 		}
 	}
 	
-	public void doSynchronize(Map<SyncFileData,SyncFileData> aFilesToSynchonize) throws IOException
+	public void removeFilesFromSync(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile)
 	{
-		
-		for(Map.Entry<SyncFileData, SyncFileData> entry : filesToAddToSynchronize.entrySet())
+		synchronized(filesToDeleteFromSync)
 		{
-			synchronize(entry.getValue(), entry.getKey());
+			filesToDeleteFromSync.put(new SyncFileData(aFileToSynchronize),new SyncFileData(aSynchronizeTargetFile));
 		}
 	}
 	
-	private void synchronize(SyncFileData aFileToSynchronize,SyncFileData aSynchronizeTargetFile) throws IOException
+	public void startCyclicSynch()
 	{
-		SyncFileData actualFileMetadata = getActualFileData(aFileToSynchronize);
-		if(!actualFileMetadata.equals(aFileToSynchronize))
-		{
-			SyncFileDownloader downloader = new SyncFileDownloader();
-			File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
-			SyncFileUpdater updater = new SyncFileUpdater();
-			updater.upload(newVersionFile, aSynchronizeTargetFile, supportersBundle);
-		}
-	}	
-	
-	private SyncFileData getActualFileData(SyncFileData aFileToUpdate) throws IOException
-	{
-		switch(aFileToUpdate.getFileServer())
-		{
-		case Amazon:
-			S3SyncFileData s3FileData = (S3SyncFileData) aFileToUpdate;
-			return supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
-					,s3FileData.getBucketName());
-		case Google:
-			return new SyncFileData(supportersBundle.getGoogleDriveSupporter()
-					.getFileMetadata(aFileToUpdate.getFileId()));
-		case Local:
-			return new SyncFileData(supportersBundle.getLocalFileSupporter()
-					.getLocalWrappedFile(aFileToUpdate.getFileId()));
-			default: throw new IllegalArgumentException("Not supported server");	
-		}
-	}
-	private void synchronizationThread() throws SQLException, IOException
-	{
-		Map<SyncFileData,SyncFileData> filesToAdd = new HashMap();
-		synchronized(filesToAddToSynchronize)
-		{
-			filesToAdd.putAll(filesToAddToSynchronize);
-			filesToAddToSynchronize.clear();
-		}
-		DatabaseSupervisor databaseSupervisor = new DatabaseSupervisor();
-		
-		for(Map.Entry<SyncFileData, SyncFileData> pair : filesToAdd.entrySet() )
-		{
-			databaseSupervisor.saveSyncData(pair.getKey(), pair.getValue());
-		}
-		
-		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap();
-		doSynchronize(filesToSynchonize);
-		
-		
-		
+		BackgroundSync backgroundSync = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
+		syncThread = new Thread(backgroundSync);
+		syncThread.start();
 	}
 	
-	
+	public void stopCyclicSynch()
+	{
+		syncThread.interrupt();
+	}
 }

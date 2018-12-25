@@ -2,6 +2,7 @@ package pl.kurcaba;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -14,6 +15,7 @@ import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
+import Synchronization.Synchronizer;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
 import Threads.ChangeNameService;
@@ -68,6 +70,7 @@ public class GuiMainController {
 	private ComboBox filesServerComboR;
 
 	SupportersBundle supportersBundle = new SupportersBundle();
+	Synchronizer synchronizer = new Synchronizer(supportersBundle);
 
 	public void initComponents() throws IOException {
 		initListView();
@@ -126,7 +129,13 @@ public class GuiMainController {
 					filesListViewL.getSelectionModel().getSelectedItem(), targetServer);
 
 			copyService.setOnSucceeded(event -> {
-				filesListViewR.setItems(copyService.getValue());
+				
+				ObjectMetaDataIf copiedFile = copyService.getValue();
+				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+				refreshService.setOnSucceeded(refreshEvent ->{
+					filesListViewR.setItems(refreshService.getValue());
+				});
+				refreshService.start();
 			});
 			copyService.start();
 
@@ -142,11 +151,10 @@ public class GuiMainController {
 					setContextMenu(null);
 				} else {
 					setText(item.toString());
-					setContextMenu(buildContextMenu(item,getListView()));
+					setContextMenu(buildContextMenu(item,filesListViewR
+							,(FileServer)filesServerComboL.getSelectionModel().getSelectedItem(),filesListViewL));
 				}
-
 			}
-
 		});
 
 	}
@@ -230,7 +238,8 @@ public class GuiMainController {
 
 	}
 
-	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView) {
+	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView
+			,FileServer secondServer, ListView<ObjectMetaDataIf> aDestListView ) {
 		final ContextMenu contextMenu = new ContextMenu();
 
 		
@@ -249,7 +258,6 @@ public class GuiMainController {
 
 		if(!aCellValue.isRoot())
 		{
-			
 			MenuItem deleteItem = new MenuItem("Usuñ");
 			deleteItem.setOnAction(event -> {
 				DeleteService deleteService = new DeleteService(supportersBundle, aCellValue );
@@ -299,6 +307,22 @@ public class GuiMainController {
 			});
 			
 			contextMenu.getItems().add(changeNameItem);
+			
+			if(!aCellValue.isDirectory())
+			{
+				MenuItem syncSource = new MenuItem("Utwórz synchronizowan¹ kopiê pliku");
+				syncSource.setOnAction(action -> {
+					CopyService copyService = new CopyService(supportersBundle, aCellValue, secondServer);
+					copyService.setOnSucceeded(event ->{
+						try {
+							synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					});
+					
+				});
+			}
 		}
 		return contextMenu;
 	}

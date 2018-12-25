@@ -9,25 +9,26 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 
-public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> {
-
+public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary> {
 	
 	private final String name;
 	private final String size;
 	private final Date lastModifiedDate;
 	private final boolean isDirectory;
 	private final FileServer fileServer = FileServer.Amazon;
-	private final ObjectMetadata objectMetadata;
+	private final S3ObjectSummary s3Object;
 	
-	
-	public AmazonS3ObjectMetadata(ObjectMetadata aMetadata)
-	{
-		name = aMetadata.getSSEAwsKmsKeyId();
-		size = String.valueOf(aMetadata.getContentLength());
-		lastModifiedDate = aMetadata.getLastModified();
-		objectMetadata = aMetadata;
-		isDirectory = false;
+	public AmazonS3SummaryMetadata(S3ObjectSummary aS3Object) {
+		
+		s3Object = aS3Object;
+		name = s3Object.getKey();
+		size = String.valueOf(s3Object.getSize() / 1024) + " KB";
+		lastModifiedDate = s3Object.getLastModified();
+		if(s3Object.getSize() == 0) isDirectory = true;
+		else isDirectory = false;
 	}
+	
+	
 	
 	@Override
 	public String getName() {
@@ -44,6 +45,7 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> 
 		{
 			return size;
 		}
+		
 	}
 
 	@Override
@@ -53,8 +55,8 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> 
 	}
 
 	@Override
-	public ObjectMetadata getOrginalObject() {
-		return objectMetadata;
+	public S3ObjectSummary getOrginalObject() {
+		return s3Object;
 	}
 	
 	@Override
