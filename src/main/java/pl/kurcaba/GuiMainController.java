@@ -75,7 +75,12 @@ public class GuiMainController {
 	public void initComponents() throws IOException {
 		initListView();
 		initComboBoxes();
-		
+		synchronizer.startCyclicSynch();
+	}
+	
+	public void stop()
+	{
+		synchronizer.stopCyclicSynch();
 	}
 
 	private void initListView() {
@@ -320,8 +325,10 @@ public class GuiMainController {
 							e.printStackTrace();
 						}
 					});
+					copyService.start();
 					
 				});
+				contextMenu.getItems().add(syncSource);
 			}
 		}
 		return contextMenu;

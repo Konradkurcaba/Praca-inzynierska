@@ -29,7 +29,7 @@ public class GoogleDriveFileDownloader {
 
 	public File getFileMetadata(Drive aService,String aFileId) throws IOException
 	{
-		Files.Get request = aService.files().get(aFileId);
+		Files.Get request = aService.files().get(aFileId).setFields("id,name,size,modifiedTime,parents,mimeType");
 		return request.execute();
 	}
 	

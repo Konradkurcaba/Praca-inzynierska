@@ -1,5 +1,6 @@
 package Synchronization;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -17,7 +18,7 @@ import pl.kurcaba.FileServer;
 public class DatabaseSupervisor {
 
 	private String DATABASE_URL = "jdbc:h2:~/synch";
-	private String CREATE_FILE_DATA_TABLE = "CREATE TABLE sync_file_data(id INT PRIMARY KEY,key VARCHAR(255) NOT NULL"
+	private String CREATE_FILE_DATA_TABLE = "CREATE TABLE sync_file_data(id INT AUTO_INCREMENT PRIMARY KEY,key VARCHAR(255) NOT NULL"
 			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,file_server VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),region VARCHAR(255))\r\n";
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
@@ -30,21 +31,29 @@ public class DatabaseSupervisor {
 	
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
 	{
+		int sourceId;
+		int targetId;
 		
 		if(!FileDataExist(aSource))
 		{
-			putFileData(aSource);
-		}
+			sourceId = putFileData(aSource);
+		}else
+		{
+			sourceId = getFileId(aSource);
+		} 
 		if(!FileDataExist(aTarget))
 		{
-			putFileData(aTarget);
+			targetId = putFileData(aTarget);
+		}else
+		{
+			targetId = getFileId(aTarget);
 		}
 		
 		String query = "INSERT INTO sync_info_table VALUES (?,?)";
 		PreparedStatement prepStmt = connection.prepareStatement(query);
-		prepStmt.setString(1, aSource.getFileId());
-		prepStmt.setString(2, aTarget.getFileId());
-		prepStmt.executeQuery();
+		prepStmt.setInt(1, sourceId);
+		prepStmt.setInt(2, targetId);
+		prepStmt.executeUpdate();
 		
 	}
 	
@@ -56,8 +65,8 @@ public class DatabaseSupervisor {
 		ResultSet rs = stmt.executeQuery(query);
 		while(rs.next())
 		{
-			SyncFileData sourceData = getFileData(rs.getString(1));
-			SyncFileData destData = getFileData(rs.getString(2));
+			SyncFileData sourceData = getFileData(rs.getInt(1));
+			SyncFileData destData = getFileData(rs.getInt(2));
 			syncMap.put(sourceData, destData);
 		}
 		return syncMap;	
@@ -132,11 +141,12 @@ public class DatabaseSupervisor {
 		}else return false;
 	}
 	
-	private void putFileData(SyncFileData aFileData) throws SQLException
+	private int putFileData(SyncFileData aFileData) throws SQLException
 	{
 
-		String query = "INSERT INTO sync_file_data VALUES ( ?,?,?,?,?,?,? )";
-		PreparedStatement prepStmt = connection.prepareStatement(query);
+		String query = "INSERT INTO sync_file_data(key,size,date,file_server,bucket_name,region)"
+				+ " VALUES ( ?,?,?,?,?,? )";
+		PreparedStatement prepStmt = connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 		prepStmt.setString(1, aFileData.getFileId());
 		prepStmt.setString(2, aFileData.getLastSize());
 		prepStmt.setString(3, aFileData.getLastModifyDate());
@@ -147,7 +157,20 @@ public class DatabaseSupervisor {
 			prepStmt.setString(5, ((S3SyncFileData)aFileData).getBucketName());
 			prepStmt.setString(6, ((S3SyncFileData)aFileData).getRegion());
 		}
-		prepStmt.executeQuery();
+		else
+		{
+			prepStmt.setNull(5, java.sql.Types.NULL );
+			prepStmt.setNull(6, java.sql.Types.NULL );
+		}
+		prepStmt.executeUpdate();
+		
+		ResultSet rs = prepStmt.getGeneratedKeys();
+		boolean insertSuccessful = rs.next();
+		if(insertSuccessful)
+		{
+			int id = rs.getInt(1);
+			return id;
+		}else throw new SQLException("Insert into table failed");
 	}
 	
 	private void createTables() throws SQLException
@@ -158,11 +181,11 @@ public class DatabaseSupervisor {
 		connection.close();
 	}
 	
-	private SyncFileData getFileData(String aId) throws SQLException
+	private SyncFileData getFileData(int aId) throws SQLException
 	{
-		String query = "SELECT * FROM sync_file_data WHERE key = ?";
+		String query = "SELECT * FROM sync_file_data WHERE id = ?";
 		PreparedStatement prepStmt = connection.prepareStatement(query);
-		prepStmt.setString(1, aId);
+		prepStmt.setInt(1, aId);
 		ResultSet rs = prepStmt.executeQuery();
 		if(rs.next())
 		{
@@ -181,7 +204,7 @@ public class DatabaseSupervisor {
 	{
 		connection = DriverManager.getConnection(DATABASE_URL);
 		DatabaseMetaData dbm = connection.getMetaData();
-		ResultSet tables = dbm.getTables(null,null,"sync_file_data",null);
+		ResultSet tables = dbm.getTables(null,null,"SYNC_FILE_DATA",null);
 		boolean tableExist = tables.next();
 		if(!tableExist)
 		{

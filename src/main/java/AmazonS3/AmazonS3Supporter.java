@@ -20,21 +20,20 @@ import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
 
-public class AmazonS3Supporter {
+public final class AmazonS3Supporter {
 
 	
-	private boolean isLoggedIn = false;
 	private AmazonS3 s3Client;
 	
 	AmazonS3BucketMetadata currentBucket;
 	String currentPrefix;
 	
+	public AmazonS3Supporter() {
+		getClient();
+	}
+	
 	public ObservableList<ObjectMetaDataIf> getBucketsMetadata()
 	{
-		if(!isLoggedIn)
-		{
-			getClient();
-		}
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		List<Bucket> buckets = s3Downloader.getAllBucketsList(s3Client);
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
@@ -45,10 +44,6 @@ public class AmazonS3Supporter {
 	
 	public ObservableList<ObjectMetaDataIf> listBucketFiles(AmazonS3BucketMetadata aBucket)
 	{
-		if(!isLoggedIn)
-		{
-			getClient();
-		}
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName(),"");
 		
@@ -63,11 +58,6 @@ public class AmazonS3Supporter {
 	
 	public ObservableList<ObjectMetaDataIf> listFiles(String aPrefix)
 	{
-		if(!isLoggedIn)
-		{
-			getClient();
-		}
-		
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client,currentBucket.getName()
 				, aPrefix);
@@ -176,6 +166,5 @@ public class AmazonS3Supporter {
 	{
 		AmazonS3LogInSupporter loginSupporter = new AmazonS3LogInSupporter();
 		s3Client = loginSupporter.getAmazonS3Client();
-		isLoggedIn = true;
 	}
 }

@@ -30,7 +30,7 @@ public class SyncFileData {
 	public SyncFileData(ObjectMetaDataIf aFile)
 	{
 		fileId = aFile.getOrginalId();
-		size = aFile.getOrginalId();
+		size = aFile.getSize();
 		lastModifyDate = aFile.getLastModifiedDate();
 		fileServer = aFile.getFileServer();
 	}
@@ -74,7 +74,7 @@ public class SyncFileData {
 		SyncFileData syncFileData = (SyncFileData) obj;
 		boolean idEquals = syncFileData.getFileId().equals(this.getFileId());
 		boolean sizeEquals = syncFileData.getLastSize().equals(this.getLastSize());
-		boolean modifyDateEquals = syncFileData.getLastSize().equals(this.getLastModifyDate());
+		boolean modifyDateEquals = syncFileData.getLastModifyDate().equals(this.getLastModifyDate());
 		if(idEquals && sizeEquals && modifyDateEquals ) return true;
 		else return false;
 	}

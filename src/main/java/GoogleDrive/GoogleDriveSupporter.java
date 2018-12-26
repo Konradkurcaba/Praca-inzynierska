@@ -21,18 +21,25 @@ import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.PreviousContainer;
 
-public class GoogleDriveSupporter {
+public final class GoogleDriveSupporter {
 
-	private boolean isLoggedIn = false;
 	private Drive driveService;
 	private String currentDirectoryId;
 	private String rootFolderId;
-
-	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId)
-			throws IOException, GeneralSecurityException {
-		if (!isLoggedIn) {
+	
+	public GoogleDriveSupporter() 
+	{
+		try
+		{
 			getServiceAndRootId();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
 		}
+	}
+
+	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException
+	{
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		List<File> files = downloader.getFilesList(driveService, aParentId);
 		currentDirectoryId = aParentId;
@@ -41,33 +48,25 @@ public class GoogleDriveSupporter {
 		return createObservableList(converter.convert(files), isRootFolder);
 	}
 
-	public ObservableList<ObjectMetaDataIf> backToPreviousContainer() throws IOException, GeneralSecurityException {
-		if (!isLoggedIn) {
-			getServiceAndRootId();
-		}
+	public ObservableList<ObjectMetaDataIf> backToPreviousContainer() throws IOException{
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		currentDirectoryId = downloader.getFilesParentId(driveService, currentDirectoryId);
 		List<File> files = downloader.getFilesList(driveService, currentDirectoryId);
 		GoogleFileConverter converter = new GoogleFileConverter();
 		boolean isRootFolder = currentDirectoryId.equals(rootFolderId);
 		return createObservableList(converter.convert(files), isRootFolder);
-
 	}
 
-	public GoogleFileMetadata uploadFile(java.io.File aFile) throws GeneralSecurityException, IOException {
-		if (!isLoggedIn) {
-			getServiceAndRootId();
-		}
+	public GoogleFileMetadata uploadFile(java.io.File aFile) throws IOException {
 		GoogleDriveUploader uploader = new GoogleDriveUploader();
 		File uploadedFile = uploader.uploadFile(aFile, driveService, currentDirectoryId);
-		return new GoogleFileMetadata(uploadedFile);
+		return getFileMetadata(uploadedFile.getId());
 	}
 	
 	public void updateFile(java.io.File aFile,String aFileId) throws IOException 
 	{
-		File file = driveService.files().get(aFileId).execute();
-		FileContent mediaContent = new FileContent(null,aFile);
-		driveService.files().update(aFileId,file, mediaContent);
+		GoogleDriveUploader driveUploader = new GoogleDriveUploader();
+		driveUploader.updateFile(aFile, aFileId, driveService);
 	}
 
 	public java.io.File downloadFile(GoogleFileMetadata aMetadata, Path targetDirectory) throws IOException {
@@ -90,6 +89,11 @@ public class GoogleDriveSupporter {
 		fileDeleting.deleteObject(driveService, aFileMetadata.getOrginalObject().getId());
 	}
 	
+	public void deleteObject(String aId) throws IOException {
+		GoogleDriveFileDeleting fileDeleting = new GoogleDriveFileDeleting();
+		fileDeleting.deleteObject(driveService, aId);
+	}
+	
 	public void createFolder(String aFolderName) throws IOException
 	{
 		GoogleDriveFolderCreator folderCreator = new GoogleDriveFolderCreator();
@@ -102,7 +106,7 @@ public class GoogleDriveSupporter {
 		nameChanger.changeName(driveService, aMetadata.getOrginalObject().getId(), aNewName);
 	}
 	
-	public ObjectMetaDataIf getFileMetadata(String aFileId) throws IOException
+	public GoogleFileMetadata getFileMetadata(String aFileId) throws IOException
 	{
 		GoogleDriveFileDownloader driveDownloader = new GoogleDriveFileDownloader();
 		return new GoogleFileMetadata(driveDownloader.getFileMetadata(driveService, aFileId));
@@ -118,7 +122,6 @@ public class GoogleDriveSupporter {
 	private void getServiceAndRootId() throws GeneralSecurityException, IOException {
 		GoogleDriveLogInSupporter driveLogInSupporter = new GoogleDriveLogInSupporter();
 		driveService = driveLogInSupporter.getDriveService();
-		isLoggedIn = true;
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		rootFolderId = downloader.getRootId(driveService);
 	}

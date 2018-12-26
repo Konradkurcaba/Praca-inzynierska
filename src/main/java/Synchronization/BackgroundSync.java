@@ -23,7 +23,7 @@ public class BackgroundSync implements Runnable {
 	
 	@Override
 	public void run() {
-		while(true)
+		while(!Thread.interrupted())
 		{
 			try {
 				synchTask();
@@ -39,7 +39,7 @@ public class BackgroundSync implements Runnable {
 		
 		for(Map.Entry<SyncFileData, SyncFileData> entry : aFilesToSynchonize.entrySet())
 		{
-			synchronize(entry.getValue(), entry.getKey());
+			synchronize(entry.getKey(), entry.getValue());
 		}
 	}
 	

@@ -36,7 +36,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 public class Main extends Application {
 
-    
+    private GuiMainController controller;
    
 	public static void main(String... args) throws GeneralSecurityException, IOException
 	{		
@@ -46,17 +46,20 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		  
-
 		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();
 		  primaryStage.setTitle("Cloud files Client");
 		  primaryStage.setScene(new Scene(root));
-		  GuiMainController controller = loader.getController();
+		  controller = loader.getController();
 		  controller.initComponents();
 		  primaryStage.show();
-		  
-		
+	}
+	
+
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		controller.stop();
 	}
 }

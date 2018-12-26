@@ -20,4 +20,11 @@ public class GoogleDriveUploader {
 		return uploadedFile;
 	}
 	
+	 public void updateFile(java.io.File aFile,String aFileId,Drive aService) throws IOException 
+		{
+			File file = aService.files().get(aFileId).execute();
+			FileContent mediaContent = new FileContent(null,aFile);
+			aService.files().update(aFileId,null, mediaContent).execute();
+		}
+	
 }
