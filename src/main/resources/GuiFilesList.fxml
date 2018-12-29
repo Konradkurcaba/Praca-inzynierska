@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
@@ -88,9 +89,10 @@
       </SplitPane>
       <MenuBar layoutY="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="Plik">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+                  <CheckMenuItem mnemonicParsing="false" text="Synchronizacja" />
+                  <MenuItem mnemonicParsing="false" text="Panel Synchronizacji" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

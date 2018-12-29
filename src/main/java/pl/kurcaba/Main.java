@@ -60,6 +60,6 @@ public class Main extends Application {
 	@Override
 	public void stop() throws Exception {
 		super.stop();
-		controller.stop();
+		controller.stopSync();
 	}
 }

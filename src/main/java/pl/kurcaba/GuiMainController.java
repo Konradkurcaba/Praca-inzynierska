@@ -49,6 +49,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
+import javafx.scene.control.CheckMenuItem;
 
 public class GuiMainController {
 
@@ -68,6 +69,8 @@ public class GuiMainController {
 	private ComboBox filesServerComboL;
 	@FXML
 	private ComboBox filesServerComboR;
+	@FXML 
+	private CheckMenuItem syncMenuItem;
 
 	SupportersBundle supportersBundle = new SupportersBundle();
 	Synchronizer synchronizer = new Synchronizer(supportersBundle);
@@ -78,11 +81,26 @@ public class GuiMainController {
 		synchronizer.startCyclicSynch();
 	}
 	
-	public void stop()
+	public void stopSync()
 	{
 		synchronizer.stopCyclicSynch();
 	}
+	
+	public void startSync()
+	{
+		synchronizer.startCyclicSynch();
+	}
 
+	private void initMenu()
+	{
+		syncMenuItem.setOnAction(event -> {
+			if(syncMenuItem.selectedProperty().getValue()) startSync();
+			else stopSync();
+		});
+	}
+	
+	
+	
 	private void initListView() {
 
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {
