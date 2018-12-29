@@ -17,8 +17,10 @@ public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary
 	private final boolean isDirectory;
 	private final FileServer fileServer = FileServer.Amazon;
 	private final S3ObjectSummary s3Object;
+	private final String bucketName;
+	private final String region;
 	
-	public AmazonS3SummaryMetadata(S3ObjectSummary aS3Object) {
+	public AmazonS3SummaryMetadata(S3ObjectSummary aS3Object,String aBucketName,String aRegion) {
 		
 		s3Object = aS3Object;
 		name = s3Object.getKey();
@@ -26,6 +28,8 @@ public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary
 		lastModifiedDate = s3Object.getLastModified();
 		if(s3Object.getSize() == 0) isDirectory = true;
 		else isDirectory = false;
+		bucketName = aBucketName;
+		region = aRegion;
 	}
 	
 	
@@ -88,5 +92,14 @@ public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary
 	public String getOrginalId() {
 		return name;
 	}
+	
+	public String getBucketName() {
+		return bucketName;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
 
 }

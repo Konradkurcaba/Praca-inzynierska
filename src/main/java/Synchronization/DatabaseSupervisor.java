@@ -29,6 +29,11 @@ public class DatabaseSupervisor {
 		connectToDatabase();
 	}
 	
+	public void closeConnection() throws SQLException
+	{
+		connection.close();
+	}
+	
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
 	{
 		int sourceId;
@@ -78,11 +83,12 @@ public class DatabaseSupervisor {
 		int sourceId = getFileId(aSource);
 		int targetId = getFileId(aTarget);
 		
-		String sql = "DELETE FROM sync_info_table WHERE source_id = ? AND target_id = ?";
+		String sql = "DELETE FROM sync_info_table WHERE source_id = ? AND dest_id = ?";
 		PreparedStatement prepStmt = connection.prepareStatement(sql);
 		prepStmt.setInt(1, sourceId);
 		prepStmt.setInt(2, targetId);
-		prepStmt.executeQuery();
+		prepStmt.executeUpdate();
+		
 		deleteFile(sourceId);
 		deleteFile(targetId);
 		
@@ -93,13 +99,20 @@ public class DatabaseSupervisor {
 		String sql ="DELETE FROM sync_file_data WHERE id = ?";
 		PreparedStatement prepStmt = connection.prepareStatement(sql);
 		prepStmt.setInt(1, fileId);
-		prepStmt.executeQuery();
+		prepStmt.executeUpdate();
 	}
 	
 	
 	private int getFileId(SyncFileData aFile) throws SQLException
 	{
-		String query = "SELECT id FROM sync_file_data WHERE key = ? AND bucket_name = ? AND region = ?";
+		String query;
+		if(aFile.getFileServer() == FileServer.Amazon)
+		{
+			query = "SELECT id FROM sync_file_data WHERE key = ? AND bucket_name = ? AND region = ?";
+		}else
+		{
+			query = "SELECT id FROM sync_file_data WHERE key = ? AND bucket_name IS NULL AND region IS NULL";
+		}
 		PreparedStatement stmt = connection.prepareStatement(query);
 		stmt.setString(1, aFile.getFileId());
 		if(aFile.getFileServer() == FileServer.Amazon)
@@ -107,11 +120,8 @@ public class DatabaseSupervisor {
 			S3SyncFileData s3File = (S3SyncFileData) aFile;
 			stmt.setString(2, s3File.getBucketName());
 			stmt.setString(3, s3File.getRegion());
-		}else
-		{
-			stmt.setNull(2, java.sql.Types.NULL);
-			stmt.setNull(3, java.sql.Types.NULL);
 		}
+		
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next())
 		{

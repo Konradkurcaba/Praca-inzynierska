@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import AmazonS3.AmazonS3ObjectMetadata;
+import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.SupportersBundle;
 
@@ -27,7 +29,13 @@ public class Synchronizer {
 	{
 		synchronized(filesToAddToSync)
 		{
-			filesToAddToSync.put(new SyncFileData(aFileToSynchronize),new SyncFileData(aSynchronizeTargetFile));
+			SyncFileData sourceFile;
+			SyncFileData targetFile;
+			if(aFileToSynchronize.getFileServer() == FileServer.Amazon) sourceFile = new S3SyncFileData(aFileToSynchronize);
+			else sourceFile = new SyncFileData(aFileToSynchronize);
+			if(aSynchronizeTargetFile.getFileServer() == FileServer.Amazon) targetFile = new S3SyncFileData(aSynchronizeTargetFile);
+			else targetFile = new SyncFileData(aFileToSynchronize);
+			filesToAddToSync.put(sourceFile,targetFile);
 		}
 	}
 	

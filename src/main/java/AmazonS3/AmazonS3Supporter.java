@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -27,7 +28,7 @@ public final class AmazonS3Supporter {
 	
 	AmazonS3BucketMetadata currentBucket;
 	String currentPrefix;
-	
+	String currentRegion = "";
 	public AmazonS3Supporter() {
 		getClient();
 	}
@@ -47,12 +48,15 @@ public final class AmazonS3Supporter {
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName(),"");
 		
-		AmazonS3Converter s3Converter = new AmazonS3Converter();
-		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult,"");
-		PreviousContainer previousContainer = new PreviousContainer(FileServer.Amazon);
-		convertedList.add(0,previousContainer);
 		currentBucket = aBucket;
 		currentPrefix = "";
+		
+		AmazonS3Converter s3Converter = new AmazonS3Converter();
+		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult,""
+				,currentBucket.getName(),currentRegion);
+		PreviousContainer previousContainer = new PreviousContainer(FileServer.Amazon);
+		convertedList.add(0,previousContainer);
+		
 		return FXCollections.observableArrayList(convertedList);
 	}
 	
@@ -62,7 +66,8 @@ public final class AmazonS3Supporter {
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client,currentBucket.getName()
 				, aPrefix);
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
-		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix);
+		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix
+				,currentBucket.getName(),currentRegion);
 		convertedList.add(0,new PreviousContainer(FileServer.Amazon));
 		currentPrefix = aPrefix;
 		return FXCollections.observableArrayList(convertedList);
@@ -93,18 +98,17 @@ public final class AmazonS3Supporter {
 		return file;
 	}
 	
-	public S3SyncFileData getAmazons3ObjMetadata(String aKey,String aBucketName)
+	public AmazonS3ObjectMetadata getAmazons3ObjMetadata(String aKey,String aBucketName)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		S3SyncFileData downloadedMetadata = new S3SyncFileData(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey),aBucketName);
-		return downloadedMetadata;
+		return new AmazonS3ObjectMetadata(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey), aKey,aBucketName);
 	}
 	
 	public AmazonS3ObjectMetadata uploadFileToCurrentDir(File aFileToUpload)
 	{
 		AmazonS3FileUploader amazonUploader = new AmazonS3FileUploader();
 		ObjectMetadata uploadedFile = amazonUploader.uploadFile(aFileToUpload, s3Client, currentBucket.getName(), currentPrefix + aFileToUpload.getName());
-		return new AmazonS3ObjectMetadata(uploadedFile);
+		return getAmazons3ObjMetadata(currentPrefix + aFileToUpload.getName(),currentBucket.getName());
 	}
 	public void uploadFile(String aKey,String aBucketName,File aFile)
 	{
@@ -145,6 +149,14 @@ public final class AmazonS3Supporter {
 	{
 		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
 		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix, newName);
+
+	}
+	
+	public S3SyncFileData getSyncInfo(String aKey,String aBucketName)
+	{
+		s3Client.getObjectMetadata(aBucketName, aKey);
+		return null;
+
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)

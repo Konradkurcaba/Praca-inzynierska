@@ -34,7 +34,7 @@ public class BackgroundSync implements Runnable {
 		}
 	}
 
-	private void doSynchronize(Map<SyncFileData,SyncFileData> aFilesToSynchonize) throws IOException
+	private void doSynchronize(Map<SyncFileData,SyncFileData> aFilesToSynchonize) throws IOException, SQLException
 	{
 		
 		for(Map.Entry<SyncFileData, SyncFileData> entry : aFilesToSynchonize.entrySet())
@@ -43,7 +43,7 @@ public class BackgroundSync implements Runnable {
 		}
 	}
 	
-	private void synchronize(SyncFileData aFileToSynchronize,SyncFileData aSynchronizeTargetFile) throws IOException
+	private void synchronize(SyncFileData aFileToSynchronize,SyncFileData aSynchronizeTargetFile) throws IOException, SQLException
 	{
 		SyncFileData actualFileMetadata = getActualFileData(aFileToSynchronize);
 		if(!actualFileMetadata.equals(aFileToSynchronize))
@@ -52,6 +52,14 @@ public class BackgroundSync implements Runnable {
 			File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
 			SyncFileUpdater updater = new SyncFileUpdater();
 			updater.upload(newVersionFile, aSynchronizeTargetFile, supportersBundle);
+			DatabaseSupervisor databaseSupervisor = new DatabaseSupervisor();
+			databaseSupervisor.removeSyncData(aFileToSynchronize, aSynchronizeTargetFile);
+			
+			SyncFileData newFileSyncData = getActualFileData(aFileToSynchronize);
+			SyncFileData newTargetSyncData = getActualFileData(aSynchronizeTargetFile);
+			
+			databaseSupervisor.saveSyncData(newFileSyncData, newTargetSyncData);
+			databaseSupervisor.closeConnection();
 		}
 	}	
 	
@@ -61,8 +69,8 @@ public class BackgroundSync implements Runnable {
 		{
 		case Amazon:
 			S3SyncFileData s3FileData = (S3SyncFileData) aFileToUpdate;
-			return supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
-					,s3FileData.getBucketName());
+			return new S3SyncFileData(supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
+					,s3FileData.getBucketName()));
 		case Google:
 			return new SyncFileData(supportersBundle.getGoogleDriveSupporter()
 					.getFileMetadata(aFileToUpdate.getFileId()));
@@ -100,6 +108,7 @@ public class BackgroundSync implements Runnable {
 		}
 		
 		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap();
+		databaseSupervisor.closeConnection();
 		doSynchronize(filesToSynchonize);
 	}
 	

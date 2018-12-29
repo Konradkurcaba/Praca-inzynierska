@@ -24,7 +24,8 @@ public class AmazonS3Converter {
 		return buckets;
 	}
 	
-	public List<ObjectMetaDataIf> convertFileList(ListObjectsV2Result aFilesList,String aPrefix)
+	public List<ObjectMetaDataIf> convertFileList(ListObjectsV2Result aFilesList,String aPrefix,String aBucketName
+			,String aRegion)
 	{
 		List<ObjectMetaDataIf> convertedList = new ArrayList();
 		
@@ -41,7 +42,7 @@ public class AmazonS3Converter {
 			
 			if(isNextLevelDirectory || isFileInThisDirectory)
 			{
-				AmazonS3SummaryMetadata objectMetadata = new AmazonS3SummaryMetadata(objectSummary);
+				AmazonS3SummaryMetadata objectMetadata = new AmazonS3SummaryMetadata(objectSummary,aBucketName,aRegion);
 				convertedList.add(objectMetadata);
 			}
 

@@ -15,18 +15,21 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> 
 	private final String name;
 	private final String size;
 	private final Date lastModifiedDate;
+	private final String bucketName;
+
 	private final boolean isDirectory;
 	private final FileServer fileServer = FileServer.Amazon;
 	private final ObjectMetadata objectMetadata;
 	
 	
-	public AmazonS3ObjectMetadata(ObjectMetadata aMetadata)
+	public AmazonS3ObjectMetadata(ObjectMetadata aMetadata,String aKey,String aBucketName)
 	{
-		name = aMetadata.getSSEAwsKmsKeyId();
+		name = aKey;
 		size = String.valueOf(aMetadata.getContentLength());
 		lastModifiedDate = aMetadata.getLastModified();
 		objectMetadata = aMetadata;
 		isDirectory = false;
+		bucketName = aBucketName;
 	}
 	
 	@Override
@@ -86,5 +89,13 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> 
 	public String getOrginalId() {
 		return name;
 	}
+	
+	public String getBucketName() {
+		return bucketName;
+	}
 
+	public String getRegion()
+	{
+		return "";
+	}
 }
