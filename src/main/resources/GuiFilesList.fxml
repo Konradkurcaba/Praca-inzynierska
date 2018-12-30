@@ -91,8 +91,8 @@
         <menus>
           <Menu mnemonicParsing="false" text="Plik">
             <items>
-                  <CheckMenuItem mnemonicParsing="false" text="Synchronizacja" />
-                  <MenuItem mnemonicParsing="false" text="Panel Synchronizacji" />
+                  <CheckMenuItem fx:id="syncSwitch" mnemonicParsing="false" text="Synchronizacja" />
+                  <MenuItem fx:id="syncMenu" mnemonicParsing="false" text="Panel Synchronizacji" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

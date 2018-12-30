@@ -70,7 +70,9 @@ public class GuiMainController {
 	@FXML
 	private ComboBox filesServerComboR;
 	@FXML 
-	private CheckMenuItem syncMenuItem;
+	private CheckMenuItem syncSwitch;
+	@FXML
+	private MenuItem syncMenu;
 
 	SupportersBundle supportersBundle = new SupportersBundle();
 	Synchronizer synchronizer = new Synchronizer(supportersBundle);
@@ -78,7 +80,7 @@ public class GuiMainController {
 	public void initComponents() throws IOException {
 		initListView();
 		initComboBoxes();
-		synchronizer.startCyclicSynch();
+		initMenu();
 	}
 	
 	public void stopSync()
@@ -93,9 +95,16 @@ public class GuiMainController {
 
 	private void initMenu()
 	{
-		syncMenuItem.setOnAction(event -> {
-			if(syncMenuItem.selectedProperty().getValue()) startSync();
+		syncSwitch.setOnAction(event -> {
+			if(syncSwitch.selectedProperty().getValue()) startSync();
 			else stopSync();
+		});
+		syncMenu.setOnAction(event ->{
+			try {
+				showSyncWindow();
+			} catch (IOException | SQLException e) {
+				e.printStackTrace();
+			}
 		});
 	}
 	
@@ -135,6 +144,18 @@ public class GuiMainController {
 			mouseEvent.consume();
 
 		});
+		
+		filesListViewR.setOnDragDetected(mouseEvent -> {
+
+			Dragboard db = filesListViewL.startDragAndDrop(TransferMode.ANY);
+
+			ClipboardContent content = new ClipboardContent();
+			content.putString("copy");
+			db.setContent(content);
+
+			mouseEvent.consume();
+
+		});
 
 		filesListViewR.setOnDragOver(mouseEvent -> {
 
@@ -144,7 +165,16 @@ public class GuiMainController {
 			mouseEvent.consume();
 
 		});
+		
+		filesListViewL.setOnDragOver(mouseEvent -> {
 
+			if (mouseEvent.getGestureSource() != filesListViewL && mouseEvent.getDragboard().hasString()) {
+				mouseEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+			}
+			mouseEvent.consume();
+
+		});
+		
 		filesListViewR.setOnDragDropped(mouseEvent -> {
 			FileServer targetServer = (FileServer) filesServerComboR.getSelectionModel().getSelectedItem();
 
@@ -163,6 +193,24 @@ public class GuiMainController {
 			copyService.start();
 
 		});
+		
+		filesListViewL.setOnDragDropped(mouseEvent -> {
+			FileServer targetServer = (FileServer) filesServerComboL.getSelectionModel().getSelectedItem();
+
+			final CopyService copyService = new CopyService(supportersBundle,
+					filesListViewR.getSelectionModel().getSelectedItem(), targetServer);
+
+			copyService.setOnSucceeded(event -> {
+				
+				ObjectMetaDataIf copiedFile = copyService.getValue();
+				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+				refreshService.setOnSucceeded(refreshEvent ->{
+					filesListViewL.setItems(refreshService.getValue());
+				});
+				refreshService.start();
+			});
+			copyService.start();
+		});
 
 		filesListViewR.setCellFactory(lv -> new ListCell<ObjectMetaDataIf>() {
 
@@ -176,6 +224,22 @@ public class GuiMainController {
 					setText(item.toString());
 					setContextMenu(buildContextMenu(item,filesListViewR
 							,(FileServer)filesServerComboL.getSelectionModel().getSelectedItem(),filesListViewL));
+				}
+			}
+		});
+		
+		filesListViewL.setCellFactory(lv -> new ListCell<ObjectMetaDataIf>() {
+
+			@Override
+			protected void updateItem(ObjectMetaDataIf item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText("");
+					setContextMenu(null);
+				} else {
+					setText(item.toString());
+					setContextMenu(buildContextMenu(item,filesListViewL
+							,(FileServer)filesServerComboR.getSelectionModel().getSelectedItem(),filesListViewR));
 				}
 			}
 		});
@@ -366,6 +430,24 @@ public class GuiMainController {
 		inputWindowController.init(aMessage);
 		inputWindow.showAndWait();
 		return(inputWindowController.getTextFieldValue());
+	}
+	
+	private void showSyncWindow() throws IOException, SQLException
+	{
+		if(synchronizer.isSyncOn()) synchronizer.stopCyclicSynch();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/syncWindow.fxml"));
+		loader.load();
+		Parent root = loader.getRoot();
+		Stage syncWindow = new Stage();
+		syncWindow.initModality(Modality.WINDOW_MODAL);
+		syncWindow.initOwner(filesListViewL.getScene().getWindow());
+		syncWindow.setTitle("Panel synchronizacji");
+		syncWindow.setScene(new Scene(root));
+		SyncWindowController syncWindowController = loader.getController();
+		syncWindowController.init();
+		syncWindow.showAndWait();
+		if(syncSwitch.selectedProperty().getValue()) startSync();
+		else stopSync();
 	}
 
 }

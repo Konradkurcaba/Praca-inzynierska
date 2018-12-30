@@ -20,6 +20,7 @@ public class Synchronizer {
 	private Map<SyncFileData,SyncFileData> filesToDeleteFromSync = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
 	private final SupportersBundle supportersBundle;
 	private Thread syncThread;
+	private boolean isSyncOn;
 	
 	public Synchronizer(SupportersBundle aSupportersBundle)  {
 		supportersBundle = aSupportersBundle;
@@ -52,10 +53,20 @@ public class Synchronizer {
 		BackgroundSync backgroundSync = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
 		syncThread = new Thread(backgroundSync);
 		syncThread.start();
+		isSyncOn = true;
 	}
 	
 	public void stopCyclicSynch()
 	{
-		syncThread.interrupt();
+		if(isSyncOn)
+		{
+			syncThread.interrupt();
+			isSyncOn = false;
+		}
+	}
+	
+	public boolean isSyncOn()
+	{
+		return isSyncOn;
 	}
 }
