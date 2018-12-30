@@ -29,6 +29,7 @@ public class DeleteSyncInfoService extends Service {
 				try {
 					dbSupervisor = new DatabaseSupervisor();
 					dbSupervisor.removeSyncData(sourceFile, targetFile);
+					dbSupervisor.closeConnection();
 					return true;
 				} catch (SQLException e) {
 					e.printStackTrace();

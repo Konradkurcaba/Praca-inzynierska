@@ -25,8 +25,11 @@ import javafx.scene.control.MenuItem;
 
 public class SyncWindowController {
 	
-	public void init() throws SQLException
+	Synchronizer synchronizer;
+	
+	public void init(Synchronizer aSynchronizer) throws SQLException
 	{
+		synchronizer = aSynchronizer;
 		initTable();
 		getSyncInfo();
 	}
@@ -36,7 +39,7 @@ public class SyncWindowController {
 
 	private void getSyncInfo() throws SQLException
 	{
-		GetSyncInfo syncInfoService = new GetSyncInfo();
+		GetSyncInfo syncInfoService = new GetSyncInfo(synchronizer);
 		syncInfoService.setOnSucceeded(event ->{
 			ObservableList<SyncPair> items = FXCollections.observableArrayList((syncInfoService.getValue().entrySet().stream()
 					.map(entry ->{

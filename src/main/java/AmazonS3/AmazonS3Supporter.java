@@ -101,7 +101,16 @@ public final class AmazonS3Supporter {
 	public AmazonS3ObjectMetadata getAmazons3ObjMetadata(String aKey,String aBucketName)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
-		return new AmazonS3ObjectMetadata(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey), aKey,aBucketName);
+		try
+		{
+		AmazonS3ObjectMetadata objectMetadata = new AmazonS3ObjectMetadata(s3Downloader.getFileMetadata(s3Client, aBucketName, aKey)
+				, aKey,aBucketName);
+		return objectMetadata;
+		}catch(Exception e)
+		{
+			return null;
+		}
+		
 	}
 	
 	public AmazonS3ObjectMetadata uploadFileToCurrentDir(File aFileToUpload)
@@ -128,6 +137,12 @@ public final class AmazonS3Supporter {
 		{
 			amazonFileDeleting.deleteObject(s3Client, currentBucket.getName(), aObjectMetadata.getOrginalObject().getKey());
 		}
+	}
+	
+	public void deleteObject(S3SyncFileData aFileToDelete)
+	{
+		AmazonS3FileDeleting amazonFileDeleting = new AmazonS3FileDeleting();
+		amazonFileDeleting.deleteObject(s3Client, aFileToDelete.getBucketName(), aFileToDelete.getKey());
 	}
 	
 	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()

@@ -147,7 +147,7 @@ public class GuiMainController {
 		
 		filesListViewR.setOnDragDetected(mouseEvent -> {
 
-			Dragboard db = filesListViewL.startDragAndDrop(TransferMode.ANY);
+			Dragboard db = filesListViewR.startDragAndDrop(TransferMode.ANY);
 
 			ClipboardContent content = new ClipboardContent();
 			content.putString("copy");
@@ -403,6 +403,11 @@ public class GuiMainController {
 					copyService.setOnSucceeded(event ->{
 						try {
 							synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
+							RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
+							refreshService.setOnSucceeded(successEvent ->{
+								aDestListView.setItems(refreshService.getValue());
+							});
+							refreshService.start();
 						} catch (SQLException e) {
 							e.printStackTrace();
 						}
@@ -444,10 +449,9 @@ public class GuiMainController {
 		syncWindow.setTitle("Panel synchronizacji");
 		syncWindow.setScene(new Scene(root));
 		SyncWindowController syncWindowController = loader.getController();
-		syncWindowController.init();
+		syncWindowController.init(synchronizer);
 		syncWindow.showAndWait();
 		if(syncSwitch.selectedProperty().getValue()) startSync();
-		else stopSync();
 	}
 
 }

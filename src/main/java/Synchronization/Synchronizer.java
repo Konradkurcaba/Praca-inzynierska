@@ -35,7 +35,7 @@ public class Synchronizer {
 			if(aFileToSynchronize.getFileServer() == FileServer.Amazon) sourceFile = new S3SyncFileData(aFileToSynchronize);
 			else sourceFile = new SyncFileData(aFileToSynchronize);
 			if(aSynchronizeTargetFile.getFileServer() == FileServer.Amazon) targetFile = new S3SyncFileData(aSynchronizeTargetFile);
-			else targetFile = new SyncFileData(aFileToSynchronize);
+			else targetFile = new SyncFileData(aSynchronizeTargetFile);
 			filesToAddToSync.put(sourceFile,targetFile);
 		}
 	}
@@ -63,6 +63,12 @@ public class Synchronizer {
 			syncThread.interrupt();
 			isSyncOn = false;
 		}
+	}
+	public Map<SyncFileData, SyncFileData> getSyncInfo() throws SQLException
+	{
+		BackgroundSync syncDatabase = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
+		return syncDatabase.syncDatabase();
+		
 	}
 	
 	public boolean isSyncOn()

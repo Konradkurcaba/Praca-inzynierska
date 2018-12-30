@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import Local.LocalFileMetadata;
+import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.SupportersBundle;
 
 public class BackgroundSync implements Runnable {
@@ -46,20 +48,27 @@ public class BackgroundSync implements Runnable {
 	private void synchronize(SyncFileData aFileToSynchronize,SyncFileData aSynchronizeTargetFile) throws IOException, SQLException
 	{
 		SyncFileData actualFileMetadata = getActualFileData(aFileToSynchronize);
-		if(!actualFileMetadata.equals(aFileToSynchronize))
+		if(actualFileMetadata == null)
 		{
-			SyncFileDownloader downloader = new SyncFileDownloader();
-			File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
-			SyncFileUpdater updater = new SyncFileUpdater();
-			updater.upload(newVersionFile, aSynchronizeTargetFile, supportersBundle);
-			DatabaseSupervisor databaseSupervisor = new DatabaseSupervisor();
-			databaseSupervisor.removeSyncData(aFileToSynchronize, aSynchronizeTargetFile);
-			
-			SyncFileData newFileSyncData = getActualFileData(aFileToSynchronize);
-			SyncFileData newTargetSyncData = getActualFileData(aSynchronizeTargetFile);
-			
-			databaseSupervisor.saveSyncData(newFileSyncData, newTargetSyncData);
-			databaseSupervisor.closeConnection();
+			DatabaseSupervisor supervisor = new DatabaseSupervisor();
+			supervisor.removeSyncData(aFileToSynchronize, aSynchronizeTargetFile);
+		}else
+		{
+			if(!actualFileMetadata.equals(aFileToSynchronize))
+			{
+				SyncFileDownloader downloader = new SyncFileDownloader();
+				File newVersionFile = downloader.downloadFile(aFileToSynchronize,supportersBundle);
+				SyncFileUpdater updater = new SyncFileUpdater();
+				updater.upload(newVersionFile, aSynchronizeTargetFile, supportersBundle);
+				DatabaseSupervisor databaseSupervisor = new DatabaseSupervisor();
+				databaseSupervisor.removeSyncData(aFileToSynchronize, aSynchronizeTargetFile);
+				
+				SyncFileData newFileSyncData = getActualFileData(aFileToSynchronize);
+				SyncFileData newTargetSyncData = getActualFileData(aSynchronizeTargetFile);
+				
+				databaseSupervisor.saveSyncData(newFileSyncData, newTargetSyncData);
+				databaseSupervisor.closeConnection();
+			}
 		}
 	}	
 	
@@ -69,18 +78,28 @@ public class BackgroundSync implements Runnable {
 		{
 		case Amazon:
 			S3SyncFileData s3FileData = (S3SyncFileData) aFileToUpdate;
-			return new S3SyncFileData(supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
-					,s3FileData.getBucketName()));
+			ObjectMetaDataIf metadata = supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
+					,s3FileData.getBucketName());
+			if(metadata != null)
+			{
+				return new S3SyncFileData(metadata);
+			}else return null;
+			
 		case Google:
 			return new SyncFileData(supportersBundle.getGoogleDriveSupporter()
 					.getFileMetadata(aFileToUpdate.getFileId()));
 		case Local:
-			return new SyncFileData(supportersBundle.getLocalFileSupporter()
-					.getLocalWrappedFile(aFileToUpdate.getFileId()));
+			ObjectMetaDataIf actualMetadata = supportersBundle.getLocalFileSupporter()
+					.getLocalWrappedFile(aFileToUpdate.getFileId());
+			if (actualMetadata != null)
+			{
+				return new SyncFileData(actualMetadata);
+			}else return null;
 			default: throw new IllegalArgumentException("Not supported server");	
 		}
 	}
-	private void synchTask() throws SQLException, IOException
+	
+	public synchronized Map<SyncFileData,SyncFileData> syncDatabase() throws SQLException
 	{
 		Map<SyncFileData,SyncFileData> filesToAdd = new HashMap();
 		Map<SyncFileData,SyncFileData> filesToDelete = new HashMap();
@@ -109,7 +128,13 @@ public class BackgroundSync implements Runnable {
 		
 		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap();
 		databaseSupervisor.closeConnection();
-		doSynchronize(filesToSynchonize);
+		return filesToSynchonize;
+	}
+	
+	
+	private void synchTask() throws SQLException, IOException
+	{
+		doSynchronize(syncDatabase());
 	}
 	
 }

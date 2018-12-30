@@ -14,12 +14,15 @@ public class SyncFileUpdater {
 		{
 		case Amazon:
 			S3SyncFileData s3Metadata = (S3SyncFileData) aFileToUpdate;
+			aBundle.getAmazonS3Supporter().deleteObject(s3Metadata);
 			aBundle.getAmazonS3Supporter().uploadFile(s3Metadata.getKey(), s3Metadata.getBucketName(), aFileToUpload);
 			break;
 		case Google:
+		//	aBundle.getLocalFileSupporter().deleteFile(aLocalFile);
 			aBundle.getGoogleDriveSupporter().updateFile(aFileToUpload, aFileToUpdate.getFileId());
 			break;
 		case Local:
+			aBundle.getLocalFileSupporter().deleteSyncFile(aFileToUpdate);
 			aBundle.getLocalFileSupporter().moveFile(aFileToUpload,aFileToUpdate.getFileId());
 			break;
 		}

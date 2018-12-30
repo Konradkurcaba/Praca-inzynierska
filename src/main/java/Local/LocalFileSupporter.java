@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import Synchronization.SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.ObjectMetaDataIf;
@@ -85,6 +86,12 @@ public class LocalFileSupporter {
 		} else throw new IOException("Cannot delete root directory");
 	}
 	
+	public void deleteSyncFile(SyncFileData aFileToDelete) throws IOException
+	{
+		File fileToDelete = new File(aFileToDelete.getFileId());
+		if(fileToDelete.exists()) Files.delete(fileToDelete.toPath());
+	}
+	
 	public void createFolder(String aFolderName)
 	{
 		new File(currentDirectory.getPath() + "\\" + aFolderName).mkdir();
@@ -100,6 +107,7 @@ public class LocalFileSupporter {
 	public ObjectMetaDataIf getLocalWrappedFile(String aPath)
 	{
 		File file = new File(aPath);
+		if(!file.exists()) return null;
 		return new LocalFileMetadata(file);
 	}
 	
