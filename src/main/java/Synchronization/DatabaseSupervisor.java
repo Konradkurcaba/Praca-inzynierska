@@ -18,7 +18,7 @@ import pl.kurcaba.FileServer;
 public class DatabaseSupervisor {
 
 	private String DATABASE_URL = "jdbc:h2:~/synch";
-	private String CREATE_FILE_DATA_TABLE = "CREATE TABLE sync_file_data(id INT AUTO_INCREMENT PRIMARY KEY,key VARCHAR(255) NOT NULL"
+	private String CREATE_FILE_DATA_TABLE = "CREATE TABLE sync_file_data(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(255) NOT NULL,key VARCHAR(255) NOT NULL"
 			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,file_server VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),region VARCHAR(255))\r\n";
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
@@ -154,23 +154,24 @@ public class DatabaseSupervisor {
 	private int putFileData(SyncFileData aFileData) throws SQLException
 	{
 
-		String query = "INSERT INTO sync_file_data(key,size,date,file_server,bucket_name,region)"
-				+ " VALUES ( ?,?,?,?,?,? )";
+		String query = "INSERT INTO sync_file_data(name,key,size,date,file_server,bucket_name,region)"
+				+ " VALUES ( ?,?,?,?,?,?,? )";
 		PreparedStatement prepStmt = connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-		prepStmt.setString(1, aFileData.getFileId());
-		prepStmt.setString(2, aFileData.getLastSize());
-		prepStmt.setString(3, aFileData.getLastModifyDate());
-		prepStmt.setString(4, aFileData.getFileServer().toString());
+		prepStmt.setString(1, aFileData.getFileName());
+		prepStmt.setString(2, aFileData.getFileId());
+		prepStmt.setString(3, aFileData.getLastSize());
+		prepStmt.setString(4, aFileData.getLastModifyDate());
+		prepStmt.setString(5, aFileData.getFileServer().toString());
 		
 		if(aFileData.getFileServer() == FileServer.Amazon)
 		{
-			prepStmt.setString(5, ((S3SyncFileData)aFileData).getBucketName());
-			prepStmt.setString(6, ((S3SyncFileData)aFileData).getRegion());
+			prepStmt.setString(6, ((S3SyncFileData)aFileData).getBucketName());
+			prepStmt.setString(7, ((S3SyncFileData)aFileData).getRegion());
 		}
 		else
 		{
-			prepStmt.setNull(5, java.sql.Types.NULL );
 			prepStmt.setNull(6, java.sql.Types.NULL );
+			prepStmt.setNull(7, java.sql.Types.NULL );
 		}
 		prepStmt.executeUpdate();
 		
@@ -205,7 +206,7 @@ public class DatabaseSupervisor {
 			}
 			else
 			{
-				return new SyncFileData(rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5));
+				return new SyncFileData(rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
 			}
 		}else throw new NoSuchElementException("Row doesn't exist in database");
 	}

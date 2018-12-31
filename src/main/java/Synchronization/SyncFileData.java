@@ -10,6 +10,7 @@ import pl.kurcaba.ObjectMetaDataIf;
 
 public class SyncFileData {
 
+	private String fileName;
 	private String fileId;
 	private String size;
 	private String lastModifyDate;
@@ -19,8 +20,9 @@ public class SyncFileData {
 	{
 	}
 	
-	public SyncFileData(String aId,String aSize,String aModifyDate, String aServer)
+	public SyncFileData(String aName,String aId,String aSize,String aModifyDate, String aServer)
 	{
+		fileName = aName;
 		fileId = aId;
 		size = aSize;
 		lastModifyDate = aModifyDate;
@@ -29,6 +31,7 @@ public class SyncFileData {
 	
 	public SyncFileData(ObjectMetaDataIf aFile)
 	{
+		fileName = aFile.getName();
 		fileId = aFile.getOrginalId();
 		size = aFile.getSize();
 		lastModifyDate = aFile.getLastModifiedDate();
@@ -36,8 +39,13 @@ public class SyncFileData {
 	}
 	
 	
+	
 	public String getFileId() {
 		return fileId;
+	}
+	
+	public String getFileName() {
+		return fileName;
 	}
 
 	public String getLastSize() {
@@ -52,6 +60,10 @@ public class SyncFileData {
 		return fileServer;
 	}
 	
+	protected void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	
 	protected void setFileId(String fileId) {
 		this.fileId = fileId;
 	}
@@ -64,6 +76,7 @@ public class SyncFileData {
 	protected void setFileServer(FileServer fileServer) {
 		this.fileServer = fileServer;
 	}
+
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -78,5 +91,7 @@ public class SyncFileData {
 		if(idEquals && sizeEquals && modifyDateEquals ) return true;
 		else return false;
 	}
+	
+	
 	
 }

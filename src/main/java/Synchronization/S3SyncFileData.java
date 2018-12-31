@@ -19,6 +19,7 @@ public class S3SyncFileData extends SyncFileData {
 		setSize(aFile.getSize());
 		setLastModifyDate(aFile.getLastModifiedDate());
 		setFileServer(FileServer.Amazon);
+		setFileName(aFile.getName());
 		
 		if(aFile instanceof AmazonS3ObjectMetadata)
 		{
@@ -37,7 +38,7 @@ public class S3SyncFileData extends SyncFileData {
 	
 	public S3SyncFileData(String aKey,String aSize,String aModifyDate,String aBucketName,String aRegion)
 	{
-		super(aKey,aSize,aModifyDate,"Amazon");
+		super(aKey,aKey,aSize,aModifyDate,"Amazon");
 		bucketName = aBucketName;
 		region = aRegion;
 	}

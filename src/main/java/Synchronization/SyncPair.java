@@ -13,9 +13,9 @@ public class SyncPair {
 	public SyncPair(SyncFileData aSourceFile,SyncFileData aTargetFile)
 	{
 		sourceFile = aSourceFile;
-		sourceFileName = new SimpleStringProperty(sourceFile.getFileServer() + ":" + sourceFile.getFileId());
+		sourceFileName = new SimpleStringProperty(sourceFile.getFileServer() + ":" + sourceFile.getFileName());
 		targetFile = aTargetFile;
-		targetFileName = new SimpleStringProperty(targetFile.getFileServer() + ":" + targetFile.getFileId());
+		targetFileName = new SimpleStringProperty(targetFile.getFileServer() + ":" + targetFile.getFileName());
 	}
 		
 	

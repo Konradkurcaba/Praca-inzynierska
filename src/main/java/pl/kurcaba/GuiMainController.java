@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Optional;
 
 import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
 import com.google.api.services.drive.model.Change;
@@ -13,6 +14,7 @@ import com.google.api.services.drive.model.Change;
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
+import Gui.YesNoWindowController;
 import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
 import Synchronization.Synchronizer;
@@ -115,15 +117,21 @@ public class GuiMainController {
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {
 
 			ObjectMetaDataIf selectedFileMetaData = filesListViewL.getSelectionModel().getSelectedItem();
-			selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
-			lastModifiedTimeTextViewL.setText(selectedFileMetaData.getLastModifiedDate());
+			if(selectedFileMetaData != null)
+			{
+				selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
+				lastModifiedTimeTextViewL.setText(selectedFileMetaData.getLastModifiedDate());
+			}	
 
 		});
 		filesListViewR.getSelectionModel().selectedItemProperty().addListener((event) -> {
 
 			ObjectMetaDataIf selectedFileMetaData = filesListViewR.getSelectionModel().getSelectedItem();
-			selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
-			lastModifiedTimeTextViewR.setText(selectedFileMetaData.getLastModifiedDate());
+			if(selectedFileMetaData != null)
+			{
+				selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
+				lastModifiedTimeTextViewR.setText(selectedFileMetaData.getLastModifiedDate());
+			}
 		});
 
 		filesListViewL.setOnMouseClicked(mouseEvent -> {
@@ -177,21 +185,50 @@ public class GuiMainController {
 		
 		filesListViewR.setOnDragDropped(mouseEvent -> {
 			FileServer targetServer = (FileServer) filesServerComboR.getSelectionModel().getSelectedItem();
+			ObjectMetaDataIf objectToCopy = filesListViewL.getSelectionModel().getSelectedItem();
 
-			final CopyService copyService = new CopyService(supportersBundle,
-					filesListViewL.getSelectionModel().getSelectedItem(), targetServer);
-
-			copyService.setOnSucceeded(event -> {
-				
-				ObjectMetaDataIf copiedFile = copyService.getValue();
-				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
-				refreshService.setOnSucceeded(refreshEvent ->{
-					filesListViewR.setItems(refreshService.getValue());
+			Optional<ObjectMetaDataIf> existingObject = filesListViewR.getItems().stream()
+			.filter(item ->{
+				if(item.getName().equals(objectToCopy.getName())) return true;
+				else return false;
+			})
+			.findAny();
+			
+			if(existingObject.isPresent())
+			{
+				boolean userDecision = showYesNoWindow("Plik ju¿ istnieje, czy chcesz go zamieniæ ?");
+				if(userDecision)
+				{
+					DeleteService deleteService = new DeleteService(supportersBundle, existingObject.get());
+					deleteService.setOnSucceeded(deletedEvent -> {
+						final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
+						copyService.setOnSucceeded(event -> {
+							
+							ObjectMetaDataIf copiedFile = copyService.getValue();
+							RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+							refreshService.setOnSucceeded(refreshEvent ->{
+								filesListViewR.setItems(refreshService.getValue());
+							});
+							refreshService.start();
+						});
+						copyService.start();
+					});
+					deleteService.start();
+				}
+			}
+			else
+			{
+				final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
+				copyService.setOnSucceeded(event -> {
+					ObjectMetaDataIf copiedFile = copyService.getValue();
+					RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+					refreshService.setOnSucceeded(refreshEvent ->{
+						filesListViewR.setItems(refreshService.getValue());
+					});
+					refreshService.start();
 				});
-				refreshService.start();
-			});
-			copyService.start();
-
+				copyService.start();
+			}
 		});
 		
 		filesListViewL.setOnDragDropped(mouseEvent -> {
@@ -454,4 +491,27 @@ public class GuiMainController {
 		if(syncSwitch.selectedProperty().getValue()) startSync();
 	}
 
+	private boolean showYesNoWindow(String displayText) 
+	{
+		try
+		{
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/yesNoWindow.fxml"));
+			loader.load();
+			Parent root = loader.getRoot();
+			Stage yesNoWindow = new Stage();
+			yesNoWindow.initModality(Modality.WINDOW_MODAL);
+			yesNoWindow.initOwner(filesListViewL.getScene().getWindow());
+			yesNoWindow.setTitle("Potwierdzenie");
+			yesNoWindow.setScene(new Scene(root));
+			YesNoWindowController windowController = loader.getController();
+			windowController.init(displayText);
+			yesNoWindow.showAndWait();
+			return windowController.isOkClicked();
+			
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
