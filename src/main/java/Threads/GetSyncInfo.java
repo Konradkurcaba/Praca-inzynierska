@@ -11,7 +11,7 @@ import javafx.concurrent.Task;
 
 public class GetSyncInfo extends Service< Map<SyncFileData,SyncFileData>> {
 
-	Synchronizer synchronizer;
+	private Synchronizer synchronizer;
 	
 	public GetSyncInfo(Synchronizer aSynchronizer) {
 		synchronizer = aSynchronizer;

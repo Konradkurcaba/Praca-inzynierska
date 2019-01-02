@@ -27,8 +27,6 @@ public class DeleteService extends Service<ObservableList<ObjectMetaDataIf>>{
 		objectToDelete = aObjectToDelete;
 	}
 	
-	
-	
 	@Override
 	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
 		return new Task<ObservableList<ObjectMetaDataIf>>()

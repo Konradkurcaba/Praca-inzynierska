@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package Gui;
 
 import javafx.scene.text.Text;
 import javafx.scene.control.TextField;

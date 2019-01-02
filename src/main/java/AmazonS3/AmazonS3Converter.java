@@ -50,6 +50,13 @@ public class AmazonS3Converter {
 		return convertedList;
 	}
 	
+	public String deletePrefix(String aName)
+	{
+		String[] splittedName = aName.split("/");
+		return splittedName[splittedName.length-1];
+	}
+	
+	
 	
 	
 }

@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package Gui;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,10 +11,10 @@ import java.util.Optional;
 import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
 import com.google.api.services.drive.model.Change;
 
+import AmazonS3.AmazonS3Converter;
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileMetadata;
-import Gui.YesNoWindowController;
 import Local.LocalFileMetadata;
 import Local.LocalFileSupporter;
 import Synchronization.Synchronizer;
@@ -29,6 +29,7 @@ import Threads.LocalFileExploreService;
 import Threads.LocalObjectClickService;
 import Threads.NewFolderService;
 import Threads.RefreshService;
+import Threads.UpdateSyncKeyService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ListView;
@@ -50,6 +51,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import pl.kurcaba.FileServer;
+import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.SupportersBundle;
 import javafx.stage.Modality;
 import javafx.scene.control.CheckMenuItem;
 
@@ -68,9 +72,9 @@ public class GuiMainController {
 	@FXML
 	private TextField lastModifiedTimeTextViewR;
 	@FXML
-	private ComboBox filesServerComboL;
+	private ComboBox<FileServer> filesServerComboL;
 	@FXML
-	private ComboBox filesServerComboR;
+	private ComboBox<FileServer> filesServerComboR;
 	@FXML 
 	private CheckMenuItem syncSwitch;
 	@FXML
@@ -183,70 +187,12 @@ public class GuiMainController {
 
 		});
 		
-		filesListViewR.setOnDragDropped(mouseEvent -> {
-			FileServer targetServer = (FileServer) filesServerComboR.getSelectionModel().getSelectedItem();
-			ObjectMetaDataIf objectToCopy = filesListViewL.getSelectionModel().getSelectedItem();
-
-			Optional<ObjectMetaDataIf> existingObject = filesListViewR.getItems().stream()
-			.filter(item ->{
-				if(item.getName().equals(objectToCopy.getName())) return true;
-				else return false;
-			})
-			.findAny();
-			
-			if(existingObject.isPresent())
-			{
-				boolean userDecision = showYesNoWindow("Plik ju¿ istnieje, czy chcesz go zamieniæ ?");
-				if(userDecision)
-				{
-					DeleteService deleteService = new DeleteService(supportersBundle, existingObject.get());
-					deleteService.setOnSucceeded(deletedEvent -> {
-						final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
-						copyService.setOnSucceeded(event -> {
-							
-							ObjectMetaDataIf copiedFile = copyService.getValue();
-							RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
-							refreshService.setOnSucceeded(refreshEvent ->{
-								filesListViewR.setItems(refreshService.getValue());
-							});
-							refreshService.start();
-						});
-						copyService.start();
-					});
-					deleteService.start();
-				}
-			}
-			else
-			{
-				final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
-				copyService.setOnSucceeded(event -> {
-					ObjectMetaDataIf copiedFile = copyService.getValue();
-					RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
-					refreshService.setOnSucceeded(refreshEvent ->{
-						filesListViewR.setItems(refreshService.getValue());
-					});
-					refreshService.start();
-				});
-				copyService.start();
-			}
+		filesListViewR.setOnDragDropped(mouseEvent -> { 
+			mouseDroppedOnListView(filesListViewR, filesListViewL);
 		});
 		
 		filesListViewL.setOnDragDropped(mouseEvent -> {
-			FileServer targetServer = (FileServer) filesServerComboL.getSelectionModel().getSelectedItem();
-
-			final CopyService copyService = new CopyService(supportersBundle,
-					filesListViewR.getSelectionModel().getSelectedItem(), targetServer);
-
-			copyService.setOnSucceeded(event -> {
-				
-				ObjectMetaDataIf copiedFile = copyService.getValue();
-				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
-				refreshService.setOnSucceeded(refreshEvent ->{
-					filesListViewL.setItems(refreshService.getValue());
-				});
-				refreshService.start();
-			});
-			copyService.start();
+			mouseDroppedOnListView(filesListViewL, filesListViewR);
 		});
 
 		filesListViewR.setCellFactory(lv -> new ListCell<ObjectMetaDataIf>() {
@@ -363,7 +309,7 @@ public class GuiMainController {
 	}
 
 	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView
-			,FileServer secondServer, ListView<ObjectMetaDataIf> aDestListView ) {
+			,FileServer targetServer, ListView<ObjectMetaDataIf> aDestListView ) {
 		final ContextMenu contextMenu = new ContextMenu();
 
 		
@@ -436,21 +382,52 @@ public class GuiMainController {
 			{
 				MenuItem syncSource = new MenuItem("Utwórz synchronizowan¹ kopiê pliku");
 				syncSource.setOnAction(action -> {
-					CopyService copyService = new CopyService(supportersBundle, aCellValue, secondServer);
-					copyService.setOnSucceeded(event ->{
-						try {
-							synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
-							RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
-							refreshService.setOnSucceeded(successEvent ->{
-								aDestListView.setItems(refreshService.getValue());
-							});
-							refreshService.start();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-					});
-					copyService.start();
 					
+					ObjectMetaDataIf objectToCopy = aSourceListView.getSelectionModel().getSelectedItem();
+					Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aDestListView.getItems(),objectToCopy, targetServer);
+					
+					if(existingObj.isPresent())
+					{
+						boolean userDecision = showYesNoWindow("Plik ju¿ istnieje, czy chcesz go zamieniæ ?");
+						if(userDecision)
+						{
+							DeleteService deleteService = new DeleteService(supportersBundle, existingObj.get());
+							deleteService.setOnSucceeded(deletedEvent -> {
+								CopyService copyService = new CopyService(supportersBundle, aCellValue, targetServer);
+								copyService.setOnSucceeded(event ->{
+									try {
+										synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
+										RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
+										refreshService.setOnSucceeded(successEvent ->{
+											aDestListView.setItems(refreshService.getValue());
+										});
+										refreshService.start();
+									} catch (SQLException e) {
+										e.printStackTrace();
+									}
+								});
+								copyService.start();
+							});
+							deleteService.start();
+						}
+					}
+					else
+					{
+						CopyService copyService = new CopyService(supportersBundle, aCellValue, targetServer);
+						copyService.setOnSucceeded(event ->{
+							try {
+								synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
+								RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
+								refreshService.setOnSucceeded(successEvent ->{
+									aDestListView.setItems(refreshService.getValue());
+								});
+								refreshService.start();
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+						});
+						copyService.start();
+					}
 				});
 				contextMenu.getItems().add(syncSource);
 			}
@@ -512,6 +489,86 @@ public class GuiMainController {
 		{
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	private Optional<ObjectMetaDataIf> itemIsOnList(ObservableList<ObjectMetaDataIf> aList,ObjectMetaDataIf aObj,FileServer aTargetServer)
+	{
+		String ObjName;
+		if(aObj.getFileServer() == FileServer.Amazon) ObjName = getName(aObj,FileServer.Amazon);
+		else ObjName = aObj.getName();
+		
+		Optional<ObjectMetaDataIf> existingObject = aList.stream()
+		
+		.filter(item ->{
+			if(getName(item,aTargetServer).equals(ObjName)) return true;
+			else return false;
+		})
+		.findAny();
+		return existingObject;
+	}
+	
+	private String getName(ObjectMetaDataIf aObj,FileServer aServer)
+	{
+		if(aServer == FileServer.Amazon)
+		{
+			AmazonS3Converter conveter = new AmazonS3Converter();
+			return conveter.deletePrefix(aObj.getName());
+		}else return aObj.getName();
+	}
+	
+	private FileServer connectedFileServer(ListView aList)
+	{
+		if(aList == filesListViewL) return filesServerComboL.getSelectionModel().getSelectedItem();
+		else return filesServerComboR.getSelectionModel().getSelectedItem();
+	}
+	
+	private void mouseDroppedOnListView(ListView<ObjectMetaDataIf> aTargetList,ListView<ObjectMetaDataIf> aSourceList)
+	{
+		FileServer targetServer = connectedFileServer(aTargetList);
+		ObjectMetaDataIf objectToCopy = aSourceList.getSelectionModel().getSelectedItem();
+		Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aTargetList.getItems(),objectToCopy,targetServer);
+		
+		if(existingObj.isPresent())
+		{
+			boolean userDecision = showYesNoWindow("Plik ju¿ istnieje, czy chcesz go zamieniæ ?");
+			if(userDecision)
+			{
+				DeleteService deleteService = new DeleteService(supportersBundle, existingObj.get());
+				deleteService.setOnSucceeded(deletedEvent -> {
+					final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
+					copyService.setOnSucceeded(event -> {
+						
+						ObjectMetaDataIf copiedFile = copyService.getValue();
+						RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+						refreshService.setOnSucceeded(refreshEvent ->{
+							aTargetList.setItems(refreshService.getValue());
+						});
+						if(copiedFile.getFileServer() == FileServer.Google)
+						{
+							UpdateSyncKeyService updateService = new UpdateSyncKeyService(synchronizer,existingObj.get().getOrginalId()
+									,copiedFile.getOrginalId());
+							updateService.start();
+						}
+						refreshService.start();
+					});
+					copyService.start();
+				});
+				deleteService.start();
+			}
+		}
+		else
+		{
+			final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
+			copyService.setOnSucceeded(event -> {
+				ObjectMetaDataIf copiedFile = copyService.getValue();
+				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
+				refreshService.setOnSucceeded(refreshEvent ->{
+					aTargetList.setItems(refreshService.getValue());
+				});
+				refreshService.start();
+			});
+			copyService.start();
 		}
 	}
 }

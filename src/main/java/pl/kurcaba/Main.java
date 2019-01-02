@@ -29,6 +29,7 @@ import GoogleDrive.GoogleDriveFileDownloader;
 import GoogleDrive.GoogleDriveSupporter;
 import GoogleDrive.GoogleFileConverter;
 import GoogleDrive.GoogleFileMetadata;
+import Gui.GuiMainController;
 import Synchronization.DatabaseSupervisor;
 
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;

@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package Gui;
 
 import java.sql.SQLException;
 

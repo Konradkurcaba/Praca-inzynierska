@@ -48,12 +48,13 @@ public class AmazonS3FileDownloader {
 	{
 		S3Object fullObject;
 		fullObject = aS3Client.getObject(new GetObjectRequest(aBucketName,aKey));
-		File targetFile = new File(aTargetDirectory.getAbsolutePath() + "//" + aKey);
+		AmazonS3Converter S3Converter = new  AmazonS3Converter();
+		String fileName = S3Converter.deletePrefix(aKey);
+		File targetFile = new File(aTargetDirectory.getAbsolutePath() + "//" + fileName);
 		OutputStream outputStream = new FileOutputStream(targetFile);
 		IOUtils.copy(fullObject.getObjectContent(), outputStream);
 		outputStream.close();
 		return targetFile;
 	}
-	
 	
 }

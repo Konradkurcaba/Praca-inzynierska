@@ -36,9 +36,9 @@ public class S3SyncFileData extends SyncFileData {
 		}
 	}
 	
-	public S3SyncFileData(String aKey,String aSize,String aModifyDate,String aBucketName,String aRegion)
+	public S3SyncFileData(String aKey,String aName,String aSize,String aModifyDate,String aBucketName,String aRegion)
 	{
-		super(aKey,aKey,aSize,aModifyDate,"Amazon");
+		super(aKey,aName,aSize,aModifyDate,"Amazon");
 		bucketName = aBucketName;
 		region = aRegion;
 	}

@@ -174,6 +174,11 @@ public final class AmazonS3Supporter {
 
 	}
 	
+	public String getCurrentPrefix()
+	{
+		return currentPrefix;
+	}
+	
 	private String prepareBackPrefix(String aCurrentPrefix)
 	{
 		

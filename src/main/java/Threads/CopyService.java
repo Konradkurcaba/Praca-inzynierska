@@ -44,8 +44,6 @@ public class CopyService extends Service<ObjectMetaDataIf> {
 		};
 	}
 
-
-
 	private ObjectMetaDataIf moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
 		if (targetServer.equals(FileServer.Local)) {
 			return bundle.getLocalFileSupporter().moveFileToCurrentDirectory(aFileToCopy.toPath());
@@ -59,5 +57,4 @@ public class CopyService extends Service<ObjectMetaDataIf> {
 			return bundle.getAmazonS3Supporter().uploadFileToCurrentDir(aFileToCopy);
 		}else throw new IllegalArgumentException("Not supported file Server");
 	}
-
 }

@@ -64,13 +64,19 @@ public class Synchronizer {
 			isSyncOn = false;
 		}
 	}
+	
+	public void updateFileKey(String aOldKey,String aNewKey) throws SQLException
+	{
+		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+		dbSupervisor.updateFileKey(aOldKey, aNewKey);
+	}
+	
 	public Map<SyncFileData, SyncFileData> getSyncInfo() throws SQLException
 	{
 		BackgroundSync syncDatabase = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
 		return syncDatabase.syncDatabase();
 		
 	}
-	
 	public boolean isSyncOn()
 	{
 		return isSyncOn;

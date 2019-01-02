@@ -36,30 +36,14 @@ public class DatabaseSupervisor {
 	
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
 	{
-		int sourceId;
-		int targetId;
-		
-		if(!FileDataExist(aSource))
-		{
-			sourceId = putFileData(aSource);
-		}else
-		{
-			sourceId = getFileId(aSource);
-		} 
-		if(!FileDataExist(aTarget))
-		{
-			targetId = putFileData(aTarget);
-		}else
-		{
-			targetId = getFileId(aTarget);
-		}
+		int sourceId = putFileData(aSource);
+		int targetId = putFileData(aTarget);
 		
 		String query = "INSERT INTO sync_info_table VALUES (?,?)";
 		PreparedStatement prepStmt = connection.prepareStatement(query);
 		prepStmt.setInt(1, sourceId);
 		prepStmt.setInt(2, targetId);
 		prepStmt.executeUpdate();
-		
 	}
 	
 	public Map<SyncFileData,SyncFileData> getSyncMap() throws SQLException
@@ -92,6 +76,15 @@ public class DatabaseSupervisor {
 		deleteFile(sourceId);
 		deleteFile(targetId);
 		
+	}
+	
+	public void updateFileKey(String aOldKey,String aNewKey) throws SQLException
+	{
+		String sql = "UPDATE sync_file_data SET key= ? WHERE key= ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setString(1, aNewKey);
+		prepStmt.setString(2, aOldKey);
+		prepStmt.executeUpdate();
 	}
 	
 	private void deleteFile(int fileId) throws SQLException
@@ -200,9 +193,9 @@ public class DatabaseSupervisor {
 		ResultSet rs = prepStmt.executeQuery();
 		if(rs.next())
 		{
-			if(rs.getString(5).equals("Amazon"))
+			if(rs.getString(6).equals("Amazon"))
 			{
-				return new S3SyncFileData(rs.getString(2), rs.getString(3),rs.getString(4),rs.getString(6),rs.getString(7));
+				return new S3SyncFileData(rs.getString(2), rs.getString(3),rs.getString(4),rs.getString(6),rs.getString(7),rs.getString(8));
 			}
 			else
 			{
