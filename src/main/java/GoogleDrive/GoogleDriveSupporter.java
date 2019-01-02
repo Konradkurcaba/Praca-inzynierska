@@ -108,8 +108,14 @@ public final class GoogleDriveSupporter {
 	
 	public GoogleFileMetadata getFileMetadata(String aFileId) throws IOException
 	{
-		GoogleDriveFileDownloader driveDownloader = new GoogleDriveFileDownloader();
-		return new GoogleFileMetadata(driveDownloader.getFileMetadata(driveService, aFileId));
+		try
+		{
+			GoogleDriveFileDownloader driveDownloader = new GoogleDriveFileDownloader();
+			return new GoogleFileMetadata(driveDownloader.getFileMetadata(driveService, aFileId));
+		}catch (Exception ex)
+		{
+			return null;
+		}
 	}
 	
 	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,

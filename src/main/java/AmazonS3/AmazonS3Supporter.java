@@ -164,14 +164,12 @@ public final class AmazonS3Supporter {
 	{
 		AmazonS3NameChanger nameChanger = new AmazonS3NameChanger();
 		nameChanger.changeName(s3Client, aMetadata, currentBucket.getName(), currentPrefix, newName);
-
 	}
 	
 	public S3SyncFileData getSyncInfo(String aKey,String aBucketName)
 	{
 		s3Client.getObjectMetadata(aBucketName, aKey);
 		return null;
-
 	}
 	
 	public String getCurrentPrefix()

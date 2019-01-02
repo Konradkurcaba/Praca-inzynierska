@@ -26,7 +26,8 @@ public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary
 		name = s3Object.getKey();
 		size = String.valueOf(s3Object.getSize() / 1024) + " KB";
 		lastModifiedDate = s3Object.getLastModified();
-		if(s3Object.getSize() == 0) isDirectory = true;
+		AmazonS3Converter s3Converter = new AmazonS3Converter();
+		if(s3Object.getSize()  == 0 && !s3Converter.deletePrefix(name).contains(".")) isDirectory = true;
 		else isDirectory = false;
 		bucketName = aBucketName;
 		region = aRegion;

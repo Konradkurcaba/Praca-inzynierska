@@ -76,6 +76,7 @@ public class DatabaseSupervisor {
 		deleteFile(sourceId);
 		deleteFile(targetId);
 		
+		
 	}
 	
 	public void updateFileKey(String aOldKey,String aNewKey) throws SQLException
@@ -87,14 +88,22 @@ public class DatabaseSupervisor {
 		prepStmt.executeUpdate();
 	}
 	
-	private void deleteFile(int fileId) throws SQLException
+	public boolean checkWhetherFileIsSyncTarget(SyncFileData aFile) throws SQLException
 	{
-		String sql ="DELETE FROM sync_file_data WHERE id = ?";
-		PreparedStatement prepStmt = connection.prepareStatement(sql);
-		prepStmt.setInt(1, fileId);
-		prepStmt.executeUpdate();
+		try 
+		{
+			int Id = getFileId(aFile);
+			String sql = "SELECT * FROM sync_info_table where dest_id = ? ";
+			PreparedStatement prepStmt = connection.prepareStatement(sql);
+			prepStmt.setInt(1,Id);
+			ResultSet rs = prepStmt.executeQuery();
+			if(rs.next()) return true;
+			else return false;
+		}catch(NoSuchElementException ex)
+		{
+			return false;
+		}
 	}
-	
 	
 	private int getFileId(SyncFileData aFile) throws SQLException
 	{
@@ -121,6 +130,14 @@ public class DatabaseSupervisor {
 			return rs.getInt(1);
 		} else throw new NoSuchElementException("Row doesn't exist in database");
 		
+	}
+	
+	private void deleteFile(int fileId) throws SQLException
+	{
+		String sql ="DELETE FROM sync_file_data WHERE id = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1, fileId);
+		prepStmt.executeUpdate();
 	}
 	
 	private boolean FileDataExist(SyncFileData aFileData) throws SQLException

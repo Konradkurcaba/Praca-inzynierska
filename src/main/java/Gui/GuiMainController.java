@@ -21,6 +21,7 @@ import Synchronization.Synchronizer;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
 import Threads.ChangeNameService;
+import Threads.CheckWhetherFileIsSyncTarget;
 import Threads.CopyService;
 import Threads.DeleteService;
 import Threads.GoogleDriveDownloadService;
@@ -384,31 +385,49 @@ public class GuiMainController {
 				syncSource.setOnAction(action -> {
 					
 					ObjectMetaDataIf objectToCopy = aSourceListView.getSelectionModel().getSelectedItem();
+					
 					Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aDestListView.getItems(),objectToCopy, targetServer);
 					
 					if(existingObj.isPresent())
 					{
+						
 						boolean userDecision = showYesNoWindow("Plik ju¿ istnieje, czy chcesz go zamieniæ ?");
 						if(userDecision)
 						{
-							DeleteService deleteService = new DeleteService(supportersBundle, existingObj.get());
-							deleteService.setOnSucceeded(deletedEvent -> {
-								CopyService copyService = new CopyService(supportersBundle, aCellValue, targetServer);
-								copyService.setOnSucceeded(event ->{
-									try {
-										synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
-										RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
-										refreshService.setOnSucceeded(successEvent ->{
-											aDestListView.setItems(refreshService.getValue());
+							
+							CheckWhetherFileIsSyncTarget checkFileExist = new CheckWhetherFileIsSyncTarget(existingObj.get());
+							checkFileExist.setOnSucceeded(success ->{
+								if(checkFileExist.getValue() != true)
+								{
+									DeleteService deleteService = new DeleteService(supportersBundle, existingObj.get());
+									deleteService.setOnSucceeded(deletedEvent -> {
+										CopyService copyService = new CopyService(supportersBundle, aCellValue, targetServer);
+										copyService.setOnSucceeded(event ->{
+											try {
+												synchronizer.addFilesToSynchronize(aCellValue,copyService.getValue());
+												RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
+												refreshService.setOnSucceeded(successEvent ->{
+													aDestListView.setItems(refreshService.getValue());
+												});
+												refreshService.start();
+											} catch (SQLException e) {
+												e.printStackTrace();
+											}
 										});
-										refreshService.start();
-									} catch (SQLException e) {
+										copyService.start();
+									});
+									deleteService.start();
+								}
+								else
+								{
+									try {
+										showMessageWindow("Po³¹czenie nie mo¿e zostaæ utworzone, plik jest juz celem synchronizacji","B³¹d");
+									} catch (IOException e) {
 										e.printStackTrace();
 									}
-								});
-								copyService.start();
+								}
 							});
-							deleteService.start();
+							checkFileExist.start();
 						}
 					}
 					else
@@ -435,6 +454,20 @@ public class GuiMainController {
 		return contextMenu;
 	}
 	
+	private void showMessageWindow(String aMessage,String aTitle) throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/MessageWindow.fxml"));
+		loader.load();
+		Parent root = loader.getRoot();
+		Stage okWindow = new Stage();
+		okWindow.initModality(Modality.WINDOW_MODAL);
+		okWindow.initOwner(filesListViewL.getScene().getWindow());
+		okWindow.setTitle(aTitle);
+		okWindow.setScene(new Scene(root));
+		MessageWindowController inputWindowController = loader.getController();
+		inputWindowController.init(aMessage);
+		okWindow.showAndWait();
+	}
+
 	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
 	{
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/InputWindow.fxml"));
@@ -538,7 +571,6 @@ public class GuiMainController {
 				deleteService.setOnSucceeded(deletedEvent -> {
 					final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
 					copyService.setOnSucceeded(event -> {
-						
 						ObjectMetaDataIf copiedFile = copyService.getValue();
 						RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
 						refreshService.setOnSucceeded(refreshEvent ->{

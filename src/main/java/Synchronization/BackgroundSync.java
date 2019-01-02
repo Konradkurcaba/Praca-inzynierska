@@ -86,8 +86,10 @@ public class BackgroundSync implements Runnable {
 			}else return null;
 			
 		case Google:
-			return new SyncFileData(supportersBundle.getGoogleDriveSupporter()
+			ObjectMetaDataIf googleFileMetadata = (supportersBundle.getGoogleDriveSupporter()
 					.getFileMetadata(aFileToUpdate.getFileId()));
+			if(googleFileMetadata != null) return new SyncFileData();
+			else return null;
 		case Local:
 			ObjectMetaDataIf actualMetadata = supportersBundle.getLocalFileSupporter()
 					.getLocalWrappedFile(aFileToUpdate.getFileId());
