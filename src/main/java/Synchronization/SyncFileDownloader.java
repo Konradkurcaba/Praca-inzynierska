@@ -9,7 +9,7 @@ import AmazonS3.AmazonS3SummaryMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.Settings;
+import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.SupportersBundle;
 
 public class SyncFileDownloader {
@@ -17,7 +17,7 @@ public class SyncFileDownloader {
 	public File downloadFile(ObjectMetaDataIf aFileToDownload, SupportersBundle aBundle) throws IOException {
 		
 		File downloadedFile = null;
-		File targetDirectory = new File(Settings.WORKING_DIRECTORY);
+		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);
 		if (aFileToDownload instanceof AmazonS3SummaryMetadata) {
 			AmazonS3SummaryMetadata s3ObjectMetadata = (AmazonS3SummaryMetadata) aFileToDownload;
 
@@ -51,7 +51,7 @@ public class SyncFileDownloader {
 	public File downloadFile(SyncFileData aFileToDownload,SupportersBundle aSupportersBundle) throws IOException
 	{
 		File downloadedFile = null;
-		File targetDirectory = new File(Settings.WORKING_DIRECTORY);
+		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);
 		switch(aFileToDownload.getFileServer())
 		{
 		case Amazon:

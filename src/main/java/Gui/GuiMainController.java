@@ -8,7 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
+import javax.security.auth.login.AccountException;
+
 import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.Change;
 
 import AmazonS3.AmazonS3Converter;
@@ -52,6 +55,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import pl.kurcaba.AccountsSupervisor;
+import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.SupportersBundle;
@@ -81,15 +86,24 @@ public class GuiMainController {
 	@FXML
 	private MenuItem syncMenu;
 
-	SupportersBundle supportersBundle = new SupportersBundle();
+	ApplicationConfig config;
+	SupportersBundle supportersBundle;
 	Synchronizer synchronizer = new Synchronizer(supportersBundle);
 
-	public void initComponents() throws IOException {
+	public void initComponents() throws IOException, SQLException {
+		initFields();
 		initListView();
 		initComboBoxes();
 		initMenu();
 	}
 	
+	private void initFields() throws SQLException {
+		config = new ApplicationConfig();
+		supportersBundle = new SupportersBundle();
+		AccountsSupervisor accountsSupervisor = new AccountsSupervisor(supportersBundle);
+		accountsSupervisor.changeDriveAccount(config.getCurrentDriveAccount());
+	}
+
 	public void stopSync()
 	{
 		synchronizer.stopCyclicSynch();

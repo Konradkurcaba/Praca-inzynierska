@@ -22,40 +22,32 @@ import com.google.api.services.drive.DriveScopes;
 
 public class GoogleDriveLogInSupporter {
 	
-	private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
+	private static final String APP_NAME = "Cloud Files Client ";
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final String CREDENTIALS_PATH = "credentials.json";
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
-    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
+    private static final String TOKENS_PATH = "tokens";
     
 
-	public Drive getDriveService() throws GeneralSecurityException, IOException
+	public Drive getDriveService(String aAccountAlias) throws GeneralSecurityException, IOException
 	{
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		 Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-	                .setApplicationName(APPLICATION_NAME)
+	     NetHttpTransport HttpTransport = GoogleNetHttpTransport.newTrustedTransport();
+		 Drive driveService = new Drive.Builder(HttpTransport, JSON_FACTORY, getCredentials(HttpTransport,aAccountAlias))
+	                .setApplicationName(APP_NAME)
 	                .build();
-		 return service;
+		 return driveService;
 	}
 	
-	private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Load client secrets.
-        InputStream in = ClassLoader.getSystemResourceAsStream(CREDENTIALS_FILE_PATH);
-        GoogleClientSecrets clientSecrets = null;
-        try
-        {
-        	clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-        }catch(IOException aEx)
-        {
-        	aEx.printStackTrace();
-        }
+	private Credential getCredentials(NetHttpTransport aHttpTransport,String aAccountAlias) throws IOException {
+        InputStream inputStream = ClassLoader.getSystemResourceAsStream(CREDENTIALS_PATH);
+        GoogleClientSecrets googleClientSecrets = null;
+        googleClientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(inputStream));
         
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+        GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(
+                aHttpTransport, JSON_FACTORY, googleClientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_PATH)))
                 .setAccessType("offline")
                 .build();
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("testAccount3");
+        return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, new LocalServerReceiver()).authorize(aAccountAlias);
     }
 }

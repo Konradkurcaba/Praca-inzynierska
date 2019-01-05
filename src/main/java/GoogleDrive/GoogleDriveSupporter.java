@@ -27,15 +27,12 @@ public final class GoogleDriveSupporter {
 	private String currentDirectoryId;
 	private String rootFolderId;
 	
-	public GoogleDriveSupporter() 
+	public void changeAccount(Drive aNewService) throws IOException
 	{
-		try
-		{
-			getServiceAndRootId();
-		}catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+		driveService = aNewService;
+		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
+		rootFolderId = downloader.getRootId(driveService);
+		currentDirectoryId = null;
 	}
 
 	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException
@@ -117,19 +114,10 @@ public final class GoogleDriveSupporter {
 			return null;
 		}
 	}
-	
 	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,
 			boolean isRootDirectory) {
 		if (!isRootDirectory)
 			aListToConvert.add(0, new PreviousContainer(FileServer.Google));
 		return FXCollections.observableArrayList(aListToConvert);
 	}
-
-	private void getServiceAndRootId() throws GeneralSecurityException, IOException {
-		GoogleDriveLogInSupporter driveLogInSupporter = new GoogleDriveLogInSupporter();
-		driveService = driveLogInSupporter.getDriveService();
-		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
-		rootFolderId = downloader.getRootId(driveService);
-	}
-
 }

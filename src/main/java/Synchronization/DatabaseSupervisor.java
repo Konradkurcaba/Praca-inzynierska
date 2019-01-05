@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -22,6 +24,11 @@ public class DatabaseSupervisor {
 			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,file_server VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),region VARCHAR(255))\r\n";
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
+	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,path VARCHAR(255))";
+	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT PRIMARY KEY,name VARCHAR(80))";
+	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(sync_status BOOL NOT NULL"
+			+ ",drive_default_account INT,s3_default_account INT,FOREIGN KEY (drive_default_account)\r\n" + 
+			" REFERENCES drive_accounts(id),FOREIGN KEY(s3_default_account) REFERENCES s3_accounts(id))";
 	
 	private Connection connection;
 	
@@ -63,7 +70,6 @@ public class DatabaseSupervisor {
 	
 	public void removeSyncData(SyncFileData aSource,SyncFileData aTarget) throws SQLException
 	{
-		
 		int sourceId = getFileId(aSource);
 		int targetId = getFileId(aTarget);
 		
@@ -75,8 +81,6 @@ public class DatabaseSupervisor {
 		
 		deleteFile(sourceId);
 		deleteFile(targetId);
-		
-		
 	}
 	
 	public void updateFileKey(String aOldKey,String aNewKey) throws SQLException
@@ -103,6 +107,24 @@ public class DatabaseSupervisor {
 		{
 			return false;
 		}
+	}
+	
+	public List<String> getDriveAccounts() throws SQLException
+	{
+		String sql = "SELECT name FROM drive_accounts";
+		Statement stmt = connection.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		List<String> accountList = new ArrayList();
+		while(rs.next())
+		{
+			accountList.add(rs.getString(1));
+		}
+		return accountList;
+	}
+	
+	public List<String> getS3Accounts()
+	{
+		return null;
 	}
 	
 	private int getFileId(SyncFileData aFile) throws SQLException
@@ -199,6 +221,11 @@ public class DatabaseSupervisor {
 		Statement stmt = connection.createStatement();
 		stmt.executeUpdate(CREATE_FILE_DATA_TABLE);
 		stmt.executeUpdate(CREATE_SYNC_INFO_TABLE);
+		stmt.executeUpdate(CREATE_S3_ACCOUNTS_TABLE);
+		stmt.executeUpdate(CREATE_DRIVE_ACCOUNTS_TABLE);
+		stmt.executeUpdate(CREATE_APP_CONFIG_TABLE);
+		String configRecord = "INSERT INTO app_config VALUES (FALSE,NULL,NULL)";
+		stmt.executeUpdate(configRecord);
 		connection.close();
 	}
 	

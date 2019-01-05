@@ -17,7 +17,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.Settings;
+import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.SupportersBundle;
 
 public class CopyService extends Service<ObjectMetaDataIf> {

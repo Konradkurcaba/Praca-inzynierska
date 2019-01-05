@@ -18,7 +18,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.Settings;
+import pl.kurcaba.ApplicationConfig;
 
 public class AmazonS3FileDownloader {
 
