@@ -89,15 +89,15 @@
       </SplitPane>
       <MenuBar layoutY="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="Plik">
+          <Menu mnemonicParsing="false" text="Ustawienia">
+            <items>
+              <MenuItem fx:id="accountsMenuItem" mnemonicParsing="false" text="Zarządzanie kontami" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Synchronizacja">
             <items>
                   <CheckMenuItem fx:id="syncSwitch" mnemonicParsing="false" text="Synchronizacja" />
                   <MenuItem fx:id="syncMenu" mnemonicParsing="false" text="Panel Synchronizacji" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

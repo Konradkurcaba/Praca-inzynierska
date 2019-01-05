@@ -85,11 +85,14 @@ public class GuiMainController {
 	private CheckMenuItem syncSwitch;
 	@FXML
 	private MenuItem syncMenu;
+	@FXML
+	private MenuItem accountsMenuItem;
 
 	ApplicationConfig config;
+	AccountsSupervisor accountsSupervisor;
 	SupportersBundle supportersBundle;
 	Synchronizer synchronizer = new Synchronizer(supportersBundle);
-
+	
 	public void initComponents() throws IOException, SQLException {
 		initFields();
 		initListView();
@@ -100,8 +103,12 @@ public class GuiMainController {
 	private void initFields() throws SQLException {
 		config = new ApplicationConfig();
 		supportersBundle = new SupportersBundle();
-		AccountsSupervisor accountsSupervisor = new AccountsSupervisor(supportersBundle);
-		accountsSupervisor.changeDriveAccount(config.getCurrentDriveAccount());
+		accountsSupervisor = new AccountsSupervisor(supportersBundle);
+		String googleAccountAlias = config.getDefaultDriveAccount();
+		if(googleAccountAlias != null)
+		{
+			accountsSupervisor.changeDriveAccount(config.getDefaultDriveAccount());
+		}
 	}
 
 	public void stopSync()
@@ -127,10 +134,31 @@ public class GuiMainController {
 				e.printStackTrace();
 			}
 		});
+		accountsMenuItem.setOnAction(event -> {
+			try
+			{
+				showAccountsWindow();
+			}catch(IOException ex)
+			{
+				ex.printStackTrace();
+			}
+		});
 	}
 	
-	
-	
+	private void showAccountsWindow() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccountsWindow.fxml"));
+		loader.load();
+		Parent root = loader.getRoot();
+		Stage accountsWindow = new Stage();
+		accountsWindow.initModality(Modality.WINDOW_MODAL);
+		accountsWindow.initOwner(filesListViewL.getScene().getWindow());
+		accountsWindow.setTitle("Twoje konta");
+		accountsWindow.setScene(new Scene(root));
+		AccountsWindowController accountsWindowController = loader.getController();
+		accountsWindowController.init(config,accountsSupervisor);
+		accountsWindow.showAndWait();
+	}
+
 	private void initListView() {
 
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {

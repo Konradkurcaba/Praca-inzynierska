@@ -10,9 +10,9 @@ public final class ApplicationConfig {
 	public static String WORKING_DIRECTORY = "C:\\working";
 	
 	private final List<String> driveAccounts;
-	private String currentDriveAccount;
+	private String defaultDriveAccount;
 	private final List<String> s3Accounts;
-	private String currentS3Account;
+	private String defaultS3Account;
 	
 	public ApplicationConfig() throws SQLException {
 		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
@@ -29,13 +29,24 @@ public final class ApplicationConfig {
 		return s3Accounts;
 	}
 	
-	public String getCurrentDriveAccount()
+	public String getDefaultDriveAccount()
 	{
-		return currentDriveAccount;
+		return defaultDriveAccount;
+	}
+	
+	public void changeDefaultDriveAccount(String aDriveAlias) throws SQLException
+	{
+		defaultDriveAccount = aDriveAlias;
+		if(!driveAccounts.contains(aDriveAlias))
+		{
+			DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+			dbSupervisor.putGoogleAlias(aDriveAlias);
+			dbSupervisor.closeConnection();
+		}
 	}
 	public String getCurrentS3Account()
 	{
-		return currentS3Account;
+		return defaultS3Account;
 	}
 
 	

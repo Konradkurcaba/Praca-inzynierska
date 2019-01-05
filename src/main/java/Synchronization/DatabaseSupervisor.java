@@ -25,7 +25,7 @@ public class DatabaseSupervisor {
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
 	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,path VARCHAR(255))";
-	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT PRIMARY KEY,name VARCHAR(80))";
+	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(80))";
 	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(sync_status BOOL NOT NULL"
 			+ ",drive_default_account INT,s3_default_account INT,FOREIGN KEY (drive_default_account)\r\n" + 
 			" REFERENCES drive_accounts(id),FOREIGN KEY(s3_default_account) REFERENCES s3_accounts(id))";
@@ -108,6 +108,11 @@ public class DatabaseSupervisor {
 			return false;
 		}
 	}
+	public String getDefaultDriveAccount()
+	{
+		String sql = "SELECT  FROM app_config JOIN";
+		return null;
+	}
 	
 	public List<String> getDriveAccounts() throws SQLException
 	{
@@ -122,6 +127,32 @@ public class DatabaseSupervisor {
 		return accountList;
 	}
 	
+	public void putGoogleAlias(String aGoogleAlias) throws SQLException
+	{
+		String sql = "INSERT INTO drive_accounts(name) VALUES (?)";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setString(1, aGoogleAlias);
+		prepStmt.executeUpdate();
+	}
+	
+	public void updateDefaultDriveAccount(String aGoogleAlias) throws SQLException
+	{
+		String query = "SELECT id FROM drive_accounts WHERE name = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(query);
+		prepStmt.setString(1, aGoogleAlias);
+		ResultSet rs = prepStmt.executeQuery();
+		int id = 0;
+		if(rs.next())
+		{
+			id = rs.getInt(1);
+		}
+		String sql = "UPDATE app_config drive_default_account = ? ";
+		prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1,id);
+		prepStmt.executeUpdate();
+	}
+	
+
 	public List<String> getS3Accounts()
 	{
 		return null;
