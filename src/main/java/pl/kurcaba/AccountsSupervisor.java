@@ -13,14 +13,10 @@ public class AccountsSupervisor {
 	private SupportersBundle supportersBundle;
 	private boolean isDriveLoggedIn = false;
 	private String currentAccount;
+	private boolean isS3LoggedIn = false;
 	
 	public AccountsSupervisor(SupportersBundle aSupportersBundle) {
 		supportersBundle = aSupportersBundle;
-	}
-	
-	public boolean isDriveLoggedIn()
-	{
-		return isDriveLoggedIn;
 	}
 	
 	public boolean changeDriveAccount(String aAccountAlias)
@@ -38,8 +34,18 @@ public class AccountsSupervisor {
 			return false;
 		}
 	}
-	public String getCurrentAccount() {
+	public String getCurrentAccount()
+	{
 		return currentAccount;
+	}
+	public boolean isDriveLoggedIn()
+	{
+		return isDriveLoggedIn;
+	}
+	
+	public boolean isS3LoggedIn()
+	{
+		return isS3LoggedIn;
 	}
 	
 	

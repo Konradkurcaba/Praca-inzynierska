@@ -4,6 +4,7 @@ package Gui;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import Threads.CreateNewDriveAccount;
 import Threads.GetGoogleDriveService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,8 +19,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
+import pl.kurcaba.FileServer;
+import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.TextColor;
-
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 
 public class AccountsWindowController {
 
@@ -72,22 +77,22 @@ public class AccountsWindowController {
 		//s3Combo.getItems().setAll(s3Accounts);
 		//s3Combo.getItems().add("Nowe Konto");
 		driveCombo.setOnAction(event ->{
+			
 			driveStatus.setText("Logowanie...");
 			driveStatus.setFill(Paint.valueOf(TextColor.Grey.getColor()));
 			String selectedAccount = (String)driveCombo.getSelectionModel().getSelectedItem();
 			if(selectedAccount.equals("Nowe Konto..."))
 			{
 				try {
-					String newAccountAliast = showInputWindow("Nowe Konto","Podaj nazwê nowego konta");
-					boolean isAccountChanged = accountsSupervisor.changeDriveAccount(newAccountAliast);
-					if(isAccountChanged)
-					{
-						applicationConfig.changeDefaultDriveAccount(newAccountAliast);
-						driveCombo.getItems().add(0, newAccountAliast);
-						driveCombo.getSelectionModel().select(newAccountAliast);	
+					String newAccountAlias = showInputWindow("Nowe Konto","Podaj nazwê nowego konta");
+					CreateNewDriveAccount createNewDriveAccount = new CreateNewDriveAccount(applicationConfig, newAccountAlias, accountsSupervisor);
+					createNewDriveAccount.setOnSucceeded(successEvent ->{
+						driveCombo.getItems().add(0, newAccountAlias);
+						driveCombo.getSelectionModel().select(newAccountAlias);	
 						refreshStatus();
-					}
-				} catch (IOException | SQLException e) {
+					});
+					createNewDriveAccount.start();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -100,6 +105,31 @@ public class AccountsWindowController {
 					});
 				getGoogleDriveService.start();
 			}
+		});
+		
+		driveCombo.setCellFactory(lv -> new ListCell<String>() {
+			@Override
+			protected void updateItem(String aCellValue,boolean isEmpty) {
+				super.updateItem(aCellValue,isEmpty);
+				if (isEmpty || aCellValue == null) {
+					setText("");
+					setContextMenu(null);
+				} else {
+					setText(aCellValue);
+					ContextMenu contextMenu = new ContextMenu();
+					MenuItem deleteItem = new MenuItem("Usuñ");
+					deleteItem.setOnAction(event ->{
+						try {
+							applicationConfig.deleteDriveAccount(aCellValue);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					});
+					contextMenu.getItems().add(deleteItem);
+					setContextMenu(contextMenu);
+				} 
+			}
+			
 		});
 	}
 	

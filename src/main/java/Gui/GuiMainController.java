@@ -138,6 +138,8 @@ public class GuiMainController {
 			try
 			{
 				showAccountsWindow();
+				clearGui();
+				
 			}catch(IOException ex)
 			{
 				ex.printStackTrace();
@@ -145,6 +147,15 @@ public class GuiMainController {
 		});
 	}
 	
+	private void clearGui() {
+		filesListViewL.getItems().clear();
+		filesListViewR.getItems().clear();
+		selectedFileSizeTextFieldL.clear();
+		selectedFileSizeTextFieldL.clear();
+		lastModifiedTimeTextViewL.clear();
+		lastModifiedTimeTextViewR.clear();		
+	}
+
 	private void showAccountsWindow() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccountsWindow.fxml"));
 		loader.load();
@@ -157,6 +168,7 @@ public class GuiMainController {
 		AccountsWindowController accountsWindowController = loader.getController();
 		accountsWindowController.init(config,accountsSupervisor);
 		accountsWindow.showAndWait();
+		comboBoxesRefreshItems();
 	}
 
 	private void initListView() {
@@ -273,8 +285,8 @@ public class GuiMainController {
 	}
 
 	private void initComboBoxes() {
-		filesServerComboL.getItems().addAll(FileServer.Google, FileServer.Amazon, FileServer.Local);
-		filesServerComboR.getItems().addAll(FileServer.Google, FileServer.Amazon, FileServer.Local);
+	
+		comboBoxesRefreshItems();
 
 		filesServerComboL.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewL);
@@ -282,6 +294,29 @@ public class GuiMainController {
 		filesServerComboR.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewR);
 		});
+	}
+	
+	private void comboBoxesRefreshItems()
+	{	
+		
+		filesServerComboL.getItems().clear();
+		filesServerComboR.getItems().clear();
+		
+		if(accountsSupervisor.isDriveLoggedIn())
+		{
+			filesServerComboL.getItems().add(FileServer.Google);
+			filesServerComboR.getItems().add(FileServer.Google);
+		}
+		if(accountsSupervisor.isS3LoggedIn())
+		{
+			filesServerComboL.getItems().add(FileServer.Amazon);
+			filesServerComboR.getItems().add(FileServer.Amazon);
+		}
+		
+		filesServerComboL.getItems().add(FileServer.Local);
+		filesServerComboR.getItems().add(FileServer.Local);
+		
+		
 	}
 
 	private void comboBoxSelected(ObservableValue event, Object aOldValue, Object aNewValue, ListView aListView) {

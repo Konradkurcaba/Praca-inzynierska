@@ -21,6 +21,34 @@ public final class ApplicationConfig {
 		dbSupervisor.closeConnection();
 	}
 	
+	public void changeDefaultDriveAccount(String aDriveAccount) throws SQLException
+	{
+		defaultDriveAccount = aDriveAccount;
+		if(!driveAccounts.contains(aDriveAccount))
+		{
+			driveAccounts.add(aDriveAccount);
+			DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+			dbSupervisor.putGoogleAccount(aDriveAccount);
+			dbSupervisor.closeConnection();
+		}else
+		{
+			DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+			dbSupervisor.updateDefaultDriveAccount(aDriveAccount);
+			dbSupervisor.closeConnection();
+		}
+	}
+	public void deleteDriveAccount(String aAccount) throws SQLException
+	{
+		driveAccounts.remove(aAccount);
+		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+		dbSupervisor.deleteGoogleAccount(aAccount);
+		dbSupervisor.closeConnection();
+	}
+	public String getCurrentS3Account()
+	{
+		return defaultS3Account;
+	}
+
 	public List<String> getDriveAccounts() {
 		return driveAccounts;
 	}
@@ -33,21 +61,5 @@ public final class ApplicationConfig {
 	{
 		return defaultDriveAccount;
 	}
-	
-	public void changeDefaultDriveAccount(String aDriveAlias) throws SQLException
-	{
-		defaultDriveAccount = aDriveAlias;
-		if(!driveAccounts.contains(aDriveAlias))
-		{
-			DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
-			dbSupervisor.putGoogleAlias(aDriveAlias);
-			dbSupervisor.closeConnection();
-		}
-	}
-	public String getCurrentS3Account()
-	{
-		return defaultS3Account;
-	}
-
 	
 }

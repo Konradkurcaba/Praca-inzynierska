@@ -26,7 +26,7 @@ public class DatabaseSupervisor {
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
 	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,path VARCHAR(255))";
 	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(80))";
-	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(sync_status BOOL NOT NULL"
+	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(id INT PRIMARY KEY,sync_status BOOL NOT NULL"
 			+ ",drive_default_account INT,s3_default_account INT,FOREIGN KEY (drive_default_account)\r\n" + 
 			" REFERENCES drive_accounts(id),FOREIGN KEY(s3_default_account) REFERENCES s3_accounts(id))";
 	
@@ -39,6 +39,19 @@ public class DatabaseSupervisor {
 	public void closeConnection() throws SQLException
 	{
 		connection.close();
+	}
+	
+	public void getAppConfig() throws SQLException
+	{
+		String sql = "SELECT * FROM app_config";
+		Statement stmt = connection.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		if(rs.next())
+		{
+			boolean isSyncOn = rs.getBoolean(2);
+			String defaultGoogleAccount = rs.getString(3);
+			String defaultAmazonAccount = rs.getString(4);
+		}
 	}
 	
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
@@ -127,11 +140,19 @@ public class DatabaseSupervisor {
 		return accountList;
 	}
 	
-	public void putGoogleAlias(String aGoogleAlias) throws SQLException
+	public void putGoogleAccount(String aAccountName) throws SQLException
 	{
 		String sql = "INSERT INTO drive_accounts(name) VALUES (?)";
 		PreparedStatement prepStmt = connection.prepareStatement(sql);
-		prepStmt.setString(1, aGoogleAlias);
+		prepStmt.setString(1, aAccountName);
+		prepStmt.executeUpdate();
+	}
+	
+	public void deleteGoogleAccount(String aAccountName) throws SQLException
+	{
+		String sql = "DELETE FROM drive_accounts WHERE name = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setString(1, aAccountName);
 		prepStmt.executeUpdate();
 	}
 	
@@ -146,7 +167,7 @@ public class DatabaseSupervisor {
 		{
 			id = rs.getInt(1);
 		}
-		String sql = "UPDATE app_config drive_default_account = ? ";
+		String sql = "UPDATE app_config SET drive_default_account = ? WHERE id=1";
 		prepStmt = connection.prepareStatement(sql);
 		prepStmt.setInt(1,id);
 		prepStmt.executeUpdate();
@@ -255,9 +276,8 @@ public class DatabaseSupervisor {
 		stmt.executeUpdate(CREATE_S3_ACCOUNTS_TABLE);
 		stmt.executeUpdate(CREATE_DRIVE_ACCOUNTS_TABLE);
 		stmt.executeUpdate(CREATE_APP_CONFIG_TABLE);
-		String configRecord = "INSERT INTO app_config VALUES (FALSE,NULL,NULL)";
+		String configRecord = "INSERT INTO app_config VALUES (1,FALSE,NULL,NULL)";
 		stmt.executeUpdate(configRecord);
-		connection.close();
 	}
 	
 	private SyncFileData getFileData(int aId) throws SQLException
