@@ -118,10 +118,11 @@ public class AccountsWindowController {
 			}
 		});
 		
+		s3Combo.getItems().setAll(applicationConfig.getS3Accounts());
 		s3Combo.getItems().add("Nowe Konto...");
 		s3Combo.setOnAction(action -> {
 			
-			String selectedAccount = (String)s3Combo.getSelectionModel().getSelectedItem();
+			String selectedAccount = s3Combo.getSelectionModel().getSelectedItem().toString();
 			if(selectedAccount.equals("Nowe Konto..."))
 			{
 				try
@@ -178,7 +179,7 @@ public class AccountsWindowController {
 		if(amazonWindowController.wasOkButtonPressed())
 		{
 			return new AmazonAccountInfo(amazonWindowController.getAccountName(), amazonWindowController.getAccesKey()
-					, amazonWindowController.getSecretKey());
+					, amazonWindowController.getSecretKey(),null);
 		}else return null;
 	}
 	

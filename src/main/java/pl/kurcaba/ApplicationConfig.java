@@ -20,8 +20,12 @@ public final class ApplicationConfig {
 		driveAccounts = dbSupervisor.getDriveAccounts();
 		s3Accounts = dbSupervisor.getS3Accounts();
 		ApplicationConfiguration config = dbSupervisor.getAppConfig();
-		defaultDriveAccount = config.getDefaultGoogleAccount();
 		dbSupervisor.closeConnection();
+		if(config != null)
+		{
+			defaultDriveAccount = config.getDefaultGoogleAccount();
+			defaultS3Account = config.getAmazonAccount();
+		}
 	}
 	
 	public void changeDefaultDriveAccount(String aDriveAccount) throws SQLException
@@ -41,11 +45,14 @@ public final class ApplicationConfig {
 		}
 	}
 	
-	public void changeDefaults3Account(AmazonAccountInfo newAmazonAccountInfo) {
+	public void changeDefaults3Account(AmazonAccountInfo newAmazonAccountInfo) throws SQLException {
 		defaultS3Account = newAmazonAccountInfo;
 		if(!s3Accounts.contains(newAmazonAccountInfo))
 		{
 			s3Accounts.add(newAmazonAccountInfo);
+			DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
+			dbSupervisor.putAmazonAccount(newAmazonAccountInfo);
+			dbSupervisor.closeConnection();
 		}
 	}
 	

@@ -5,12 +5,14 @@ public class AmazonAccountInfo {
 	private final String accountName;
 	private final String accessKey;
 	private final String secretKey;
+	private final String lastRegion;
 	
-	public AmazonAccountInfo(String accountName, String accessKey, String secretKey) {
+	public AmazonAccountInfo(String aAccountName, String aAccessKey, String aSecretKey, String aLastRegion) {
 		super();
-		this.accountName = accountName;
-		this.accessKey = accessKey;
-		this.secretKey = secretKey;
+		this.accountName = aAccountName;
+		this.accessKey = aAccessKey;
+		this.secretKey = aSecretKey;
+		this.lastRegion = aLastRegion;
 	}
 
 	public String getAccountName() {
@@ -23,6 +25,11 @@ public class AmazonAccountInfo {
 
 	public String getSecretKey() {
 		return secretKey;
+	}
+	
+	public String getLastRegion()
+	{
+		return lastRegion;
 	}
 
 	@Override

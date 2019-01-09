@@ -27,10 +27,10 @@ public class DatabaseSupervisor {
 			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,file_server VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),region VARCHAR(255))\r\n";
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
-	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,name VARCHAR(60) NOT NULL"
-			+ ",acces_key VARCHAR(60) NOT NULL,secret_key VARCHAR(60) NOT NULL,LastRegion VARCHAR(60) NOT NULL)";
+	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(60) NOT NULL"
+			+ ",access_key VARCHAR(60) NOT NULL,secret_key VARCHAR(60) NOT NULL,last_region VARCHAR(60))";
 	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(80))";
-	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(id INT PRIMARY KEY,sync_status BOOL NOT NULL"
+	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(id INT AUTO_INCREMENT PRIMARY KEY,sync_status BOOL NOT NULL"
 			+ ",drive_default_account INT,s3_default_account INT,FOREIGN KEY (drive_default_account)\r\n" + 
 			" REFERENCES drive_accounts(id),FOREIGN KEY(s3_default_account) REFERENCES s3_accounts(id))";
 	
@@ -47,21 +47,33 @@ public class DatabaseSupervisor {
 	
 	public ApplicationConfiguration getAppConfig() throws SQLException
 	{
-		String sql = "SELECT SYNC_STATUS,NAME,S3_DEFAULT_ACCOUNT FROM app_config JOIN DRIVE_ACCOUNTS";
+		String sql = "SELECT SYNC_STATUS,drive_default_account,s3_default_account FROM app_config";
 		Statement stmt = connection.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		if(rs.next())
 		{
 			boolean isSyncOn = rs.getBoolean(1);
-			String defaultGoogleAccount = rs.getString(2);
-			String defaultAmazonAccount = rs.getString(3);
-			ApplicationConfiguration config = new ApplicationConfiguration(defaultGoogleAccount,isSyncOn);
+			int googleAccountId = rs.getInt(2);
+			int amazonAccountId = rs.getInt(3);
+			AmazonAccountInfo amazonAccount = null;
+			if(amazonAccountId != 0)
+			{
+				amazonAccount = getAmazonAccountById(amazonAccountId);
+			}
+			String googleAccountName = null;
+			if(googleAccountId != 0)
+			{
+				String accountName = getGoogleAccountById(googleAccountId);
+			}
+			ApplicationConfiguration config = new ApplicationConfiguration(isSyncOn,googleAccountName,amazonAccount);
+			
 			return config;
 		}
-		else throw new SQLException("Row doesn't exist");
+		else return null;
 		
 	}
 	
+
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
 	{
 		int sourceId = putFileData(aSource);
@@ -156,6 +168,17 @@ public class DatabaseSupervisor {
 		prepStmt.executeUpdate();
 	}
 	
+	public void putAmazonAccount(AmazonAccountInfo aAmazonAccount) throws SQLException
+	{
+		String sql = "INSERT INTO s3_accounts(name,access_key,secret_key,last_Region) VALUES(?,?,?,?)";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setString(1,aAmazonAccount.getAccountName() );
+		prepStmt.setString(2, aAmazonAccount.getAccessKey());
+		prepStmt.setString(3, aAmazonAccount.getSecretKey());
+		prepStmt.setString(4, aAmazonAccount.getLastRegion());
+		prepStmt.executeUpdate();
+	}
+	
 	public void deleteGoogleAccount(String aAccountName) throws SQLException
 	{
 		String sql = "DELETE FROM drive_accounts WHERE name = ?";
@@ -181,10 +204,23 @@ public class DatabaseSupervisor {
 		prepStmt.executeUpdate();
 	}
 	
+	
 
-	public List<AmazonAccountInfo> getS3Accounts()
+	public List<AmazonAccountInfo> getS3Accounts() throws SQLException
 	{
-		return null;
+		List<AmazonAccountInfo> accounts = new ArrayList<>();
+		String sql = "SELECT name,access_key,secret_key,last_region FROM s3_accounts";
+		Statement statement = connection.createStatement();
+		ResultSet rs = statement.executeQuery(sql);
+		while(rs.next())
+		{
+			String name = rs.getString(1);
+			String access_key = rs.getString(2);
+			String secret_key = rs.getString(3);
+			String last_region = rs.getString(4);
+			accounts.add(new AmazonAccountInfo(name, access_key, secret_key,last_region));
+		}
+		return accounts;
 	}
 	
 	private int getFileId(SyncFileData aFile) throws SQLException
@@ -212,6 +248,31 @@ public class DatabaseSupervisor {
 			return rs.getInt(1);
 		} else throw new NoSuchElementException("Row doesn't exist in database");
 		
+	}
+	
+	private String getGoogleAccountById(int googleAccountId) throws SQLException {
+		String sql = "SELECT name from drive_accounts WHERE id = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1, googleAccountId);
+		ResultSet rs = prepStmt.executeQuery();
+		if(rs.next())
+		{
+			return rs.getString(1);
+		}else throw new NoSuchElementException("Row with given id doesn't exist");
+		
+	}
+	
+	private AmazonAccountInfo getAmazonAccountById(int aId) throws SQLException
+	{
+		String sql = "SELECT (name,access_key,secret_key) FROM s3_accounts WHERE id = ? ";
+		PreparedStatement prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1, aId);
+		ResultSet rs = prepStmt.executeQuery();
+		if(rs.next())
+		{
+			return new AmazonAccountInfo(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
+		}
+		else throw new NoSuchElementException("Row with given id doesn't exist");
 	}
 	
 	private void deleteFile(int fileId) throws SQLException
@@ -318,6 +379,5 @@ public class DatabaseSupervisor {
 			 createTables();
 		}
 	}
-	
 	
 }
