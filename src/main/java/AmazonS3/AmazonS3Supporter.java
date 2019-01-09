@@ -29,8 +29,13 @@ public final class AmazonS3Supporter {
 	AmazonS3BucketMetadata currentBucket;
 	String currentPrefix;
 	String currentRegion = "";
-	public AmazonS3Supporter() {
-		getClient();
+
+	public void ChangeAccount(AmazonS3 aS3Client)
+	{
+		s3Client = aS3Client;
+		currentBucket = null;
+		currentPrefix = "";
+		String currentRegion = "";
 	}
 	
 	public ObservableList<ObjectMetaDataIf> getBucketsMetadata()
@@ -192,9 +197,4 @@ public final class AmazonS3Supporter {
 		return aCurrentPrefix;
 	}
 	
-	private void getClient()
-	{
-		AmazonS3LogInSupporter loginSupporter = new AmazonS3LogInSupporter();
-		s3Client = loginSupporter.getAmazonS3Client();
-	}
 }

@@ -33,7 +33,7 @@ public final class GoogleDriveSupporter {
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		rootFolderId = downloader.getRootId(driveService);
 		currentDirectoryId = null;
-	}
+	}	
 
 	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException
 	{

@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import AmazonS3.AmazonAccountInfo;
+import pl.kurcaba.ApplicationConfig;
+import pl.kurcaba.ApplicationConfiguration;
 import pl.kurcaba.FileServer;
 
 
@@ -24,7 +27,8 @@ public class DatabaseSupervisor {
 			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,file_server VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),region VARCHAR(255))\r\n";
 	private String CREATE_SYNC_INFO_TABLE = "CREATE TABLE sync_info_table(source_id INT NOT NULL ,dest_id INT NOT NULL"
 			+ ",FOREIGN KEY (source_id) REFERENCES sync_file_data(id),FOREIGN KEY (dest_id) REFERENCES sync_file_data(id))\r\n";
-	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,path VARCHAR(255))";
+	private String CREATE_S3_ACCOUNTS_TABLE = "CREATE TABLE s3_accounts(id INT PRIMARY KEY,name VARCHAR(60) NOT NULL"
+			+ ",acces_key VARCHAR(60) NOT NULL,secret_key VARCHAR(60) NOT NULL,LastRegion VARCHAR(60) NOT NULL)";
 	private String CREATE_DRIVE_ACCOUNTS_TABLE = "CREATE TABLE drive_accounts(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(80))";
 	private String CREATE_APP_CONFIG_TABLE = "CREATE TABLE app_config(id INT PRIMARY KEY,sync_status BOOL NOT NULL"
 			+ ",drive_default_account INT,s3_default_account INT,FOREIGN KEY (drive_default_account)\r\n" + 
@@ -41,17 +45,21 @@ public class DatabaseSupervisor {
 		connection.close();
 	}
 	
-	public void getAppConfig() throws SQLException
+	public ApplicationConfiguration getAppConfig() throws SQLException
 	{
-		String sql = "SELECT * FROM app_config";
+		String sql = "SELECT SYNC_STATUS,NAME,S3_DEFAULT_ACCOUNT FROM app_config JOIN DRIVE_ACCOUNTS";
 		Statement stmt = connection.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		if(rs.next())
 		{
-			boolean isSyncOn = rs.getBoolean(2);
-			String defaultGoogleAccount = rs.getString(3);
-			String defaultAmazonAccount = rs.getString(4);
+			boolean isSyncOn = rs.getBoolean(1);
+			String defaultGoogleAccount = rs.getString(2);
+			String defaultAmazonAccount = rs.getString(3);
+			ApplicationConfiguration config = new ApplicationConfiguration(defaultGoogleAccount,isSyncOn);
+			return config;
 		}
+		else throw new SQLException("Row doesn't exist");
+		
 	}
 	
 	public void saveSyncData(SyncFileData aSource, SyncFileData aTarget) throws SQLException
@@ -174,7 +182,7 @@ public class DatabaseSupervisor {
 	}
 	
 
-	public List<String> getS3Accounts()
+	public List<AmazonAccountInfo> getS3Accounts()
 	{
 		return null;
 	}

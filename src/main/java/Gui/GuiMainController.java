@@ -307,11 +307,11 @@ public class GuiMainController {
 			filesServerComboL.getItems().add(FileServer.Google);
 			filesServerComboR.getItems().add(FileServer.Google);
 		}
-		if(accountsSupervisor.isS3LoggedIn())
-		{
+	//	if(accountsSupervisor.isS3LoggedIn())
+	//	{
 			filesServerComboL.getItems().add(FileServer.Amazon);
 			filesServerComboR.getItems().add(FileServer.Amazon);
-		}
+	//	}
 		
 		filesServerComboL.getItems().add(FileServer.Local);
 		filesServerComboR.getItems().add(FileServer.Local);

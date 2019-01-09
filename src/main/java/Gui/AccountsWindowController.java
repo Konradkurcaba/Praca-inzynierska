@@ -4,6 +4,8 @@ package Gui;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import AmazonS3.AmazonAccountInfo;
+import Threads.CreateNewAmazonAccount;
 import Threads.CreateNewDriveAccount;
 import Threads.GetGoogleDriveService;
 import javafx.collections.FXCollections;
@@ -63,6 +65,15 @@ public class AccountsWindowController {
 			driveStatus.setText("Niezalogowany");
 			driveStatus.setFill(Paint.valueOf(TextColor.Red.getColor()));
 		}
+		if(accountsSupervisor.isS3LoggedIn())
+		{
+			s3Status.setFill(Paint.valueOf(TextColor.Green.getColor()));
+			s3Status.setText("Zalogowano");
+		}else
+		{
+			s3Status.setText("Niezalogowany");
+			s3Status.setFill(Paint.valueOf(TextColor.Red.getColor()));
+		}
 	}
 	
 
@@ -107,29 +118,31 @@ public class AccountsWindowController {
 			}
 		});
 		
-		driveCombo.setCellFactory(lv -> new ListCell<String>() {
-			@Override
-			protected void updateItem(String aCellValue,boolean isEmpty) {
-				super.updateItem(aCellValue,isEmpty);
-				if (isEmpty || aCellValue == null) {
-					setText("");
-					setContextMenu(null);
-				} else {
-					setText(aCellValue);
-					ContextMenu contextMenu = new ContextMenu();
-					MenuItem deleteItem = new MenuItem("Usuñ");
-					deleteItem.setOnAction(event ->{
-						try {
-							applicationConfig.deleteDriveAccount(aCellValue);
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-					});
-					contextMenu.getItems().add(deleteItem);
-					setContextMenu(contextMenu);
-				} 
-			}
+		s3Combo.getItems().add("Nowe Konto...");
+		s3Combo.setOnAction(action -> {
 			
+			String selectedAccount = (String)s3Combo.getSelectionModel().getSelectedItem();
+			if(selectedAccount.equals("Nowe Konto..."))
+			{
+				try
+				{
+					AmazonAccountInfo newAmazonAccountInfo = showAmazonWindow();
+					CreateNewAmazonAccount createAmazonAccount = new CreateNewAmazonAccount(applicationConfig, newAmazonAccountInfo, accountsSupervisor);
+					createAmazonAccount.setOnSucceeded(event ->{
+						s3Combo.getItems().add(0,newAmazonAccountInfo);
+						s3Combo.getSelectionModel().select(newAmazonAccountInfo);
+						refreshStatus();
+					});
+					createAmazonAccount.start();
+				}catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+				
+			}else
+			{
+				
+			}
 		});
 	}
 	
@@ -148,4 +161,27 @@ public class AccountsWindowController {
 		inputWindow.showAndWait();
 		return(inputWindowController.getTextFieldValue());
 	}
+	
+	private AmazonAccountInfo showAmazonWindow() throws IOException
+	{
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/amazonAccountWindow.fxml"));
+		loader.load();
+		Parent root = loader.getRoot();
+		Stage amazonWindow = new Stage();
+		amazonWindow.initModality(Modality.WINDOW_MODAL);
+		amazonWindow.initOwner(s3Combo.getScene().getWindow());
+		amazonWindow.setTitle("Nowe konto");
+		amazonWindow.setScene(new Scene(root));
+		AmazonNewAccountController amazonWindowController = loader.getController();
+		amazonWindowController.init();
+		amazonWindow.showAndWait();
+		if(amazonWindowController.wasOkButtonPressed())
+		{
+			return new AmazonAccountInfo(amazonWindowController.getAccountName(), amazonWindowController.getAccesKey()
+					, amazonWindowController.getSecretKey());
+		}else return null;
+	}
+	
+	
+	
 }

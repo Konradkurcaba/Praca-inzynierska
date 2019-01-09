@@ -3,6 +3,7 @@ package pl.kurcaba;
 import java.sql.SQLException;
 import java.util.List;
 
+import AmazonS3.AmazonAccountInfo;
 import Synchronization.DatabaseSupervisor;
 
 public final class ApplicationConfig {
@@ -11,13 +12,15 @@ public final class ApplicationConfig {
 	
 	private final List<String> driveAccounts;
 	private String defaultDriveAccount;
-	private final List<String> s3Accounts;
-	private String defaultS3Account;
+	private final List<AmazonAccountInfo> s3Accounts;
+	private AmazonAccountInfo defaultS3Account;
 	
 	public ApplicationConfig() throws SQLException {
 		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
 		driveAccounts = dbSupervisor.getDriveAccounts();
 		s3Accounts = dbSupervisor.getS3Accounts();
+		ApplicationConfiguration config = dbSupervisor.getAppConfig();
+		defaultDriveAccount = config.getDefaultGoogleAccount();
 		dbSupervisor.closeConnection();
 	}
 	
@@ -37,6 +40,15 @@ public final class ApplicationConfig {
 			dbSupervisor.closeConnection();
 		}
 	}
+	
+	public void changeDefaults3Account(AmazonAccountInfo newAmazonAccountInfo) {
+		defaultS3Account = newAmazonAccountInfo;
+		if(!s3Accounts.contains(newAmazonAccountInfo))
+		{
+			s3Accounts.add(newAmazonAccountInfo);
+		}
+	}
+	
 	public void deleteDriveAccount(String aAccount) throws SQLException
 	{
 		driveAccounts.remove(aAccount);
@@ -44,7 +56,7 @@ public final class ApplicationConfig {
 		dbSupervisor.deleteGoogleAccount(aAccount);
 		dbSupervisor.closeConnection();
 	}
-	public String getCurrentS3Account()
+	public AmazonAccountInfo getCurrentS3Account()
 	{
 		return defaultS3Account;
 	}
@@ -53,7 +65,7 @@ public final class ApplicationConfig {
 		return driveAccounts;
 	}
 
-	public List<String> getS3Accounts() {
+	public List<AmazonAccountInfo> getS3Accounts() {
 		return s3Accounts;
 	}
 	
@@ -61,5 +73,4 @@ public final class ApplicationConfig {
 	{
 		return defaultDriveAccount;
 	}
-	
 }
