@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.analytics.StorageClassAnalysis;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.Change;
 
+import AmazonS3.AmazonAccountInfo;
 import AmazonS3.AmazonS3Converter;
 import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
@@ -109,6 +110,12 @@ public class GuiMainController {
 		{
 			accountsSupervisor.changeDriveAccount(config.getDefaultDriveAccount());
 		}
+		AmazonAccountInfo amazonDefaultAccount = config.getCurrentS3Account();
+		if(amazonDefaultAccount != null)
+		{
+			accountsSupervisor.changeAmazonAccount(amazonDefaultAccount);
+		}
+		
 	}
 
 	public void stopSync()

@@ -2,18 +2,19 @@ package Threads;
 
 import java.sql.SQLException;
 
+import AmazonS3.AmazonAccountInfo;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
 
-public class CreateNewDriveAccount extends Service {
+public class ChangeAmazonAccountService extends Service {
 
 	private final ApplicationConfig appConfig;
-	private final String newAccount;
+	private final AmazonAccountInfo newAccount;
 	private final AccountsSupervisor accountsSupervisor;
 	
-	public CreateNewDriveAccount(ApplicationConfig aApplicationConfig,String aNewAccount,AccountsSupervisor Aspr) {
+	public ChangeAmazonAccountService(ApplicationConfig aApplicationConfig,AmazonAccountInfo aNewAccount,AccountsSupervisor Aspr) {
 		appConfig = aApplicationConfig;
 		newAccount = aNewAccount;
 		accountsSupervisor = Aspr;
@@ -24,10 +25,10 @@ public class CreateNewDriveAccount extends Service {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
-				boolean isAccountChanged = accountsSupervisor.changeDriveAccount(newAccount);
+				boolean isAccountChanged = accountsSupervisor.changeAmazonAccount(newAccount);
 				if(isAccountChanged)
 				{
-					appConfig.changeDefaultDriveAccount(newAccount);
+					appConfig.changeDefaults3Account(newAccount);
 				}
 				return newAccount;
 			}

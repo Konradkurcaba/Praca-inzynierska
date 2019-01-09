@@ -60,12 +60,12 @@ public class DatabaseSupervisor {
 			{
 				amazonAccount = getAmazonAccountById(amazonAccountId);
 			}
-			String googleAccountName = null;
+			String accountName = null;
 			if(googleAccountId != 0)
 			{
-				String accountName = getGoogleAccountById(googleAccountId);
+				accountName = getGoogleAccountById(googleAccountId);
 			}
-			ApplicationConfiguration config = new ApplicationConfiguration(isSyncOn,googleAccountName,amazonAccount);
+			ApplicationConfiguration config = new ApplicationConfiguration(isSyncOn,accountName,amazonAccount);
 			
 			return config;
 		}
@@ -204,6 +204,23 @@ public class DatabaseSupervisor {
 		prepStmt.executeUpdate();
 	}
 	
+	public void updateDefaultAmazonAccount(AmazonAccountInfo aAccount) throws SQLException
+	{
+		String query = "SELECT id FROM s3_accounts WHERE name = ?";
+		PreparedStatement prepStmt = connection.prepareStatement(query);
+		prepStmt.setString(1, aAccount.getAccountName());
+		ResultSet rs = prepStmt.executeQuery();
+		int id = 0;
+		if(rs.next())
+		{
+			id = rs.getInt(1);
+		}
+		String sql = "UPDATE app_config SET s3_default_account = ? WHERE id=1";
+		prepStmt = connection.prepareStatement(sql);
+		prepStmt.setInt(1,id);
+		prepStmt.executeUpdate();
+	}
+	
 	
 
 	public List<AmazonAccountInfo> getS3Accounts() throws SQLException
@@ -264,7 +281,7 @@ public class DatabaseSupervisor {
 	
 	private AmazonAccountInfo getAmazonAccountById(int aId) throws SQLException
 	{
-		String sql = "SELECT (name,access_key,secret_key) FROM s3_accounts WHERE id = ? ";
+		String sql = "SELECT name,access_key,secret_key,last_region FROM s3_accounts WHERE id = ? ";
 		PreparedStatement prepStmt = connection.prepareStatement(sql);
 		prepStmt.setInt(1, aId);
 		ResultSet rs = prepStmt.executeQuery();

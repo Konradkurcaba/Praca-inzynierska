@@ -15,8 +15,9 @@ public class AccountsSupervisor {
 
 	private SupportersBundle supportersBundle;
 	private boolean isDriveLoggedIn = false;
-	private String currentAccount;
+	private String currentDriveAccount;
 	private boolean isS3LoggedIn = false;
+	private AmazonAccountInfo currentAmazonAccount;
 	
 	public AccountsSupervisor(SupportersBundle aSupportersBundle) {
 		supportersBundle = aSupportersBundle;
@@ -30,7 +31,7 @@ public class AccountsSupervisor {
 			Drive driveService = driveLogInSupporter.getDriveService(aAccountAlias);
 			supportersBundle.getGoogleDriveSupporter().changeAccount(driveService);
 			isDriveLoggedIn = true;
-			currentAccount = aAccountAlias;
+			currentDriveAccount = aAccountAlias;
 			return true;
 		}catch (IOException |GeneralSecurityException ex) {
 			ex.printStackTrace();
@@ -46,6 +47,7 @@ public class AccountsSupervisor {
 			AmazonS3 amazonS3 = s3LoginSupporter.getAmazonS3Client("AKIAJSG7SVOKKHDEZUQQ","/7ytnfrrmInuuf742KEtCyUkI1/I4G1SwBrVm2N9");
 			supportersBundle.getAmazonS3Supporter().ChangeAccount(amazonS3);
 			isS3LoggedIn = true;
+			currentAmazonAccount = newAmazonAccountInfo;
 			return true;
 		}catch (Exception ex)
 		{
@@ -54,9 +56,14 @@ public class AccountsSupervisor {
 		}
 	}
 	
-	public String getCurrentAccount()
+	public String getCurrentDriveAccount()
 	{
-		return currentAccount;
+		return currentDriveAccount;
+	}
+	
+	public AmazonAccountInfo getCurrentS3Account()
+	{
+		return currentAmazonAccount;
 	}
 	public boolean isDriveLoggedIn()
 	{
