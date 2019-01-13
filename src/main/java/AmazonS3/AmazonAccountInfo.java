@@ -1,18 +1,20 @@
 package AmazonS3;
 
+import com.amazonaws.regions.Regions;
+
 public class AmazonAccountInfo {
 
 	private final String accountName;
 	private final String accessKey;
 	private final String secretKey;
-	private final String lastRegion;
+	private final Regions region;
 	
-	public AmazonAccountInfo(String aAccountName, String aAccessKey, String aSecretKey, String aLastRegion) {
+	public AmazonAccountInfo(String aAccountName, String aAccessKey, String aSecretKey, Regions aRegion) {
 		super();
 		this.accountName = aAccountName;
 		this.accessKey = aAccessKey;
 		this.secretKey = aSecretKey;
-		this.lastRegion = aLastRegion;
+		this.region = aRegion;
 	}
 
 	public String getAccountName() {
@@ -27,9 +29,9 @@ public class AmazonAccountInfo {
 		return secretKey;
 	}
 	
-	public String getLastRegion()
+	public Regions getRegion()
 	{
-		return lastRegion;
+		return region;
 	}
 
 	@Override

@@ -12,14 +12,16 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.SupportersBundle;
 
 public class CheckWhetherFileIsSyncTarget extends Service<Boolean> {
 
 
-	ObjectMetaDataIf file;
+	ObjectMetaDataIf fileToCheck;
+	SupportersBundle supportersBundle;
 	
-	public CheckWhetherFileIsSyncTarget(ObjectMetaDataIf aFile) {
-		file = aFile;
+	public CheckWhetherFileIsSyncTarget(ObjectMetaDataIf aFile,SupportersBundle aSupportersBundle) {
+		fileToCheck = aFile;
 	}
 	
 	@Override
@@ -27,11 +29,17 @@ public class CheckWhetherFileIsSyncTarget extends Service<Boolean> {
 		return new Task(){
 			@Override
 			protected Boolean call() throws Exception {
-				SyncFileData syncFileData;
-				if(file.getFileServer() == FileServer.Amazon) syncFileData = new S3SyncFileData(file);
-				else syncFileData = new SyncFileData(file);
+				
+				SyncFileData file;
+				if(fileToCheck.getFileServer() == FileServer.Amazon) file = new S3SyncFileData(fileToCheck
+						,supportersBundle.getAmazonS3Supporter().getAccountName());
+				else if(fileToCheck.getFileServer() == FileServer.Google)
+				{
+				file = new SyncFileData(fileToCheck,supportersBundle.getGoogleDriveSupporter().getAccountName());
+				}else file = new SyncFileData(fileToCheck,null);
+				
 				DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
-				return dbSupervisor.checkWhetherFileIsSyncTarget(syncFileData);
+				return dbSupervisor.checkWhetherFileIsSyncTarget(file);
 			}
 		};
 	}

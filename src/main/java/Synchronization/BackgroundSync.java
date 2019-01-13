@@ -82,20 +82,21 @@ public class BackgroundSync implements Runnable {
 					,s3FileData.getBucketName());
 			if(metadata != null)
 			{
-				return new S3SyncFileData(metadata);
+				return new S3SyncFileData(metadata,supportersBundle.getAmazonS3Supporter().getAccountName());
 			}else return null;
 			
 		case Google:
 			ObjectMetaDataIf googleFileMetadata = (supportersBundle.getGoogleDriveSupporter()
 					.getFileMetadata(aFileToUpdate.getFileId()));
-			if(googleFileMetadata != null) return new SyncFileData();
+			if(googleFileMetadata != null) return new SyncFileData(googleFileMetadata
+					,supportersBundle.getGoogleDriveSupporter().getAccountName());
 			else return null;
 		case Local:
 			ObjectMetaDataIf actualMetadata = supportersBundle.getLocalFileSupporter()
 					.getLocalWrappedFile(aFileToUpdate.getFileId());
 			if (actualMetadata != null)
 			{
-				return new SyncFileData(actualMetadata);
+				return new SyncFileData(actualMetadata,null);
 			}else return null;
 			default: throw new IllegalArgumentException("Not supported server");	
 		}

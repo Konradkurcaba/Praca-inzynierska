@@ -10,9 +10,8 @@ import pl.kurcaba.ObjectMetaDataIf;
 public class S3SyncFileData extends SyncFileData {
 
 	private String bucketName;
-	private String region;
 	
-	public S3SyncFileData(ObjectMetaDataIf aFile)
+	public S3SyncFileData(ObjectMetaDataIf aFile,String aAccountName)
 	{
 		super();
 		setFileId(aFile.getName());
@@ -20,27 +19,26 @@ public class S3SyncFileData extends SyncFileData {
 		setLastModifyDate(aFile.getLastModifiedDate());
 		setFileServer(FileServer.Amazon);
 		setFileName(aFile.getName());
+		setAccountName(aAccountName);
+		
 		
 		if(aFile instanceof AmazonS3ObjectMetadata)
 		{
 			AmazonS3ObjectMetadata file = (AmazonS3ObjectMetadata) aFile;
 			bucketName = file.getBucketName();
-			region = file.getRegion();
 		}
 		
 		if(aFile instanceof AmazonS3SummaryMetadata)
 		{
 			AmazonS3SummaryMetadata file = (AmazonS3SummaryMetadata) aFile;
 			bucketName = file.getBucketName();
-			region = file.getRegion();
 		}
 	}
 	
-	public S3SyncFileData(String aKey,String aName,String aSize,String aModifyDate,String aBucketName,String aRegion)
+	public S3SyncFileData(String aKey,String aName,String aSize,String aModifyDate,String aBucketName,String aAccount)
 	{
-		super(aKey,aName,aSize,aModifyDate,"Amazon");
+		super(aKey,aName,aSize,aModifyDate,FileServer.Amazon,aAccount);
 		bucketName = aBucketName;
-		region = aRegion;
 	}
 	
 	public String getBucketName()
@@ -52,10 +50,4 @@ public class S3SyncFileData extends SyncFileData {
 	{
 		return getFileId();
 	}
-	
-	public String getRegion()
-	{
-		return region;
-	}
-	
 }

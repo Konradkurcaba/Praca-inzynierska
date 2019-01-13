@@ -1,5 +1,6 @@
 package Threads;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import AmazonS3.AmazonAccountInfo;
@@ -29,8 +30,9 @@ public class ChangeAmazonAccountService extends Service {
 				if(isAccountChanged)
 				{
 					appConfig.changeDefaults3Account(newAccount);
+					return newAccount;
 				}
-				return newAccount;
+				else throw new IOException("Logging fail");
 			}
 		};
 	}

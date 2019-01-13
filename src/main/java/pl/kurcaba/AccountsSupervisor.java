@@ -29,7 +29,7 @@ public class AccountsSupervisor {
 		try
 		{
 			Drive driveService = driveLogInSupporter.getDriveService(aAccountAlias);
-			supportersBundle.getGoogleDriveSupporter().changeAccount(driveService);
+			supportersBundle.getGoogleDriveSupporter().changeAccount(driveService,aAccountAlias);
 			isDriveLoggedIn = true;
 			currentDriveAccount = aAccountAlias;
 			return true;
@@ -44,11 +44,17 @@ public class AccountsSupervisor {
 		try
 		{
 			AmazonS3LogInSupporter s3LoginSupporter = new AmazonS3LogInSupporter();
-			AmazonS3 amazonS3 = s3LoginSupporter.getAmazonS3Client("AKIAJSG7SVOKKHDEZUQQ","/7ytnfrrmInuuf742KEtCyUkI1/I4G1SwBrVm2N9");
-			supportersBundle.getAmazonS3Supporter().ChangeAccount(amazonS3);
-			isS3LoggedIn = true;
+			AmazonS3 amazonS3 = s3LoginSupporter.getAmazonS3Client(newAmazonAccountInfo);
+			try {
+				amazonS3.listBuckets();
+				isS3LoggedIn = true;
+			}catch(Exception ex) {
+				isS3LoggedIn = false;
+				return isS3LoggedIn;
+			}
+			supportersBundle.getAmazonS3Supporter().ChangeAccount(amazonS3,newAmazonAccountInfo.getAccountName());
 			currentAmazonAccount = newAmazonAccountInfo;
-			return true;
+			return isS3LoggedIn;
 		}catch (Exception ex)
 		{
 			ex.printStackTrace();

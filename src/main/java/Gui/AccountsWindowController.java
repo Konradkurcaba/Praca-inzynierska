@@ -4,6 +4,8 @@ package Gui;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import com.amazonaws.regions.Regions;
+
 import AmazonS3.AmazonAccountInfo;
 import Threads.ChangeAmazonAccountService;
 import Threads.ChangeDriveService;
@@ -41,6 +43,7 @@ public class AccountsWindowController {
 	@FXML
 	private ComboBox s3Combo;
 	
+	
 	private ApplicationConfig applicationConfig;
 	private AccountsSupervisor accountsSupervisor;
 	
@@ -58,19 +61,23 @@ public class AccountsWindowController {
 		{
 			driveStatus.setFill(Paint.valueOf(TextColor.Green.getColor()));
 			driveStatus.setText("Zalogowano");
+			driveCombo.getSelectionModel().select(accountsSupervisor.getCurrentDriveAccount());
 		}else
 		{
 			driveStatus.setText("Niezalogowany");
 			driveStatus.setFill(Paint.valueOf(TextColor.Red.getColor()));
+			driveCombo.getSelectionModel().clearSelection();
 		}
 		if(accountsSupervisor.isS3LoggedIn())
 		{
 			s3Status.setFill(Paint.valueOf(TextColor.Green.getColor()));
 			s3Status.setText("Zalogowano");
+			s3Combo.getSelectionModel().select(accountsSupervisor.getCurrentS3Account());
 		}else
 		{
 			s3Status.setText("Niezalogowany");
 			s3Status.setFill(Paint.valueOf(TextColor.Red.getColor()));
+			s3Combo.getSelectionModel().clearSelection();
 		}
 	}
 	
@@ -94,13 +101,20 @@ public class AccountsWindowController {
 			{
 				try {
 					String newAccountAlias = showInputWindow("Nowe Konto","Podaj nazwê nowego konta");
-					ChangeDriveService createNewDriveAccount = new ChangeDriveService(applicationConfig, newAccountAlias, accountsSupervisor);
-					createNewDriveAccount.setOnSucceeded(successEvent ->{
-						driveCombo.getItems().add(0, newAccountAlias);
-						driveCombo.getSelectionModel().select(newAccountAlias);	
+					if(newAccountAlias != null)
+					{
+						ChangeDriveService createNewDriveAccount = new ChangeDriveService(applicationConfig
+								, newAccountAlias, accountsSupervisor);
+						createNewDriveAccount.setOnSucceeded(successEvent ->{
+							driveCombo.getItems().add(0, newAccountAlias);
+							driveCombo.getSelectionModel().select(newAccountAlias);	
+							refreshStatus();
+						});
+						createNewDriveAccount.start();
+					}else
+					{
 						refreshStatus();
-					});
-					createNewDriveAccount.start();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -123,14 +137,25 @@ public class AccountsWindowController {
 		s3Combo.getItems().setAll(applicationConfig.getS3Accounts());
 		s3Combo.getItems().add("Nowe Konto...");
 		s3Combo.setOnAction(action -> {
-			s3Status.setText("Logowanie...");
-			s3Status.setFill(Paint.valueOf(TextColor.Grey.getColor()));
-			String selectedAccount = s3Combo.getSelectionModel().getSelectedItem().toString();
-			if(selectedAccount.equals("Nowe Konto..."))
+			if(s3Combo.getSelectionModel().getSelectedItem()!= null)
 			{
-				try
+				changeAmazonAccount();
+			}
+		});
+	}
+	
+	private void changeAmazonAccount()
+	{
+		s3Status.setText("Logowanie...");
+		s3Status.setFill(Paint.valueOf(TextColor.Grey.getColor()));
+		String selectedAccount = s3Combo.getSelectionModel().getSelectedItem().toString();
+		if(selectedAccount.equals("Nowe Konto..."))
+		{
+			try
+			{
+				AmazonAccountInfo newAmazonAccountInfo = showAmazonWindow();
+				if(newAmazonAccountInfo != null)
 				{
-					AmazonAccountInfo newAmazonAccountInfo = showAmazonWindow();
 					ChangeAmazonAccountService createAmazonAccount = new ChangeAmazonAccountService(applicationConfig
 							, newAmazonAccountInfo, accountsSupervisor);
 					createAmazonAccount.setOnSucceeded(event ->{
@@ -138,22 +163,24 @@ public class AccountsWindowController {
 						s3Combo.getSelectionModel().select(newAmazonAccountInfo);
 						refreshStatus();
 					});
+					createAmazonAccount.setOnFailed(event -> refreshStatus());
 					createAmazonAccount.start();
-				}catch(Exception e)
-				{
-					e.printStackTrace();
 				}
-				
-			}else
+				else refreshStatus();
+			}catch(Exception e)
 			{
-				ChangeAmazonAccountService changeAmazonAccount = new ChangeAmazonAccountService(applicationConfig
-						,(AmazonAccountInfo) s3Combo.getSelectionModel().getSelectedItem(), accountsSupervisor);
-				changeAmazonAccount.setOnSucceeded(event ->{
-					refreshStatus();
-				});
-				changeAmazonAccount.start();
+				e.printStackTrace();
 			}
-		});
+			
+		}else
+		{
+			ChangeAmazonAccountService changeAmazonAccount = new ChangeAmazonAccountService(applicationConfig
+					,(AmazonAccountInfo) s3Combo.getSelectionModel().getSelectedItem(), accountsSupervisor);
+			changeAmazonAccount.setOnSucceeded(event ->{
+				refreshStatus();
+			});
+			changeAmazonAccount.start();
+		}
 	}
 	
 	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
@@ -188,7 +215,7 @@ public class AccountsWindowController {
 		if(amazonWindowController.wasOkButtonPressed())
 		{
 			return new AmazonAccountInfo(amazonWindowController.getAccountName(), amazonWindowController.getAccesKey()
-					, amazonWindowController.getSecretKey(),null);
+					, amazonWindowController.getSecretKey(),amazonWindowController.getSelectedRegion());
 		}else return null;
 	}
 	

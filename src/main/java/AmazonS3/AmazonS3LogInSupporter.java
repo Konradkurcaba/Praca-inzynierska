@@ -10,11 +10,11 @@ import com.amazonaws.services.s3.model.Region;
 
 public class AmazonS3LogInSupporter {
 
-	public AmazonS3 getAmazonS3Client(String AccessKey,String SecretKey)
+	public AmazonS3 getAmazonS3Client(AmazonAccountInfo aAmazonAccount)
 	{
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(AccessKey, SecretKey);
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(aAmazonAccount.getAccessKey(), aAmazonAccount.getSecretKey());
 		AmazonS3 amazonS3 = AmazonS3Client.builder()
-				.withRegion(Regions.AP_NORTHEAST_2)
+				.withRegion(aAmazonAccount.getRegion())
 				.withCredentials(new AWSStaticCredentialsProvider(awsCreds))
 				.build();
 		return amazonS3;

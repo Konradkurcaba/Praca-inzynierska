@@ -6,16 +6,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.datamodeling.S3ClientCache;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListBucketsRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
+import com.amazonaws.services.s3.model.HeadBucketRequest;
 
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.ApplicationConfig;
@@ -26,8 +31,23 @@ public class AmazonS3FileDownloader {
 	
 	public List<Bucket> getAllBucketsList(AmazonS3 aS3Client)
 	{
-		List<Bucket> buckets = aS3Client.listBuckets();
-		return buckets;
+		List<Bucket> allBuckets = aS3Client.listBuckets();
+		
+		List<Bucket> bucketFromAccountRegion = allBuckets.stream()
+		.filter(bucket ->{
+		try {
+			String accountRegion = aS3Client.getRegion().toString();
+			String bucketRegion = aS3Client.getBucketLocation(bucket.getName());
+			boolean isCurrentRegion = Regions.fromName(accountRegion) == Regions.fromName(bucketRegion);
+			if(isCurrentRegion) return true;
+			else return false;
+			}catch(Exception aEx)
+			{
+				return false;	
+			}
+		})
+		.collect(Collectors.toList());
+		return bucketFromAccountRegion;
 	}
 	
 	public ListObjectsV2Result getFilesFromBucket(AmazonS3 aS3Client,String bucketName,String aPrefix)

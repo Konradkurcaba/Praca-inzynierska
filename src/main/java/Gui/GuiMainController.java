@@ -92,7 +92,7 @@ public class GuiMainController {
 	ApplicationConfig config;
 	AccountsSupervisor accountsSupervisor;
 	SupportersBundle supportersBundle;
-	Synchronizer synchronizer = new Synchronizer(supportersBundle);
+	Synchronizer synchronizer;
 	
 	public void initComponents() throws IOException, SQLException {
 		initFields();
@@ -115,6 +115,7 @@ public class GuiMainController {
 		{
 			accountsSupervisor.changeAmazonAccount(amazonDefaultAccount);
 		}
+		synchronizer = new Synchronizer(supportersBundle);
 		
 	}
 
@@ -314,11 +315,11 @@ public class GuiMainController {
 			filesServerComboL.getItems().add(FileServer.Google);
 			filesServerComboR.getItems().add(FileServer.Google);
 		}
-	//	if(accountsSupervisor.isS3LoggedIn())
-	//	{
+		if(accountsSupervisor.isS3LoggedIn())
+		{
 			filesServerComboL.getItems().add(FileServer.Amazon);
 			filesServerComboR.getItems().add(FileServer.Amazon);
-	//	}
+		}
 		
 		filesServerComboL.getItems().add(FileServer.Local);
 		filesServerComboR.getItems().add(FileServer.Local);
@@ -479,7 +480,8 @@ public class GuiMainController {
 						if(userDecision)
 						{
 							
-							CheckWhetherFileIsSyncTarget checkFileExist = new CheckWhetherFileIsSyncTarget(existingObj.get());
+							CheckWhetherFileIsSyncTarget checkFileExist = new CheckWhetherFileIsSyncTarget(existingObj.get()
+									,supportersBundle);
 							checkFileExist.setOnSucceeded(success ->{
 								if(checkFileExist.getValue() != true)
 								{

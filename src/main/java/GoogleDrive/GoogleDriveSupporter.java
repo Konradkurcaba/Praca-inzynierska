@@ -24,15 +24,17 @@ import pl.kurcaba.PreviousContainer;
 public final class GoogleDriveSupporter {
 
 	private Drive driveService;
+	private String accountName;
 	private String currentDirectoryId;
 	private String rootFolderId;
 	
-	public void changeAccount(Drive aNewService) throws IOException
+	public void changeAccount(Drive aNewService,String aAccountName) throws IOException
 	{
 		driveService = aNewService;
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		rootFolderId = downloader.getRootId(driveService);
 		currentDirectoryId = null;
+		accountName = aAccountName;
 	}	
 
 	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException
@@ -113,6 +115,10 @@ public final class GoogleDriveSupporter {
 		{
 			return null;
 		}
+	}
+	
+	public String getAccountName() {
+		return accountName;
 	}
 	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,
 			boolean isRootDirectory) {

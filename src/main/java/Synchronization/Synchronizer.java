@@ -30,23 +30,23 @@ public class Synchronizer {
 	{
 		synchronized(filesToAddToSync)
 		{
-			SyncFileData sourceFile;
-			SyncFileData targetFile;
-			if(aFileToSynchronize.getFileServer() == FileServer.Amazon) sourceFile = new S3SyncFileData(aFileToSynchronize);
-			else sourceFile = new SyncFileData(aFileToSynchronize);
-			if(aSynchronizeTargetFile.getFileServer() == FileServer.Amazon) targetFile = new S3SyncFileData(aSynchronizeTargetFile);
-			else targetFile = new SyncFileData(aSynchronizeTargetFile);
+			SyncFileData sourceFile = createSyncData(aFileToSynchronize);
+			SyncFileData targetFile = createSyncData(aSynchronizeTargetFile);
+			
 			filesToAddToSync.put(sourceFile,targetFile);
 		}
 	}
 	
 	public void removeFilesFromSync(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile)
 	{
+		SyncFileData sourceFile = createSyncData(aFileToSynchronize);
+		SyncFileData targetFile = createSyncData(aSynchronizeTargetFile);
 		synchronized(filesToDeleteFromSync)
 		{
-			filesToDeleteFromSync.put(new SyncFileData(aFileToSynchronize),new SyncFileData(aSynchronizeTargetFile));
+			filesToDeleteFromSync.put(sourceFile,targetFile);
 		}
 	}
+	
 	
 	public void startCyclicSynch()
 	{
@@ -80,5 +80,16 @@ public class Synchronizer {
 	public boolean isSyncOn()
 	{
 		return isSyncOn;
+	}
+	
+	private SyncFileData createSyncData(ObjectMetaDataIf obj) {
+		SyncFileData file;
+		if(obj.getFileServer() == FileServer.Amazon) file = new S3SyncFileData(obj
+				,supportersBundle.getAmazonS3Supporter().getAccountName());
+		else if(obj.getFileServer() == FileServer.Google)
+		{
+		file = new SyncFileData(obj,supportersBundle.getGoogleDriveSupporter().getAccountName());
+		}else file = new SyncFileData(obj,null);
+		return file;
 	}
 }

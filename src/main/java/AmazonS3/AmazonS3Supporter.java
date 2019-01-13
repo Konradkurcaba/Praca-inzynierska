@@ -29,13 +29,14 @@ public final class AmazonS3Supporter {
 	AmazonS3BucketMetadata currentBucket;
 	String currentPrefix;
 	String currentRegion = "";
-
-	public void ChangeAccount(AmazonS3 aS3Client)
+	String accountName;
+	
+	public void ChangeAccount(AmazonS3 aS3Client,String aAccountName)
 	{
 		s3Client = aS3Client;
 		currentBucket = null;
 		currentPrefix = "";
-		String currentRegion = "";
+		accountName = aAccountName;
 	}
 	
 	public ObservableList<ObjectMetaDataIf> getBucketsMetadata()
@@ -180,6 +181,10 @@ public final class AmazonS3Supporter {
 	public String getCurrentPrefix()
 	{
 		return currentPrefix;
+	}
+	
+	public String getAccountName() {
+		return accountName;
 	}
 	
 	private String prepareBackPrefix(String aCurrentPrefix)

@@ -15,30 +15,30 @@ public class SyncFileData {
 	private String size;
 	private String lastModifyDate;
 	private FileServer fileServer;
+	private String accountName;
 	
 	protected SyncFileData()
 	{
 	}
 	
-	public SyncFileData(String aName,String aId,String aSize,String aModifyDate, String aServer)
+	public SyncFileData(String aName,String aId,String aSize,String aModifyDate, FileServer aServer,String aAccountName)
 	{
 		fileName = aName;
 		fileId = aId;
 		size = aSize;
 		lastModifyDate = aModifyDate;
-		fileServer = FileServer.valueOf(aServer);
+		fileServer = aServer;
 	}
 	
-	public SyncFileData(ObjectMetaDataIf aFile)
+	public SyncFileData(ObjectMetaDataIf aFile,String aAccountName)
 	{
 		fileName = aFile.getName();
 		fileId = aFile.getOrginalId();
 		size = aFile.getSize();
 		lastModifyDate = aFile.getLastModifiedDate();
 		fileServer = aFile.getFileServer();
+		accountName = aAccountName;
 	}
-	
-	
 	
 	public String getFileId() {
 		return fileId;
@@ -59,7 +59,13 @@ public class SyncFileData {
 	public FileServer getFileServer() {
 		return fileServer;
 	}
-	
+	public String getAccountName()
+	{
+		return accountName;
+	}
+	protected void setAccountName(String aAccountName) {
+		this.accountName = aAccountName;
+	}
 	protected void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
