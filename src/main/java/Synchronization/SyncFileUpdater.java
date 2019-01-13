@@ -3,12 +3,12 @@ package Synchronization;
 import java.io.File;
 import java.io.IOException;
 
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class SyncFileUpdater {
 
 	
-	public void upload(File aFileToUpload,SyncFileData aFileToUpdate,SupportersBundle aBundle) throws IOException
+	public void upload(File aFileToUpload,SyncFileData aFileToUpdate,HelpersBundle aBundle) throws IOException
 	{
 		switch(aFileToUpdate.getFileServer())
 		{

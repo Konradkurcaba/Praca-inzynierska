@@ -7,15 +7,15 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class ChangeNameService extends Service<ObservableList<ObjectMetaDataIf>>{
 
-	private final SupportersBundle supportersBundle;
+	private final HelpersBundle supportersBundle;
 	private final ObjectMetaDataIf objectToChange;
 	private final String newName;
 	
-	public ChangeNameService(SupportersBundle aSupportersBundle,ObjectMetaDataIf aObject,String aNewName) {
+	public ChangeNameService(HelpersBundle aSupportersBundle,ObjectMetaDataIf aObject,String aNewName) {
 		supportersBundle = aSupportersBundle;
 		objectToChange = aObject;
 		newName = aNewName;

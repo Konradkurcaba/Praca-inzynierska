@@ -8,19 +8,23 @@ import java.util.Map;
 
 import Local.LocalFileMetadata;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.AccountsSupervisor;
+import pl.kurcaba.HelpersBundle;
 
 public class BackgroundSync implements Runnable {
 
-	private final SupportersBundle supportersBundle;
+	private final HelpersBundle supportersBundle;
+	private final AccountsSupervisor accountsSupervisor;
 	private final Map<SyncFileData,SyncFileData> filesToAddToSync;
 	private final Map<SyncFileData,SyncFileData> filesToDeleteFromSync;
 	private final int period = 30000;
 	
-	public BackgroundSync(SupportersBundle aBundle,Map<SyncFileData,SyncFileData> aFilesMap, Map<SyncFileData,SyncFileData> aDelFilesMap ) {
+	public BackgroundSync(HelpersBundle aBundle,Map<SyncFileData,SyncFileData> aFilesMap,
+			Map<SyncFileData,SyncFileData> aDelFilesMap,AccountsSupervisor aAccountsSupervisor) {
 		supportersBundle = aBundle;
 		filesToAddToSync = aFilesMap;
 		filesToDeleteFromSync = aDelFilesMap;
+		accountsSupervisor = aAccountsSupervisor;
 	}
 	
 	@Override
@@ -128,8 +132,10 @@ public class BackgroundSync implements Runnable {
 		{
 			databaseSupervisor.removeSyncData(pair.getKey(), pair.getValue());
 		}
+		String aGoogleAccount = accountsSupervisor.getCurrentDriveAccount();
+		String aAmazonAccount = accountsSupervisor.getCurrentS3Account().getAccountName();
 		
-		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap();
+		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap(aGoogleAccount,aAmazonAccount);
 		databaseSupervisor.closeConnection();
 		return filesToSynchonize;
 	}

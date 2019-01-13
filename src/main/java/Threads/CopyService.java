@@ -18,15 +18,15 @@ import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.ApplicationConfig;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class CopyService extends Service<ObjectMetaDataIf> {
 
-	private final SupportersBundle bundle;
+	private final HelpersBundle bundle;
 	private final FileServer targetServer;
 	private final ObjectMetaDataIf objectToCopy;
 
-	public CopyService(SupportersBundle aBundle, ObjectMetaDataIf aObject, FileServer aTargetServer) {
+	public CopyService(HelpersBundle aBundle, ObjectMetaDataIf aObject, FileServer aTargetServer) {
 		bundle = aBundle;
 		targetServer = aTargetServer;
 		objectToCopy = aObject;

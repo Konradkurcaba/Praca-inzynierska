@@ -13,16 +13,16 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 
 public class DeleteService extends Service<ObservableList<ObjectMetaDataIf>>{
 
 	
-	private final SupportersBundle supportersBundle;
+	private final HelpersBundle supportersBundle;
 	private final ObjectMetaDataIf objectToDelete;
 	
-	public DeleteService(SupportersBundle aSupportersBundle, ObjectMetaDataIf aObjectToDelete) {
+	public DeleteService(HelpersBundle aSupportersBundle, ObjectMetaDataIf aObjectToDelete) {
 		supportersBundle = aSupportersBundle;
 		objectToDelete = aObjectToDelete;
 	}

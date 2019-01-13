@@ -5,17 +5,17 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class NewFolderService extends Service<ObservableList<ObjectMetaDataIf>> {
 
 	
-	private final SupportersBundle supportersBundle;
+	private final HelpersBundle supportersBundle;
 	private final FileServer fileServer;
 	private final String folderName;
 	
 	
-	public NewFolderService(SupportersBundle aSupportersBundle, FileServer aFileServer,String aFolderName) {
+	public NewFolderService(HelpersBundle aSupportersBundle, FileServer aFileServer,String aFolderName) {
 		supportersBundle = aSupportersBundle;
 		fileServer = aFileServer;
 		folderName = aFolderName;

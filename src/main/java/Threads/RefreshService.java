@@ -6,16 +6,16 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 
 public class RefreshService extends Service<ObservableList<ObjectMetaDataIf>> {
 
 	
-	final private SupportersBundle supportersBundle;
+	final private HelpersBundle supportersBundle;
 	final private FileServer server;
 	
-	public RefreshService(SupportersBundle aBundle,ObjectMetaDataIf aObjectMetadata) {
+	public RefreshService(HelpersBundle aBundle,ObjectMetaDataIf aObjectMetadata) {
 		supportersBundle = aBundle;
 		server = aObjectMetadata.getFileServer();
 	}

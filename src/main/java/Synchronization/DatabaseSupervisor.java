@@ -25,7 +25,7 @@ public class DatabaseSupervisor {
 
 	private String DATABASE_URL = "jdbc:h2:~/synch";
 	private String CREATE_FILE_DATA_TABLE = "CREATE TABLE sync_file_data(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(255) NOT NULL,key VARCHAR(255) NOT NULL"
-			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),account_name VARCHAR(60) NOT NULL"
+			+ ",size VARCHAR(255) NOT NULL,date VARCHAR(255) NOT NULL,bucket_name VARCHAR(255),account_name VARCHAR(60)"
 			+ ",FOREIGN KEY (account_name) REFERENCES accounts(name))";
 	private String CREATE_ACCOUNTS_TABLE = "CREATE TABLE accounts(name VARCHAR(60) PRIMARY KEY,"
 			+ "file_server VARCHAR(60) NOT NULL,access_key VARCHAR(60),secret_key VARCHAR(60),region VARCHAR(60))";
@@ -87,12 +87,21 @@ public class DatabaseSupervisor {
 		prepStmt.executeUpdate();
 	}
 	
-	public Map<SyncFileData,SyncFileData> getSyncMap() throws SQLException
+	public Map<SyncFileData,SyncFileData> getSyncMap(String aGoogleAccount,String aAmazonAccount) throws SQLException
 	{
 		Map<SyncFileData,SyncFileData> syncMap = new HashMap();
-		String query = "SELECT * FROM sync_info_table";
-		Statement stmt = connection.createStatement();
-		ResultSet rs = stmt.executeQuery(query);
+		String query = "SELECT source_id,dest_id\r\n" + 
+				"FROM SYNC_INFO_TABLE\r\n" + 
+				"LEFT JOIN SYNC_FILE_DATA AS source ON source_id = source.id \r\n" + 
+				"LEFT JOIN SYNC_FILE_DATA AS dest ON dest_id = dest.id\r\n" + 
+				"WHERE  (source.account_name= ? OR source.account_name= ? OR source.account_name IS NULL ) "
+				+ "AND ( dest.account_name= ? OR  dest.account_name= ? OR dest.account_name IS NULL )";
+		PreparedStatement prepStmt = connection.prepareStatement(query);
+		prepStmt.setString(1, aGoogleAccount);
+		prepStmt.setString(2, aAmazonAccount);
+		prepStmt.setString(3, aAmazonAccount);
+		prepStmt.setString(4, aGoogleAccount);
+		ResultSet rs = prepStmt.executeQuery();
 		while(rs.next())
 		{
 			SyncFileData sourceData = getFileData(rs.getInt(1));
@@ -112,9 +121,21 @@ public class DatabaseSupervisor {
 		prepStmt.setInt(1, sourceId);
 		prepStmt.setInt(2, targetId);
 		prepStmt.executeUpdate();
+		try
+		{
+			deleteFile(sourceId);
+		}catch(Exception ex)
+		{
+			System.out.println("Cannot delete file from database");
+		}
+		try
+		{
+			deleteFile(targetId);
+		}catch(Exception ex)
+		{
+			System.out.println("Cannot delete file from database");
+		}
 		
-		deleteFile(sourceId);
-		deleteFile(targetId);
 	}
 	
 	public void updateFileKey(String aOldKey,String aNewKey) throws SQLException
@@ -230,14 +251,18 @@ public class DatabaseSupervisor {
 		String query;
 		if(aFile.getFileServer() == FileServer.Amazon)
 		{
-			query = "SELECT id FROM sync_file_data WHERE key = ? AND account = ? AND bucket_name = ? ";
-		}else
+			query = "SELECT id FROM sync_file_data WHERE key = ? AND account_name = ? AND bucket_name = ? ";
+		}else if(aFile.getFileServer() == FileServer.Local)
 		{
-			query = "SELECT id FROM sync_file_data WHERE key = ? AND account = ? AND bucket_name IS NULL";
+			query = "SELECT id FROM sync_file_data WHERE key = ? AND account_name IS NULL AND bucket_name IS NULL ";
+		}
+		else
+		{
+			query = "SELECT id FROM sync_file_data WHERE key = ? AND account_name = ? AND bucket_name IS NULL";
 		}
 		PreparedStatement stmt = connection.prepareStatement(query);
 		stmt.setString(1, aFile.getFileId());
-		stmt.setString(2, aFile.getAccountName());
+		if(aFile.getFileServer() != FileServer.Local) stmt.setString(2, aFile.getAccountName());
 		if(aFile.getFileServer() == FileServer.Amazon)
 		{
 			S3SyncFileData s3File = (S3SyncFileData) aFile;
@@ -319,8 +344,7 @@ public class DatabaseSupervisor {
 	
 	private SyncFileData getFileData(int aId) throws SQLException
 	{
-		String query = "SELECT sync_file_data.name,key,size,date,bucket_name,accounts.file_server,accounts.name "
-				+ "FROM sync_file_data JOIN accounts ON accounts.name = sync_file_data.account_name WHERE sync_file_data.id = ?";
+		String query = "SELECT sync_file_data.name,key,size,date,bucket_name,account_name FROM sync_file_data  WHERE id = ?;";
 		PreparedStatement prepStmt = connection.prepareStatement(query);
 		prepStmt.setInt(1, aId);
 		ResultSet rs = prepStmt.executeQuery();
@@ -331,16 +355,31 @@ public class DatabaseSupervisor {
 			String size = rs.getString(3);
 			String date = rs.getString(4);
 			String bucketName = rs.getString(5);
-			FileServer fileServer = FileServer.valueOf(rs.getString(6));
-			String conectedAccountName = rs.getString(7);
+			String conectedAccountName = rs.getString(6);
 			
-			if(fileServer.equals(FileServer.Amazon))
+			if(conectedAccountName == null)
 			{
-				return new S3SyncFileData(fileName,fileKey,size,date,bucketName,conectedAccountName);
-			}
-			else
+				return new SyncFileData(fileName,fileKey,size,date,FileServer.Local,conectedAccountName);
+			}else
 			{
-				return new SyncFileData(fileName,fileKey,size,date,fileServer,conectedAccountName);
+				String getFileServerQuery = "SELECT file_server FROM accounts WHERE name = ?";
+				prepStmt = connection.prepareStatement(getFileServerQuery);
+				prepStmt.setString(1, conectedAccountName);
+				rs = prepStmt.executeQuery();
+				FileServer server = null;
+				if(rs.next())
+				{
+					server = FileServer.valueOf(rs.getString(1));
+				}else throw new NoSuchElementException("Row doesn't exist");
+			
+				if(server.equals(FileServer.Amazon))
+				{
+					return new S3SyncFileData(fileName,fileKey,size,date,bucketName,conectedAccountName);
+				}
+				else
+				{
+					return new SyncFileData(fileName,fileKey,size,date,server,conectedAccountName);
+				}
 			}
 		}
 		else throw new NoSuchElementException("Row doesn't exist in database");

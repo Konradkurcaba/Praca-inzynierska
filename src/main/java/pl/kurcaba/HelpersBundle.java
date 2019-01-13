@@ -4,7 +4,7 @@ import AmazonS3.AmazonS3Supporter;
 import GoogleDrive.GoogleDriveSupporter;
 import Local.LocalFileSupporter;
 
-public class SupportersBundle {
+public class HelpersBundle {
 
 	private final AmazonS3Supporter s3Supporter = new AmazonS3Supporter();
 	private final GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();

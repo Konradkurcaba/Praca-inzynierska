@@ -28,6 +28,7 @@ public class SyncFileData {
 		size = aSize;
 		lastModifyDate = aModifyDate;
 		fileServer = aServer;
+		accountName = aAccountName;
 	}
 	
 	public SyncFileData(ObjectMetaDataIf aFile,String aAccountName)

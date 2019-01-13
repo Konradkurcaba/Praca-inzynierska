@@ -2,12 +2,12 @@ package Synchronization;
 
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class SyncCopyCreator {
 
 	
-	public void createSyncCopy(ObjectMetaDataIf aSource,FileServer aTargetServer,SupportersBundle aSupporters)
+	public void createSyncCopy(ObjectMetaDataIf aSource,FileServer aTargetServer,HelpersBundle aSupporters)
 	{
 		switch(aTargetServer)
 		{

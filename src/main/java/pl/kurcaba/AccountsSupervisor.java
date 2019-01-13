@@ -13,13 +13,13 @@ import GoogleDrive.GoogleDriveLogInSupporter;
 
 public class AccountsSupervisor {
 
-	private SupportersBundle supportersBundle;
+	private HelpersBundle supportersBundle;
 	private boolean isDriveLoggedIn = false;
 	private String currentDriveAccount;
 	private boolean isS3LoggedIn = false;
 	private AmazonAccountInfo currentAmazonAccount;
 	
-	public AccountsSupervisor(SupportersBundle aSupportersBundle) {
+	public AccountsSupervisor(HelpersBundle aSupportersBundle) {
 		supportersBundle = aSupportersBundle;
 	}
 	

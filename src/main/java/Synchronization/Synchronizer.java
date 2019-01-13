@@ -10,20 +10,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import AmazonS3.AmazonS3ObjectMetadata;
+import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class Synchronizer {
 	
 	private Map<SyncFileData,SyncFileData> filesToAddToSync = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
 	private Map<SyncFileData,SyncFileData> filesToDeleteFromSync = Collections.synchronizedMap(new HashMap<SyncFileData,SyncFileData>());
-	private final SupportersBundle supportersBundle;
+	private final HelpersBundle helpersBundle;
+	private final AccountsSupervisor accountsSupervisor;
 	private Thread syncThread;
 	private boolean isSyncOn;
 	
-	public Synchronizer(SupportersBundle aSupportersBundle)  {
-		supportersBundle = aSupportersBundle;
+	public Synchronizer(HelpersBundle aSupportersBundle,AccountsSupervisor aAccountsSupervisor)  {
+		accountsSupervisor = aAccountsSupervisor;
+		helpersBundle = aSupportersBundle;
 	}
 	
 	public void addFilesToSynchronize(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile) throws SQLException
@@ -50,7 +53,8 @@ public class Synchronizer {
 	
 	public void startCyclicSynch()
 	{
-		BackgroundSync backgroundSync = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
+		BackgroundSync backgroundSync = new BackgroundSync(helpersBundle,filesToAddToSync,filesToDeleteFromSync
+				,accountsSupervisor);
 		syncThread = new Thread(backgroundSync);
 		syncThread.start();
 		isSyncOn = true;
@@ -73,7 +77,8 @@ public class Synchronizer {
 	
 	public Map<SyncFileData, SyncFileData> getSyncInfo() throws SQLException
 	{
-		BackgroundSync syncDatabase = new BackgroundSync(supportersBundle,filesToAddToSync,filesToDeleteFromSync);
+		BackgroundSync syncDatabase = new BackgroundSync(helpersBundle,filesToAddToSync,filesToDeleteFromSync
+				,accountsSupervisor);
 		return syncDatabase.syncDatabase();
 		
 	}
@@ -85,10 +90,10 @@ public class Synchronizer {
 	private SyncFileData createSyncData(ObjectMetaDataIf obj) {
 		SyncFileData file;
 		if(obj.getFileServer() == FileServer.Amazon) file = new S3SyncFileData(obj
-				,supportersBundle.getAmazonS3Supporter().getAccountName());
+				,helpersBundle.getAmazonS3Supporter().getAccountName());
 		else if(obj.getFileServer() == FileServer.Google)
 		{
-		file = new SyncFileData(obj,supportersBundle.getGoogleDriveSupporter().getAccountName());
+		file = new SyncFileData(obj,helpersBundle.getGoogleDriveSupporter().getAccountName());
 		}else file = new SyncFileData(obj,null);
 		return file;
 	}

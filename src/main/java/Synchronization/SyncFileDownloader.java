@@ -10,11 +10,11 @@ import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import pl.kurcaba.ObjectMetaDataIf;
 import pl.kurcaba.ApplicationConfig;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 
 public class SyncFileDownloader {
 
-	public File downloadFile(ObjectMetaDataIf aFileToDownload, SupportersBundle aBundle) throws IOException {
+	public File downloadFile(ObjectMetaDataIf aFileToDownload, HelpersBundle aBundle) throws IOException {
 		
 		File downloadedFile = null;
 		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);
@@ -48,7 +48,7 @@ public class SyncFileDownloader {
 	}
 	
 	
-	public File downloadFile(SyncFileData aFileToDownload,SupportersBundle aSupportersBundle) throws IOException
+	public File downloadFile(SyncFileData aFileToDownload,HelpersBundle aSupportersBundle) throws IOException
 	{
 		File downloadedFile = null;
 		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);

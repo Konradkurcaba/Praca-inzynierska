@@ -25,7 +25,7 @@ import Synchronization.Synchronizer;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
 import Threads.ChangeNameService;
-import Threads.CheckWhetherFileIsSyncTarget;
+import Threads.CheckIfFilesAreSyncTarget;
 import Threads.CopyService;
 import Threads.DeleteService;
 import Threads.GoogleDriveDownloadService;
@@ -60,7 +60,7 @@ import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.FileServer;
 import pl.kurcaba.ObjectMetaDataIf;
-import pl.kurcaba.SupportersBundle;
+import pl.kurcaba.HelpersBundle;
 import javafx.stage.Modality;
 import javafx.scene.control.CheckMenuItem;
 
@@ -91,7 +91,7 @@ public class GuiMainController {
 
 	ApplicationConfig config;
 	AccountsSupervisor accountsSupervisor;
-	SupportersBundle supportersBundle;
+	HelpersBundle supportersBundle;
 	Synchronizer synchronizer;
 	
 	public void initComponents() throws IOException, SQLException {
@@ -103,7 +103,7 @@ public class GuiMainController {
 	
 	private void initFields() throws SQLException {
 		config = new ApplicationConfig();
-		supportersBundle = new SupportersBundle();
+		supportersBundle = new HelpersBundle();
 		accountsSupervisor = new AccountsSupervisor(supportersBundle);
 		String googleAccountAlias = config.getDefaultDriveAccount();
 		if(googleAccountAlias != null)
@@ -115,7 +115,7 @@ public class GuiMainController {
 		{
 			accountsSupervisor.changeAmazonAccount(amazonDefaultAccount);
 		}
-		synchronizer = new Synchronizer(supportersBundle);
+		synchronizer = new Synchronizer(supportersBundle,accountsSupervisor);
 		
 	}
 
@@ -298,9 +298,11 @@ public class GuiMainController {
 
 		filesServerComboL.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewL);
+			initListView();
 		});
 		filesServerComboR.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewR);
+			initListView();
 		});
 	}
 	
@@ -480,8 +482,8 @@ public class GuiMainController {
 						if(userDecision)
 						{
 							
-							CheckWhetherFileIsSyncTarget checkFileExist = new CheckWhetherFileIsSyncTarget(existingObj.get()
-									,supportersBundle);
+							CheckIfFilesAreSyncTarget checkFileExist = new CheckIfFilesAreSyncTarget(existingObj.get(),
+									objectToCopy,supportersBundle);
 							checkFileExist.setOnSucceeded(success ->{
 								if(checkFileExist.getValue() != true)
 								{
