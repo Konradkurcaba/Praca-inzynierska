@@ -1,6 +1,7 @@
 package Gui;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -55,7 +56,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
+
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.FileServer;
@@ -88,6 +91,8 @@ public class GuiMainController {
 	private MenuItem syncMenu;
 	@FXML
 	private MenuItem accountsMenuItem;
+	@FXML 
+	private ProgressIndicator progressIndicator;
 
 	ApplicationConfig config;
 	AccountsSupervisor accountsSupervisor;
@@ -99,6 +104,7 @@ public class GuiMainController {
 		initListView();
 		initComboBoxes();
 		initMenu();
+		unlockGui();
 	}
 	
 	private void initFields() throws SQLException {
@@ -407,7 +413,10 @@ public class GuiMainController {
 			RefreshService refreshService = new RefreshService(supportersBundle, aCellValue );
 			refreshService.setOnSucceeded(succesEvent ->{
 				aSourceListView.setItems(refreshService.getValue());
+				unlockGui();
 			});
+			refreshService.setOnFailed(failed -> unlockGui());
+			blockGui();
 			refreshService.start();
 		});
 		
@@ -421,7 +430,10 @@ public class GuiMainController {
 				DeleteService deleteService = new DeleteService(supportersBundle, aCellValue );
 				deleteService.setOnSucceeded(succesEvent ->{
 					aSourceListView.setItems(deleteService.getValue());
+					unlockGui();
 				});
+				blockGui();
+				deleteService.setOnFailed(failed -> unlockGui());
 				deleteService.start();
 			});
 			
@@ -438,7 +450,10 @@ public class GuiMainController {
 								, newFolderName);
 						newFolderService.setOnSucceeded(success ->{
 							aSourceListView.setItems(newFolderService.getValue());
+							unlockGui();
 					});
+					blockGui();
+					newFolderService.setOnFailed(failed -> unlockGui());
 					newFolderService.start();
 				}
 				} catch (IOException e) {
@@ -456,7 +471,10 @@ public class GuiMainController {
 						ChangeNameService changeNameService = new ChangeNameService(supportersBundle, aCellValue, newName);
 						changeNameService.setOnSucceeded(success -> {
 							aSourceListView.setItems(changeNameService.getValue());
+							unlockGui();
 						});
+						changeNameService.setOnFailed(failed -> blockGui());
+						blockGui();
 						changeNameService.start();
 					}
 				} catch (IOException e) {
@@ -472,7 +490,6 @@ public class GuiMainController {
 				syncSource.setOnAction(action -> {
 					
 					ObjectMetaDataIf objectToCopy = aSourceListView.getSelectionModel().getSelectedItem();
-					
 					Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aDestListView.getItems(),objectToCopy, targetServer);
 					
 					if(existingObj.isPresent())
@@ -496,14 +513,18 @@ public class GuiMainController {
 												RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
 												refreshService.setOnSucceeded(successEvent ->{
 													aDestListView.setItems(refreshService.getValue());
+													unlockGui();
 												});
+												refreshService.setOnFailed(failed -> unlockGui());
 												refreshService.start();
 											} catch (SQLException e) {
 												e.printStackTrace();
 											}
 										});
+										copyService.setOnFailed(failed -> unlockGui());
 										copyService.start();
 									});
+									deleteService.setOnFailed(failed -> unlockGui());
 									deleteService.start();
 								}
 								else
@@ -515,6 +536,8 @@ public class GuiMainController {
 									}
 								}
 							});
+							blockGui();
+							checkFileExist.setOnFailed(failed -> unlockGui());
 							checkFileExist.start();
 						}
 					}
@@ -527,12 +550,16 @@ public class GuiMainController {
 								RefreshService refreshService = new RefreshService(supportersBundle, copyService.getValue());
 								refreshService.setOnSucceeded(successEvent ->{
 									aDestListView.setItems(refreshService.getValue());
+									unlockGui();
 								});
+								refreshService.setOnFailed(failed -> unlockGui());
 								refreshService.start();
 							} catch (SQLException e) {
 								e.printStackTrace();
 							}
 						});
+						blockGui();
+						copyService.setOnFailed(failed -> unlockGui());
 						copyService.start();
 					}
 				});
@@ -644,6 +671,39 @@ public class GuiMainController {
 		else return filesServerComboR.getSelectionModel().getSelectedItem();
 	}
 	
+	private void blockGui()
+	{
+		
+		filesListViewL.setDisable(true);
+		filesListViewR.setDisable(true);
+		filesServerComboL.setDisable(true);
+		filesServerComboR.setDisable(true);
+		syncSwitch.setDisable(true);
+		syncMenu.setDisable(true);
+		accountsMenuItem.setDisable(true);
+		selectedFileSizeTextFieldL.setDisable(true);
+		selectedFileSizeTextFieldR.setDisable(true);
+		lastModifiedTimeTextViewL.setDisable(true);
+		lastModifiedTimeTextViewR.setDisable(true);
+		progressIndicator.setVisible(true);
+	}
+	private void unlockGui()
+	{
+		
+		filesListViewL.setDisable(false);
+		filesListViewR.setDisable(false);
+		filesServerComboL.setDisable(false);
+		filesServerComboR.setDisable(false);
+		syncSwitch.setDisable(false);
+		syncMenu.setDisable(false);
+		accountsMenuItem.setDisable(false);
+		selectedFileSizeTextFieldL.setDisable(false);
+		selectedFileSizeTextFieldR.setDisable(false);
+		lastModifiedTimeTextViewL.setDisable(false);
+		lastModifiedTimeTextViewR.setDisable(false);
+		progressIndicator.setVisible(false);
+	}
+	
 	private void mouseDroppedOnListView(ListView<ObjectMetaDataIf> aTargetList,ListView<ObjectMetaDataIf> aSourceList)
 	{
 		FileServer targetServer = connectedFileServer(aTargetList);
@@ -663,6 +723,7 @@ public class GuiMainController {
 						RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
 						refreshService.setOnSucceeded(refreshEvent ->{
 							aTargetList.setItems(refreshService.getValue());
+							unlockGui();
 						});
 						if(copiedFile.getFileServer() == FileServer.Google)
 						{
@@ -670,10 +731,14 @@ public class GuiMainController {
 									,copiedFile.getOrginalId());
 							updateService.start();
 						}
+						refreshService.setOnFailed(failed -> unlockGui());
 						refreshService.start();
 					});
+					copyService.setOnFailed(failed -> unlockGui() );
 					copyService.start();
 				});
+				deleteService.setOnFailed(failed -> unlockGui());
+				blockGui();
 				deleteService.start();
 			}
 		}
@@ -685,9 +750,13 @@ public class GuiMainController {
 				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
 				refreshService.setOnSucceeded(refreshEvent ->{
 					aTargetList.setItems(refreshService.getValue());
+					unlockGui();
 				});
+				refreshService.setOnFailed(failed -> unlockGui());
 				refreshService.start();
 			});
+			copyService.setOnFailed(failed -> unlockGui());
+			blockGui();
 			copyService.start();
 		}
 	}

@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -75,6 +76,7 @@
                                           <Text layoutX="91.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Size" />
                                           <TextField fx:id="lastModifiedTimeTextViewR" alignment="CENTER" editable="false" layoutX="27.0" layoutY="83.0" />
                                           <Text layoutX="51.0" layoutY="122.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Modified Time" />
+                                          <ProgressIndicator fx:id="progressIndicator" layoutX="152.0" layoutY="299.0" prefHeight="54.0" prefWidth="33.0" />
                                        </children>
                                     </AnchorPane>
                                  </items>
