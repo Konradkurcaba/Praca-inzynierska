@@ -15,13 +15,17 @@ public class GoogleFileConverter {
 
 	public List<ObjectMetaDataIf> convert(List<File> aFiles)
 	{
-		List<ObjectMetaDataIf> files = aFiles.stream().map( f -> {
+		List<ObjectMetaDataIf> files = aFiles.stream()
+				.filter(file -> {
+					if(file.getMimeType().contains("application/vnd.google-apps.") 
+							&& !file.getMimeType().equals("application/vnd.google-apps.folder") ) return false;
+					else return true;
+				})
+				.map( f -> {
 			GoogleFileMetadata fileMeta = new GoogleFileMetadata(f);
 			return fileMeta;
 		}).collect(Collectors.toList());
-		
 		return files;
 	}
-	
 	
 }

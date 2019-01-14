@@ -48,7 +48,10 @@ public class GoogleDriveFileDownloader {
 	public List<File> getFilesList(Drive aService, String aParentId) throws IOException {
 		String query = "'" + aParentId + "' in parents";
 		List<File> resultFileList = new ArrayList<File>();
-		Files.List request = aService.files().list().setQ(query)
+		Files.List request = aService.files()
+				.list()
+				.setSpaces("drive")
+				.setQ(query)
 				.setFields("files(id,name,size,modifiedTime,parents,mimeType)");
 		do {
 			try {

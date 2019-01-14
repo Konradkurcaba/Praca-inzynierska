@@ -171,6 +171,7 @@ public class GuiMainController {
 	}
 
 	private void showAccountsWindow() throws IOException {
+		if(synchronizer.isSyncOn()) synchronizer.stopCyclicSynch();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccountsWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
@@ -182,6 +183,7 @@ public class GuiMainController {
 		AccountsWindowController accountsWindowController = loader.getController();
 		accountsWindowController.init(config,accountsSupervisor);
 		accountsWindow.showAndWait();
+		if(syncSwitch.selectedProperty().getValue()) startSync();
 		comboBoxesRefreshItems();
 	}
 
@@ -304,10 +306,14 @@ public class GuiMainController {
 
 		filesServerComboL.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewL);
+			if(oldValue != null) filesServerComboR.getItems().add(oldValue);
+			filesServerComboR.getItems().remove(newValue);
 			initListView();
 		});
 		filesServerComboR.getSelectionModel().selectedItemProperty().addListener((event, oldValue, newValue) -> {
 			comboBoxSelected(event, oldValue, newValue, filesListViewR);
+			if(oldValue != null) filesServerComboL.getItems().add(oldValue);
+			filesServerComboL.getItems().remove(newValue);
 			initListView();
 		});
 	}
@@ -331,8 +337,6 @@ public class GuiMainController {
 		
 		filesServerComboL.getItems().add(FileServer.Local);
 		filesServerComboR.getItems().add(FileServer.Local);
-		
-		
 	}
 
 	private void comboBoxSelected(ObservableValue event, Object aOldValue, Object aNewValue, ListView aListView) {
