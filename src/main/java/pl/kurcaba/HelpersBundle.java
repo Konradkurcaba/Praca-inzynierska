@@ -1,25 +1,25 @@
 package pl.kurcaba;
 
-import AmazonS3.AmazonS3Supporter;
-import GoogleDrive.GoogleDriveSupporter;
-import Local.LocalFileSupporter;
+import AmazonS3.AmazonS3Helper;
+import GoogleDrive.GoogleDriveHelper;
+import Local.LocalFileHelper;
 
 public class HelpersBundle {
 
-	private final AmazonS3Supporter s3Supporter = new AmazonS3Supporter();
-	private final GoogleDriveSupporter driveSupporter = new GoogleDriveSupporter();
-	private final LocalFileSupporter localSupporter = new LocalFileSupporter();
+	private final AmazonS3Helper s3Supporter = new AmazonS3Helper();
+	private final GoogleDriveHelper driveSupporter = new GoogleDriveHelper();
+	private final LocalFileHelper localSupporter = new LocalFileHelper();
 	
-	public AmazonS3Supporter getAmazonS3Supporter() {
+	public AmazonS3Helper getAmazonS3Supporter() {
 		return s3Supporter;
 	}
 	
-	public GoogleDriveSupporter getGoogleDriveSupporter()
+	public GoogleDriveHelper getGoogleDriveSupporter()
 	{
 		return driveSupporter;
 	}
 	
-	public LocalFileSupporter getLocalFileSupporter()
+	public LocalFileHelper getLocalFileSupporter()
 	{
 		return localSupporter;
 	}

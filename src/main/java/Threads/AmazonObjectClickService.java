@@ -2,47 +2,47 @@ package Threads;
 
 import AmazonS3.AmazonS3BucketMetadata;
 import AmazonS3.AmazonS3SummaryMetadata;
-import AmazonS3.AmazonS3Supporter;
+import AmazonS3.AmazonS3Helper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.PreviousContainer;
 
-public class AmazonObjectClickService extends Service<ObservableList<ObjectMetaDataIf>> {
+public class AmazonObjectClickService extends Service<ObservableList<ObjectMetadataIf>> {
 
 	
-	private final AmazonS3Supporter s3Supporter;
-	private final ObjectMetaDataIf clickedObject;
+	private final AmazonS3Helper s3Supporter;
+	private final ObjectMetadataIf clickedObject;
 	
-	public AmazonObjectClickService(AmazonS3Supporter aS3Supporter, ObjectMetaDataIf aClickedObject) {
+	public AmazonObjectClickService(AmazonS3Helper aS3Supporter, ObjectMetadataIf aClickedObject) {
 		s3Supporter = aS3Supporter;
 		clickedObject = aClickedObject;
 	}
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
 		
-		return new Task<ObservableList<ObjectMetaDataIf>>()
+		return new Task<ObservableList<ObjectMetadataIf>>()
 		{
 
 			@Override
-			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+			protected ObservableList<ObjectMetadataIf> call() throws Exception {
 				if(clickedObject instanceof AmazonS3BucketMetadata)
 				{
-					ObservableList<ObjectMetaDataIf> files = s3Supporter.listBucketFiles((AmazonS3BucketMetadata)clickedObject);
+					ObservableList<ObjectMetadataIf> files = s3Supporter.listBucketFiles((AmazonS3BucketMetadata)clickedObject);
 					return files;
 				}
 				else if(clickedObject instanceof PreviousContainer )
 				{
-					ObservableList<ObjectMetaDataIf> files = s3Supporter.getFilesFromPreviousContainer();
+					ObservableList<ObjectMetadataIf> files = s3Supporter.getFilesFromPreviousContainer();
 					return files;
 				}else if(clickedObject instanceof AmazonS3SummaryMetadata)
 				{
 					AmazonS3SummaryMetadata s3ObjectMetadata = (AmazonS3SummaryMetadata) clickedObject;
 					if (s3ObjectMetadata.isDirectory())
 					{
-						ObservableList<ObjectMetaDataIf> files = s3Supporter.listFiles(s3ObjectMetadata.getName());
+						ObservableList<ObjectMetadataIf> files = s3Supporter.listFiles(s3ObjectMetadata.getName());
 						return files;
 					}
 					else throw new IllegalArgumentException("Given object is not a Container");

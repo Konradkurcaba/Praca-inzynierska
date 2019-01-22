@@ -1,12 +1,17 @@
 package pl.kurcaba;
 
 public enum FileServer {
-	Google("Google"),Amazon("Amazon"),Local("Local");
+	GoogleDrive("GoogleDrive"),AmazonS3("AmazonS3"),Komputer("Komputer");
 	
 	private final String type;
 	
 	FileServer(String aServer)
 	{
 		type = aServer;
+	}
+	
+	@Override
+	public String toString() {
+		return type;
 	}
 }

@@ -18,10 +18,10 @@ import Synchronization.S3SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.PreviousContainer;
 
-public final class GoogleDriveSupporter {
+public final class GoogleDriveHelper {
 
 	private Drive driveService;
 	private String accountName;
@@ -37,7 +37,7 @@ public final class GoogleDriveSupporter {
 		accountName = aAccountName;
 	}	
 
-	public ObservableList<ObjectMetaDataIf> getFilesList(String aParentId) throws IOException
+	public ObservableList<ObjectMetadataIf> getFilesList(String aParentId) throws IOException
 	{
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		List<File> files = downloader.getFilesList(driveService, aParentId);
@@ -47,7 +47,7 @@ public final class GoogleDriveSupporter {
 		return createObservableList(converter.convert(files), isRootFolder);
 	}
 
-	public ObservableList<ObjectMetaDataIf> backToPreviousContainer() throws IOException{
+	public ObservableList<ObjectMetadataIf> backToPreviousContainer() throws IOException{
 		GoogleDriveFileDownloader downloader = new GoogleDriveFileDownloader();
 		currentDirectoryId = downloader.getFilesParentId(driveService, currentDirectoryId);
 		List<File> files = downloader.getFilesList(driveService, currentDirectoryId);
@@ -79,7 +79,7 @@ public final class GoogleDriveSupporter {
 		return googleFileDownloader.downloadFile(aId, targetDirectory.toString(), driveService);
 	}
 
-	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir() throws IOException, GeneralSecurityException {
+	public ObservableList<ObjectMetadataIf> getFilesFromCurrentDir() throws IOException, GeneralSecurityException {
 		return getFilesList(currentDirectoryId);
 	}
 
@@ -120,10 +120,10 @@ public final class GoogleDriveSupporter {
 	public String getAccountName() {
 		return accountName;
 	}
-	private ObservableList<ObjectMetaDataIf> createObservableList(List<ObjectMetaDataIf> aListToConvert,
+	private ObservableList<ObjectMetadataIf> createObservableList(List<ObjectMetadataIf> aListToConvert,
 			boolean isRootDirectory) {
 		if (!isRootDirectory)
-			aListToConvert.add(0, new PreviousContainer(FileServer.Google));
+			aListToConvert.add(0, new PreviousContainer(FileServer.GoogleDrive));
 		return FXCollections.observableArrayList(aListToConvert);
 	}
 }

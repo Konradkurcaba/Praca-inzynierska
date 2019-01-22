@@ -8,13 +8,13 @@ import com.google.common.io.Files;
 import AmazonS3.AmazonS3SummaryMetadata;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.HelpersBundle;
 
 public class SyncFileDownloader {
 
-	public File downloadFile(ObjectMetaDataIf aFileToDownload, HelpersBundle aBundle) throws IOException {
+	public File downloadFile(ObjectMetadataIf aFileToDownload, HelpersBundle aBundle) throws IOException {
 		
 		File downloadedFile = null;
 		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);
@@ -54,7 +54,7 @@ public class SyncFileDownloader {
 		File targetDirectory = new File(ApplicationConfig.WORKING_DIRECTORY);
 		switch(aFileToDownload.getFileServer())
 		{
-		case Amazon:
+		case AmazonS3:
 			if(aFileToDownload instanceof S3SyncFileData)
 			{
 				S3SyncFileData s3File = (S3SyncFileData) aFileToDownload;
@@ -62,10 +62,10 @@ public class SyncFileDownloader {
 						, s3File.getBucketName(),targetDirectory);
 			}
 		break;
-		case Local:
+		case Komputer:
 			downloadedFile = aSupportersBundle.getLocalFileSupporter().getLocalFile(aFileToDownload.getFileId());
 			break;
-		case Google:
+		case GoogleDrive:
 			downloadedFile = aSupportersBundle.getGoogleDriveSupporter().downloadFile(aFileToDownload.getFileId(), targetDirectory);
 			break;
 		}

@@ -6,33 +6,33 @@ import java.security.GeneralSecurityException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import AmazonS3.AmazonS3BucketMetadata;
 import AmazonS3.AmazonS3SummaryMetadata;
-import AmazonS3.AmazonS3Supporter;
+import AmazonS3.AmazonS3Helper;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.HelpersBundle;
 
 
-public class DeleteService extends Service<ObservableList<ObjectMetaDataIf>>{
+public class DeleteService extends Service<ObservableList<ObjectMetadataIf>>{
 
 	
 	private final HelpersBundle supportersBundle;
-	private final ObjectMetaDataIf objectToDelete;
+	private final ObjectMetadataIf objectToDelete;
 	
-	public DeleteService(HelpersBundle aSupportersBundle, ObjectMetaDataIf aObjectToDelete) {
+	public DeleteService(HelpersBundle aSupportersBundle, ObjectMetadataIf aObjectToDelete) {
 		supportersBundle = aSupportersBundle;
 		objectToDelete = aObjectToDelete;
 	}
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
-		return new Task<ObservableList<ObjectMetaDataIf>>()
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
+		return new Task<ObservableList<ObjectMetadataIf>>()
 		{
 			@Override
-			protected ObservableList<ObjectMetaDataIf> call() throws IOException, GeneralSecurityException {
+			protected ObservableList<ObjectMetadataIf> call() throws IOException, GeneralSecurityException {
 				if(objectToDelete instanceof LocalFileMetadata)
 				{
 					supportersBundle.getLocalFileSupporter().deleteFile((LocalFileMetadata)objectToDelete);

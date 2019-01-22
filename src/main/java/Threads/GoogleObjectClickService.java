@@ -2,32 +2,32 @@ package Threads;
 
 import com.google.api.services.drive.Drive;
 
-import GoogleDrive.GoogleDriveSupporter;
+import GoogleDrive.GoogleDriveHelper;
 import GoogleDrive.GoogleFileMetadata;
 import GoogleDrive.GoogleFileType;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.PreviousContainer;
 
 
-public class GoogleObjectClickService extends Service<ObservableList<ObjectMetaDataIf>> {
+public class GoogleObjectClickService extends Service<ObservableList<ObjectMetadataIf>> {
 
-	private final GoogleDriveSupporter driveSupporter;
-	private final ObjectMetaDataIf clickedObject;
+	private final GoogleDriveHelper driveSupporter;
+	private final ObjectMetadataIf clickedObject;
 	
-	public GoogleObjectClickService(GoogleDriveSupporter aDriveSupporter,ObjectMetaDataIf aClickedObject) {
+	public GoogleObjectClickService(GoogleDriveHelper aDriveSupporter,ObjectMetadataIf aClickedObject) {
 		driveSupporter = aDriveSupporter;
 		clickedObject = aClickedObject;
 	}
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
-		return new Task<ObservableList<ObjectMetaDataIf>>() {
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
+		return new Task<ObservableList<ObjectMetadataIf>>() {
 
 			@Override
-			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+			protected ObservableList<ObjectMetadataIf> call() throws Exception {
 				if(clickedObject instanceof GoogleFileMetadata)
 				{
 					GoogleFileMetadata googleFileMetadata = (GoogleFileMetadata) clickedObject;

@@ -27,15 +27,15 @@
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <ComboBox fx:id="filesServerComboL" layoutX="24.0" layoutY="46.0" prefWidth="150.0" />
-                                          <Text layoutX="82.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server" />
+                                          <Text layoutX="60.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Źródło danych" />
                                        </children>
                                     </AnchorPane>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <TextField fx:id="selectedFileSizeTextFieldL" alignment="CENTER" editable="false" layoutX="27.0" layoutY="25.0" />
-                                          <Text layoutX="91.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Size" />
+                                          <Text layoutX="80.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rozmiar" />
                                           <TextField fx:id="lastModifiedTimeTextViewL" alignment="CENTER" editable="false" layoutX="27.0" layoutY="83.0" />
-                                          <Text layoutX="51.0" layoutY="122.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Modified Time" />
+                                          <Text layoutX="33.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data ostatniej modyfikacji" />
                                        </children>
                                     </AnchorPane>
                                 </items>
@@ -67,16 +67,16 @@
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <ComboBox fx:id="filesServerComboR" layoutX="23.0" layoutY="46.0" prefWidth="150.0" />
-                                          <Text layoutX="81.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server" />
+                                          <Text layoutX="60.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Źródło danych" />
                                        </children>
                                     </AnchorPane>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
                                           <TextField fx:id="selectedFileSizeTextFieldR" alignment="CENTER" editable="false" layoutX="27.0" layoutY="25.0" />
-                                          <Text layoutX="91.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Size" />
                                           <TextField fx:id="lastModifiedTimeTextViewR" alignment="CENTER" editable="false" layoutX="27.0" layoutY="83.0" />
-                                          <Text layoutX="51.0" layoutY="122.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Modified Time" />
                                           <ProgressIndicator fx:id="progressIndicator" layoutX="152.0" layoutY="299.0" prefHeight="54.0" prefWidth="33.0" />
+                                          <Text layoutX="75.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rozmiar" />
+                                          <Text layoutX="29.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data ostatniej modyfikacji" />
                                        </children>
                                     </AnchorPane>
                                  </items>
@@ -100,11 +100,6 @@
             <items>
                   <CheckMenuItem fx:id="syncSwitch" mnemonicParsing="false" text="Synchronizacja" />
                   <MenuItem fx:id="syncMenu" mnemonicParsing="false" text="Panel Synchronizacji" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
             </items>
           </Menu>
         </menus>

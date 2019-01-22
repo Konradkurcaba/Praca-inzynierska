@@ -18,18 +18,18 @@ import Synchronization.SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.PreviousContainer;
 
-public final class AmazonS3Supporter {
+public final class AmazonS3Helper {
 
 	
 	private AmazonS3 s3Client;
 	
-	AmazonS3BucketMetadata currentBucket;
-	String currentPrefix;
-	String currentRegion = "";
-	String accountName;
+	private AmazonS3BucketMetadata currentBucket;
+	private String currentPrefix;
+	private String currentRegion = "";
+	private String accountName;
 	
 	public void ChangeAccount(AmazonS3 aS3Client,String aAccountName)
 	{
@@ -39,7 +39,7 @@ public final class AmazonS3Supporter {
 		accountName = aAccountName;
 	}
 	
-	public ObservableList<ObjectMetaDataIf> getBucketsMetadata()
+	public ObservableList<ObjectMetadataIf> getBucketsMetadata()
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		List<Bucket> buckets = s3Downloader.getAllBucketsList(s3Client);
@@ -49,7 +49,7 @@ public final class AmazonS3Supporter {
 		return FXCollections.observableArrayList(bucketsMetadata);
 	}
 	
-	public ObservableList<ObjectMetaDataIf> listBucketFiles(AmazonS3BucketMetadata aBucket)
+	public ObservableList<ObjectMetadataIf> listBucketFiles(AmazonS3BucketMetadata aBucket)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client, aBucket.getName(),"");
@@ -58,23 +58,23 @@ public final class AmazonS3Supporter {
 		currentPrefix = "";
 		
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
-		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult,""
+		List<ObjectMetadataIf> convertedList = s3Converter.convertFileList(listResult,""
 				,currentBucket.getName(),currentRegion);
-		PreviousContainer previousContainer = new PreviousContainer(FileServer.Amazon);
+		PreviousContainer previousContainer = new PreviousContainer(FileServer.AmazonS3);
 		convertedList.add(0,previousContainer);
 		
 		return FXCollections.observableArrayList(convertedList);
 	}
 	
-	public ObservableList<ObjectMetaDataIf> listFiles(String aPrefix)
+	public ObservableList<ObjectMetadataIf> listFiles(String aPrefix)
 	{
 		AmazonS3FileDownloader s3Downloader = new AmazonS3FileDownloader();
 		ListObjectsV2Result listResult = s3Downloader.getFilesFromBucket(s3Client,currentBucket.getName()
 				, aPrefix);
 		AmazonS3Converter s3Converter = new AmazonS3Converter();
-		List<ObjectMetaDataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix
+		List<ObjectMetadataIf> convertedList = s3Converter.convertFileList(listResult, aPrefix
 				,currentBucket.getName(),currentRegion);
-		convertedList.add(0,new PreviousContainer(FileServer.Amazon));
+		convertedList.add(0,new PreviousContainer(FileServer.AmazonS3));
 		currentPrefix = aPrefix;
 		return FXCollections.observableArrayList(convertedList);
 	}
@@ -151,7 +151,7 @@ public final class AmazonS3Supporter {
 		amazonFileDeleting.deleteObject(s3Client, aFileToDelete.getBucketName(), aFileToDelete.getKey());
 	}
 	
-	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()
+	public ObservableList<ObjectMetadataIf> getFilesFromCurrentDir()
 	{
 		if(currentBucket != null) return listFiles(currentPrefix);
 		else

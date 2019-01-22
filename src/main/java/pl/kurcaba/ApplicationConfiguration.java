@@ -5,14 +5,12 @@ import AmazonS3.AmazonAccountInfo;
 public class ApplicationConfiguration {
 
 	private String defaultGoogleAccount;
-	private boolean isSyncOn;
 	private AmazonAccountInfo amazonAccount;
 	
-	public ApplicationConfiguration(boolean aIsSyncOn,String aDefaultGoogleAccount,AmazonAccountInfo aAmazonAccountInf)
+	public ApplicationConfiguration(String aDefaultGoogleAccount,AmazonAccountInfo aAmazonAccountInf)
 	{
 		
 		defaultGoogleAccount = aDefaultGoogleAccount;
-		isSyncOn = aIsSyncOn;
 		amazonAccount = aAmazonAccountInf;
 	}
 	
@@ -20,9 +18,6 @@ public class ApplicationConfiguration {
 		return defaultGoogleAccount;
 	}
 
-	public boolean isSyncOn() {
-		return isSyncOn;
-	}
 	public AmazonAccountInfo getAmazonAccount()
 	{
 		return amazonAccount;

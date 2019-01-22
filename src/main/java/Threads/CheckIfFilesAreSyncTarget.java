@@ -11,17 +11,17 @@ import Synchronization.Synchronizer;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.HelpersBundle;
 
 public class CheckIfFilesAreSyncTarget extends Service<Boolean> {
 
 
-	ObjectMetaDataIf sourceFile;
-	ObjectMetaDataIf targetFile;
+	ObjectMetadataIf sourceFile;
+	ObjectMetadataIf targetFile;
 	HelpersBundle supportersBundle;
 	
-	public CheckIfFilesAreSyncTarget(ObjectMetaDataIf aSourceFile,ObjectMetaDataIf aTargetFile,HelpersBundle aHelpersBundle) {
+	public CheckIfFilesAreSyncTarget(ObjectMetadataIf aSourceFile,ObjectMetadataIf aTargetFile,HelpersBundle aHelpersBundle) {
 		sourceFile = aSourceFile;
 		targetFile = aTargetFile;
 		supportersBundle = aHelpersBundle;
@@ -42,12 +42,12 @@ public class CheckIfFilesAreSyncTarget extends Service<Boolean> {
 		};
 	}
 	
-	private SyncFileData createSyncFileData(ObjectMetaDataIf aObj)
+	private SyncFileData createSyncFileData(ObjectMetadataIf aObj)
 	{
 		SyncFileData file = null;
-		if(aObj.getFileServer() == FileServer.Amazon) file = new S3SyncFileData(aObj
+		if(aObj.getFileServer() == FileServer.AmazonS3) file = new S3SyncFileData(aObj
 				,supportersBundle.getAmazonS3Supporter().getAccountName());
-		else if(aObj.getFileServer() == FileServer.Google)
+		else if(aObj.getFileServer() == FileServer.GoogleDrive)
 		{
 		file = new SyncFileData(aObj,supportersBundle.getGoogleDriveSupporter().getAccountName());
 		}else file = new SyncFileData(sourceFile,null);

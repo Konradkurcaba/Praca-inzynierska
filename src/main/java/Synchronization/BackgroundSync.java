@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Local.LocalFileMetadata;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.HelpersBundle;
 
@@ -80,23 +80,23 @@ public class BackgroundSync implements Runnable {
 	{
 		switch(aFileToUpdate.getFileServer())
 		{
-		case Amazon:
+		case AmazonS3:
 			S3SyncFileData s3FileData = (S3SyncFileData) aFileToUpdate;
-			ObjectMetaDataIf metadata = supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
+			ObjectMetadataIf metadata = supportersBundle.getAmazonS3Supporter().getAmazons3ObjMetadata(s3FileData.getKey()
 					,s3FileData.getBucketName());
 			if(metadata != null)
 			{
 				return new S3SyncFileData(metadata,supportersBundle.getAmazonS3Supporter().getAccountName());
 			}else return null;
 			
-		case Google:
-			ObjectMetaDataIf googleFileMetadata = (supportersBundle.getGoogleDriveSupporter()
+		case GoogleDrive:
+			ObjectMetadataIf googleFileMetadata = (supportersBundle.getGoogleDriveSupporter()
 					.getFileMetadata(aFileToUpdate.getFileId()));
 			if(googleFileMetadata != null) return new SyncFileData(googleFileMetadata
 					,supportersBundle.getGoogleDriveSupporter().getAccountName());
 			else return null;
-		case Local:
-			ObjectMetaDataIf actualMetadata = supportersBundle.getLocalFileSupporter()
+		case Komputer:
+			ObjectMetadataIf actualMetadata = supportersBundle.getLocalFileSupporter()
 					.getLocalWrappedFile(aFileToUpdate.getFileId());
 			if (actualMetadata != null)
 			{
@@ -132,9 +132,16 @@ public class BackgroundSync implements Runnable {
 		{
 			databaseSupervisor.removeSyncData(pair.getKey(), pair.getValue());
 		}
-		String aGoogleAccount = accountsSupervisor.getCurrentDriveAccount();
-		String aAmazonAccount = accountsSupervisor.getCurrentS3Account().getAccountName();
-		
+		String aGoogleAccount = null;
+		if(accountsSupervisor.isDriveLoggedIn())
+		{
+			aGoogleAccount = accountsSupervisor.getCurrentDriveAccount();
+		}
+		String aAmazonAccount = null;
+		if(accountsSupervisor.isS3LoggedIn())
+		{
+			aAmazonAccount = accountsSupervisor.getCurrentS3Account().getAccountName();
+		}
 		Map<SyncFileData,SyncFileData> filesToSynchonize = databaseSupervisor.getSyncMap(aGoogleAccount,aAmazonAccount);
 		databaseSupervisor.closeConnection();
 		return filesToSynchonize;

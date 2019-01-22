@@ -26,7 +26,7 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
 import GoogleDrive.GoogleDriveFileDownloader;
-import GoogleDrive.GoogleDriveSupporter;
+import GoogleDrive.GoogleDriveHelper;
 import GoogleDrive.GoogleFileConverter;
 import GoogleDrive.GoogleFileMetadata;
 import Gui.GuiMainController;
@@ -41,7 +41,6 @@ public class Main extends Application {
    
 	public static void main(String... args) throws GeneralSecurityException, IOException
 	{		
-		
         launch();
 	}
 	
@@ -50,7 +49,7 @@ public class Main extends Application {
 		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();
-		  primaryStage.setTitle("Cloud files Client");
+		  primaryStage.setTitle("Klient us³ug chmurowych");
 		  primaryStage.setScene(new Scene(root));
 		  controller = loader.getController();
 		  controller.initComponents();

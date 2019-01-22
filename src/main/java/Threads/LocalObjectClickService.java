@@ -3,26 +3,26 @@ package Threads;
 import AmazonS3.AmazonS3BucketMetadata;
 import Local.FileType;
 import Local.LocalFileMetadata;
-import Local.LocalFileSupporter;
+import Local.LocalFileHelper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class LocalObjectClickService extends Service<ObservableList<ObjectMetaDataIf>>{
+public class LocalObjectClickService extends Service<ObservableList<ObjectMetadataIf>>{
 
 	
-	private LocalFileSupporter localSupporter;
-	ObjectMetaDataIf clickedObject;
+	private LocalFileHelper localSupporter;
+	ObjectMetadataIf clickedObject;
 	
-	public LocalObjectClickService(LocalFileSupporter aLocalSupporter,ObjectMetaDataIf aClickedObject) {
+	public LocalObjectClickService(LocalFileHelper aLocalSupporter,ObjectMetadataIf aClickedObject) {
 		localSupporter = aLocalSupporter;
 		clickedObject = aClickedObject;
 	}
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
-		return new Task<ObservableList<ObjectMetaDataIf>>()
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
+		return new Task<ObservableList<ObjectMetadataIf>>()
 		{
 			@Override
 			protected ObservableList call() {

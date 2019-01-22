@@ -6,9 +6,9 @@ import java.util.Date;
 import com.google.api.services.drive.model.File;
 
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
+public class GoogleFileMetadata implements ObjectMetadataIf<File> {
 
 	private final String name;
 	private final String size;
@@ -16,7 +16,7 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 	private final File orginalFile;
 	private final Date lastModifiedDate;
 	private final GoogleFileType fileType;
-	private final FileServer fileServer = FileServer.Google;
+	private final FileServer fileServer = FileServer.GoogleDrive;
 	
 	public GoogleFileMetadata(File aOriginalFile)
 	{
@@ -47,7 +47,7 @@ public class GoogleFileMetadata implements ObjectMetaDataIf<File> {
 
 	@Override
 	public String getSize() {
-		if(fileType == GoogleFileType.Document) return "Google Document";
+		if(fileType == GoogleFileType.Document) return "Dokument Google";
 		else if(fileType == GoogleFileType.Folder) return "Folder";
 		else return size;
 	}

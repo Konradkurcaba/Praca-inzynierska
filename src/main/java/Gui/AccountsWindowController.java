@@ -23,7 +23,7 @@ import javafx.stage.Stage;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.TextColor;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ContextMenu;

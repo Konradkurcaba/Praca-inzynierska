@@ -17,11 +17,11 @@ import com.google.api.services.drive.model.Change;
 
 import AmazonS3.AmazonAccountInfo;
 import AmazonS3.AmazonS3Converter;
-import AmazonS3.AmazonS3Supporter;
-import GoogleDrive.GoogleDriveSupporter;
+import AmazonS3.AmazonS3Helper;
+import GoogleDrive.GoogleDriveHelper;
 import GoogleDrive.GoogleFileMetadata;
 import Local.LocalFileMetadata;
-import Local.LocalFileSupporter;
+import Local.LocalFileHelper;
 import Synchronization.Synchronizer;
 import Threads.AmazonObjectClickService;
 import Threads.AmazonS3DownloadBucketsService;
@@ -62,7 +62,7 @@ import javafx.stage.Stage;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.HelpersBundle;
 import javafx.stage.Modality;
 import javafx.scene.control.CheckMenuItem;
@@ -70,9 +70,9 @@ import javafx.scene.control.CheckMenuItem;
 public class GuiMainController {
 
 	@FXML
-	private ListView<ObjectMetaDataIf> filesListViewL;
+	private ListView<ObjectMetadataIf> filesListViewL;
 	@FXML
-	private ListView<ObjectMetaDataIf> filesListViewR;
+	private ListView<ObjectMetadataIf> filesListViewR;
 	@FXML
 	private TextField selectedFileSizeTextFieldL;
 	@FXML
@@ -94,10 +94,10 @@ public class GuiMainController {
 	@FXML 
 	private ProgressIndicator progressIndicator;
 
-	ApplicationConfig config;
-	AccountsSupervisor accountsSupervisor;
-	HelpersBundle supportersBundle;
-	Synchronizer synchronizer;
+	private ApplicationConfig config;
+	private AccountsSupervisor accountsSupervisor;
+	private HelpersBundle supportersBundle;
+	private Synchronizer synchronizer;
 	
 	public void initComponents() throws IOException, SQLException {
 		initFields();
@@ -191,20 +191,32 @@ public class GuiMainController {
 
 		filesListViewL.getSelectionModel().selectedItemProperty().addListener((event) -> {
 
-			ObjectMetaDataIf selectedFileMetaData = filesListViewL.getSelectionModel().getSelectedItem();
+			ObjectMetadataIf selectedFileMetaData = filesListViewL.getSelectionModel().getSelectedItem();
 			if(selectedFileMetaData != null)
 			{
-				selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
+				if(selectedFileMetaData.getSize().equals("0 KB"))
+				{
+					selectedFileSizeTextFieldL.setText("1 KB");
+				}else
+				{
+					selectedFileSizeTextFieldL.setText(selectedFileMetaData.getSize());
+				}
 				lastModifiedTimeTextViewL.setText(selectedFileMetaData.getLastModifiedDate());
 			}	
 
 		});
 		filesListViewR.getSelectionModel().selectedItemProperty().addListener((event) -> {
 
-			ObjectMetaDataIf selectedFileMetaData = filesListViewR.getSelectionModel().getSelectedItem();
+			ObjectMetadataIf selectedFileMetaData = filesListViewR.getSelectionModel().getSelectedItem();
 			if(selectedFileMetaData != null)
 			{
-				selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
+				if(selectedFileMetaData.getSize().equals("0 KB"))
+				{
+					selectedFileSizeTextFieldR.setText("1 KB");
+				}else
+				{
+					selectedFileSizeTextFieldR.setText(selectedFileMetaData.getSize());
+				}
 				lastModifiedTimeTextViewR.setText(selectedFileMetaData.getLastModifiedDate());
 			}
 		});
@@ -266,10 +278,10 @@ public class GuiMainController {
 			mouseDroppedOnListView(filesListViewL, filesListViewR);
 		});
 
-		filesListViewR.setCellFactory(lv -> new ListCell<ObjectMetaDataIf>() {
+		filesListViewR.setCellFactory(lv -> new ListCell<ObjectMetadataIf>() {
 
 			@Override
-			protected void updateItem(ObjectMetaDataIf item, boolean empty) {
+			protected void updateItem(ObjectMetadataIf item, boolean empty) {
 				super.updateItem(item, empty);
 				if (empty || item == null) {
 					setText("");
@@ -282,10 +294,10 @@ public class GuiMainController {
 			}
 		});
 		
-		filesListViewL.setCellFactory(lv -> new ListCell<ObjectMetaDataIf>() {
+		filesListViewL.setCellFactory(lv -> new ListCell<ObjectMetadataIf>() {
 
 			@Override
-			protected void updateItem(ObjectMetaDataIf item, boolean empty) {
+			protected void updateItem(ObjectMetadataIf item, boolean empty) {
 				super.updateItem(item, empty);
 				if (empty || item == null) {
 					setText("");
@@ -323,27 +335,29 @@ public class GuiMainController {
 		
 		filesServerComboL.getItems().clear();
 		filesServerComboR.getItems().clear();
+		filesServerComboL.getItems().clear();
+		filesServerComboR.getItems().clear();
 		
 		if(accountsSupervisor.isDriveLoggedIn())
 		{
-			filesServerComboL.getItems().add(FileServer.Google);
-			filesServerComboR.getItems().add(FileServer.Google);
+			filesServerComboL.getItems().add(FileServer.GoogleDrive);
+			filesServerComboR.getItems().add(FileServer.GoogleDrive);
 		}
 		if(accountsSupervisor.isS3LoggedIn())
 		{
-			filesServerComboL.getItems().add(FileServer.Amazon);
-			filesServerComboR.getItems().add(FileServer.Amazon);
+			filesServerComboL.getItems().add(FileServer.AmazonS3);
+			filesServerComboR.getItems().add(FileServer.AmazonS3);
 		}
 		
-		filesServerComboL.getItems().add(FileServer.Local);
-		filesServerComboR.getItems().add(FileServer.Local);
+		filesServerComboL.getItems().add(FileServer.Komputer);
+		filesServerComboR.getItems().add(FileServer.Komputer);
 	}
 
 	private void comboBoxSelected(ObservableValue event, Object aOldValue, Object aNewValue, ListView aListView) {
 		FileServer oldValue = (FileServer) aOldValue;
 		FileServer newValue = (FileServer) aNewValue;
 		if (oldValue != newValue) {
-			if (newValue == FileServer.Google) {
+			if (newValue == FileServer.GoogleDrive) {
 				GoogleDriveDownloadService downloadService = new GoogleDriveDownloadService(
 						supportersBundle.getGoogleDriveSupporter());
 				downloadService.setOnSucceeded((Event) -> {
@@ -352,7 +366,7 @@ public class GuiMainController {
 
 				downloadService.start();
 			}
-			if (newValue == FileServer.Amazon) {
+			if (newValue == FileServer.AmazonS3) {
 				AmazonS3DownloadBucketsService downloadService = new AmazonS3DownloadBucketsService(
 						supportersBundle.getAmazonS3Supporter());
 				downloadService.setOnSucceeded(Event -> {
@@ -361,7 +375,7 @@ public class GuiMainController {
 				downloadService.start();
 
 			}
-			if (newValue == FileServer.Local) {
+			if (newValue == FileServer.Komputer) {
 				LocalFileExploreService exploreService = new LocalFileExploreService(
 						supportersBundle.getLocalFileSupporter());
 				exploreService.setOnSucceeded(Event -> {
@@ -372,29 +386,29 @@ public class GuiMainController {
 		}
 	}
 
-	private void listViewClicked(MouseEvent aMouseEvent, ListView<ObjectMetaDataIf> aClickedListView,
+	private void listViewClicked(MouseEvent aMouseEvent, ListView<ObjectMetadataIf> aClickedListView,
 			ComboBox aConnectedComboBox) {
 		boolean isDoubleClick = aMouseEvent.getClickCount() == 2;
 		boolean isSomethinkSelected = aClickedListView.getSelectionModel().getSelectedItem() != null;
 		if (isDoubleClick && isSomethinkSelected) {
-			if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Amazon)) {
-				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
+			if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.AmazonS3)) {
+				ObjectMetadataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
 				AmazonObjectClickService s3ClickService = new AmazonObjectClickService(
 						supportersBundle.getAmazonS3Supporter(), clickedObject);
 				s3ClickService.setOnSucceeded(event -> {
 					aClickedListView.setItems(s3ClickService.getValue());
 				});
 				s3ClickService.start();
-			} else if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Local)) {
-				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
+			} else if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Komputer)) {
+				ObjectMetadataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
 				LocalObjectClickService localClickService = new LocalObjectClickService(
 						supportersBundle.getLocalFileSupporter(), clickedObject);
 				localClickService.setOnSucceeded(event -> {
 					aClickedListView.setItems(localClickService.getValue());
 				});
 				localClickService.start();
-			} else if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.Google)) {
-				ObjectMetaDataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
+			} else if (aConnectedComboBox.getSelectionModel().getSelectedItem().equals(FileServer.GoogleDrive)) {
+				ObjectMetadataIf clickedObject = aClickedListView.getSelectionModel().getSelectedItem();
 				GoogleObjectClickService localClickService = new GoogleObjectClickService(
 						supportersBundle.getGoogleDriveSupporter(), clickedObject);
 				localClickService.setOnSucceeded(event -> {
@@ -406,8 +420,8 @@ public class GuiMainController {
 
 	}
 
-	private ContextMenu buildContextMenu(ObjectMetaDataIf aCellValue,ListView<ObjectMetaDataIf> aSourceListView
-			,FileServer targetServer, ListView<ObjectMetaDataIf> aDestListView ) {
+	private ContextMenu buildContextMenu(ObjectMetadataIf aCellValue,ListView<ObjectMetadataIf> aSourceListView
+			,FileServer targetServer, ListView<ObjectMetadataIf> aDestListView ) {
 		final ContextMenu contextMenu = new ContextMenu();
 
 		
@@ -493,8 +507,8 @@ public class GuiMainController {
 				MenuItem syncSource = new MenuItem("Utwórz synchronizowan¹ kopiê pliku");
 				syncSource.setOnAction(action -> {
 					
-					ObjectMetaDataIf objectToCopy = aSourceListView.getSelectionModel().getSelectedItem();
-					Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aDestListView.getItems(),objectToCopy, targetServer);
+					ObjectMetadataIf objectToCopy = aSourceListView.getSelectionModel().getSelectedItem();
+					Optional<ObjectMetadataIf> existingObj = itemIsOnList(aDestListView.getItems(),objectToCopy, targetServer);
 					
 					if(existingObj.isPresent())
 					{
@@ -644,13 +658,13 @@ public class GuiMainController {
 		}
 	}
 	
-	private Optional<ObjectMetaDataIf> itemIsOnList(ObservableList<ObjectMetaDataIf> aList,ObjectMetaDataIf aObj,FileServer aTargetServer)
+	private Optional<ObjectMetadataIf> itemIsOnList(ObservableList<ObjectMetadataIf> aList,ObjectMetadataIf aObj,FileServer aTargetServer)
 	{
 		String ObjName;
-		if(aObj.getFileServer() == FileServer.Amazon) ObjName = getName(aObj,FileServer.Amazon);
+		if(aObj.getFileServer() == FileServer.AmazonS3) ObjName = getName(aObj,FileServer.AmazonS3);
 		else ObjName = aObj.getName();
 		
-		Optional<ObjectMetaDataIf> existingObject = aList.stream()
+		Optional<ObjectMetadataIf> existingObject = aList.stream()
 		
 		.filter(item ->{
 			if(getName(item,aTargetServer).equals(ObjName)) return true;
@@ -660,9 +674,9 @@ public class GuiMainController {
 		return existingObject;
 	}
 	
-	private String getName(ObjectMetaDataIf aObj,FileServer aServer)
+	private String getName(ObjectMetadataIf aObj,FileServer aServer)
 	{
-		if(aServer == FileServer.Amazon)
+		if(aServer == FileServer.AmazonS3)
 		{
 			AmazonS3Converter conveter = new AmazonS3Converter();
 			return conveter.deletePrefix(aObj.getName());
@@ -708,11 +722,11 @@ public class GuiMainController {
 		progressIndicator.setVisible(false);
 	}
 	
-	private void mouseDroppedOnListView(ListView<ObjectMetaDataIf> aTargetList,ListView<ObjectMetaDataIf> aSourceList)
+	private void mouseDroppedOnListView(ListView<ObjectMetadataIf> aTargetList,ListView<ObjectMetadataIf> aSourceList)
 	{
 		FileServer targetServer = connectedFileServer(aTargetList);
-		ObjectMetaDataIf objectToCopy = aSourceList.getSelectionModel().getSelectedItem();
-		Optional<ObjectMetaDataIf> existingObj = itemIsOnList(aTargetList.getItems(),objectToCopy,targetServer);
+		ObjectMetadataIf objectToCopy = aSourceList.getSelectionModel().getSelectedItem();
+		Optional<ObjectMetadataIf> existingObj = itemIsOnList(aTargetList.getItems(),objectToCopy,targetServer);
 		
 		if(existingObj.isPresent())
 		{
@@ -723,13 +737,13 @@ public class GuiMainController {
 				deleteService.setOnSucceeded(deletedEvent -> {
 					final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
 					copyService.setOnSucceeded(event -> {
-						ObjectMetaDataIf copiedFile = copyService.getValue();
+						ObjectMetadataIf copiedFile = copyService.getValue();
 						RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
 						refreshService.setOnSucceeded(refreshEvent ->{
 							aTargetList.setItems(refreshService.getValue());
 							unlockGui();
 						});
-						if(copiedFile.getFileServer() == FileServer.Google)
+						if(copiedFile.getFileServer() == FileServer.GoogleDrive)
 						{
 							UpdateSyncKeyService updateService = new UpdateSyncKeyService(synchronizer,existingObj.get().getOrginalId()
 									,copiedFile.getOrginalId());
@@ -750,7 +764,7 @@ public class GuiMainController {
 		{
 			final CopyService copyService = new CopyService(supportersBundle,objectToCopy, targetServer);
 			copyService.setOnSucceeded(event -> {
-				ObjectMetaDataIf copiedFile = copyService.getValue();
+				ObjectMetadataIf copiedFile = copyService.getValue();
 				RefreshService refreshService = new RefreshService(supportersBundle,copiedFile);
 				refreshService.setOnSucceeded(refreshEvent ->{
 					aTargetList.setItems(refreshService.getValue());

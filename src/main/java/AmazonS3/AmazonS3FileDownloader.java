@@ -22,7 +22,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import com.amazonaws.services.s3.model.HeadBucketRequest;
 
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.ApplicationConfig;
 
 public class AmazonS3FileDownloader {

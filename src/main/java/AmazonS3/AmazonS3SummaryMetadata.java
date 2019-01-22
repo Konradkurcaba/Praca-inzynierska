@@ -7,15 +7,15 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary> {
+public class AmazonS3SummaryMetadata implements ObjectMetadataIf<S3ObjectSummary> {
 	
 	private final String name;
 	private final String size;
 	private final Date lastModifiedDate;
 	private final boolean isDirectory;
-	private final FileServer fileServer = FileServer.Amazon;
+	private final FileServer fileServer = FileServer.AmazonS3;
 	private final S3ObjectSummary s3Object;
 	private final String bucketName;
 	private final String region;
@@ -45,7 +45,7 @@ public class AmazonS3SummaryMetadata implements ObjectMetaDataIf<S3ObjectSummary
 		
 		if(isDirectory)
 		{
-			return "Directory";
+			return "Folder";
 		}else
 		{
 			return size;

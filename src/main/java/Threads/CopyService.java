@@ -16,24 +16,24 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.ApplicationConfig;
 import pl.kurcaba.HelpersBundle;
 
-public class CopyService extends Service<ObjectMetaDataIf> {
+public class CopyService extends Service<ObjectMetadataIf> {
 
 	private final HelpersBundle bundle;
 	private final FileServer targetServer;
-	private final ObjectMetaDataIf objectToCopy;
+	private final ObjectMetadataIf objectToCopy;
 
-	public CopyService(HelpersBundle aBundle, ObjectMetaDataIf aObject, FileServer aTargetServer) {
+	public CopyService(HelpersBundle aBundle, ObjectMetadataIf aObject, FileServer aTargetServer) {
 		bundle = aBundle;
 		targetServer = aTargetServer;
 		objectToCopy = aObject;
 	}
 
 	@Override
-	protected Task<ObjectMetaDataIf> createTask() {
+	protected Task<ObjectMetadataIf> createTask() {
 		return new Task() {
 			@Override
 			protected Object call() throws Exception {
@@ -44,15 +44,15 @@ public class CopyService extends Service<ObjectMetaDataIf> {
 		};
 	}
 
-	private ObjectMetaDataIf moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
-		if (targetServer.equals(FileServer.Local)) {
+	private ObjectMetadataIf moveFile(File aFileToCopy) throws IOException, GeneralSecurityException {
+		if (targetServer.equals(FileServer.Komputer)) {
 			return bundle.getLocalFileSupporter().moveFileToCurrentDirectory(aFileToCopy.toPath());
 		}
-		else if(targetServer.equals(FileServer.Google))
+		else if(targetServer.equals(FileServer.GoogleDrive))
 		{
 			return bundle.getGoogleDriveSupporter().uploadFile(aFileToCopy);
 		}
-		else if(targetServer.equals(FileServer.Amazon))
+		else if(targetServer.equals(FileServer.AmazonS3))
 		{
 			return bundle.getAmazonS3Supporter().uploadFileToCurrentDir(aFileToCopy);
 		}else throw new IllegalArgumentException("Not supported file Server");

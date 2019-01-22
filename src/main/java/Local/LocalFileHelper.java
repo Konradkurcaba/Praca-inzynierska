@@ -11,15 +11,15 @@ import java.util.List;
 import Synchronization.SyncFileData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class LocalFileSupporter {
+public class LocalFileHelper {
 
 	
 	private File currentDirectory;
 	
 	
-	public ObservableList<ObjectMetaDataIf> getFilesList(LocalFileMetadata file)
+	public ObservableList<ObjectMetadataIf> getFilesList(LocalFileMetadata file)
 	{
 		File directory;
 		if(file.getFileType() == FileType.previousContainer)
@@ -34,8 +34,8 @@ public class LocalFileSupporter {
 		LocalFileExplorer filesExplorer = new LocalFileExplorer();
 		List<File> files = filesExplorer.getFilesFromDirectory(directory);
 		LocalFileConverter filesConverter = new LocalFileConverter();
-		List<ObjectMetaDataIf> convertedFiles = filesConverter.convert(files);
-		ObservableList<ObjectMetaDataIf> observableList = FXCollections.observableList(convertedFiles);
+		List<ObjectMetadataIf> convertedFiles = filesConverter.convert(files);
+		ObservableList<ObjectMetadataIf> observableList = FXCollections.observableList(convertedFiles);
 		
 		LocalFileMetadata previousContainer = new LocalFileMetadata(directory);
 		previousContainer.setFileType(FileType.previousContainer);
@@ -45,12 +45,12 @@ public class LocalFileSupporter {
 		return FXCollections.observableList(convertedFiles);
 	}
 	
-	public ObservableList<ObjectMetaDataIf> getRootsList()
+	public ObservableList<ObjectMetadataIf> getRootsList()
 	{
 		LocalFileExplorer filesExplorer = new LocalFileExplorer();
 		List<File> files = filesExplorer.getRoots();
 		LocalFileConverter filesConverter = new LocalFileConverter();
-		List<ObjectMetaDataIf> convertedFiles = filesConverter.convert(files);
+		List<ObjectMetadataIf> convertedFiles = filesConverter.convert(files);
 		currentDirectory = null;
 		return FXCollections.observableList(convertedFiles);
 	}
@@ -62,12 +62,12 @@ public class LocalFileSupporter {
 		return new LocalFileMetadata(targetFile);
 	}
 	
-	public ObservableList<ObjectMetaDataIf> getFilesFromCurrentDir()
+	public ObservableList<ObjectMetadataIf> getFilesFromCurrentDir()
 	{
 		return getFilesList(new LocalFileMetadata(currentDirectory));
 	}
 	
-	public ObservableList<ObjectMetaDataIf> deleteFile(LocalFileMetadata aLocalFile) throws IOException
+	public ObservableList<ObjectMetadataIf> deleteFile(LocalFileMetadata aLocalFile) throws IOException
 	{
 		if(currentDirectory != null)
 		{
@@ -104,7 +104,7 @@ public class LocalFileSupporter {
 		file.renameTo(newFile);
 	}
 	
-	public ObjectMetaDataIf getLocalWrappedFile(String aPath)
+	public ObjectMetadataIf getLocalWrappedFile(String aPath)
 	{
 		File file = new File(aPath);
 		if(!file.exists()) return null;

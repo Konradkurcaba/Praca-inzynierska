@@ -3,7 +3,7 @@ package pl.kurcaba;
 import java.util.Date;
 import javafx.beans.property.StringProperty;
 
-public interface ObjectMetaDataIf<T> {
+public interface ObjectMetadataIf<T> {
 
 	String getName();
 	String getSize();

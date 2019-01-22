@@ -6,7 +6,7 @@ import com.google.api.services.drive.model.File;
 
 import AmazonS3.AmazonS3SummaryMetadata;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
 public class SyncFileData {
 
@@ -31,7 +31,7 @@ public class SyncFileData {
 		accountName = aAccountName;
 	}
 	
-	public SyncFileData(ObjectMetaDataIf aFile,String aAccountName)
+	public SyncFileData(ObjectMetadataIf aFile,String aAccountName)
 	{
 		fileName = aFile.getName();
 		fileId = aFile.getOrginalId();

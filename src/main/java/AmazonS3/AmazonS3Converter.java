@@ -10,7 +10,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
 public class AmazonS3Converter {
 
@@ -24,10 +24,10 @@ public class AmazonS3Converter {
 		return buckets;
 	}
 	
-	public List<ObjectMetaDataIf> convertFileList(ListObjectsV2Result aFilesList,String aPrefix,String aBucketName
+	public List<ObjectMetadataIf> convertFileList(ListObjectsV2Result aFilesList,String aPrefix,String aBucketName
 			,String aRegion)
 	{
-		List<ObjectMetaDataIf> convertedList = new ArrayList();
+		List<ObjectMetadataIf> convertedList = new ArrayList();
 		
 		for(S3ObjectSummary objectSummary : aFilesList.getObjectSummaries())
 		{

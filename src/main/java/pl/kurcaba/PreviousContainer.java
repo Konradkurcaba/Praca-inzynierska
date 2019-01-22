@@ -2,7 +2,7 @@ package pl.kurcaba;
 
 import java.util.Date;
 
-public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
+public class PreviousContainer implements ObjectMetadataIf<ObjectMetadataIf> {
 
 	private final FileServer fileServer;
 	
@@ -26,7 +26,7 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	}
 
 	@Override
-	public ObjectMetaDataIf getOrginalObject() {
+	public ObjectMetadataIf getOrginalObject() {
 		return this;
 	}
 	
@@ -41,7 +41,7 @@ public class PreviousContainer implements ObjectMetaDataIf<ObjectMetaDataIf> {
 	}
 	@Override
 	public boolean isRoot() {
-		return false;
+		return true;
 	}
 
 	@Override

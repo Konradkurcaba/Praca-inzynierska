@@ -7,9 +7,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> {
+public class AmazonS3ObjectMetadata implements ObjectMetadataIf<ObjectMetadata> {
 
 	
 	private final String name;
@@ -18,7 +18,7 @@ public class AmazonS3ObjectMetadata implements ObjectMetaDataIf<ObjectMetadata> 
 	private final String bucketName;
 
 	private final boolean isDirectory;
-	private final FileServer fileServer = FileServer.Amazon;
+	private final FileServer fileServer = FileServer.AmazonS3;
 	private final ObjectMetadata objectMetadata;
 	
 	

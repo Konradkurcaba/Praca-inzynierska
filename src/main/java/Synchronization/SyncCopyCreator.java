@@ -1,25 +1,25 @@
 package Synchronization;
 
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.HelpersBundle;
 
 public class SyncCopyCreator {
 
 	
-	public void createSyncCopy(ObjectMetaDataIf aSource,FileServer aTargetServer,HelpersBundle aSupporters)
+	public void createSyncCopy(ObjectMetadataIf aSource,FileServer aTargetServer,HelpersBundle aSupporters)
 	{
 		switch(aTargetServer)
 		{
-		case Amazon:
+		case AmazonS3:
 			
 			
 			break;
 		
-		case Google:
+		case GoogleDrive:
 			break;
 			
-		case Local:
+		case Komputer:
 			break;
 		
 		}

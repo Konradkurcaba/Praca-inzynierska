@@ -1,28 +1,28 @@
 package Threads;
 
-import GoogleDrive.GoogleDriveSupporter;
+import GoogleDrive.GoogleDriveHelper;
 import GoogleDrive.GoogleFileMetadata;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class GoogleDriveDownloadService extends Service<ObservableList<ObjectMetaDataIf>> {
+public class GoogleDriveDownloadService extends Service<ObservableList<ObjectMetadataIf>> {
 
-	GoogleDriveSupporter driveSupporter;
+	GoogleDriveHelper driveSupporter;
 	
-	public GoogleDriveDownloadService(GoogleDriveSupporter aDriveSupporter) {
+	public GoogleDriveDownloadService(GoogleDriveHelper aDriveSupporter) {
 		driveSupporter = aDriveSupporter;
 	}
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
 		
 		return new Task()
 		{
 
 			@Override
-			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+			protected ObservableList<ObjectMetadataIf> call() throws Exception {
 				return driveSupporter.getFilesList("root");
 			}
 	

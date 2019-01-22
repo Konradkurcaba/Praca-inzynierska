@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import AmazonS3.AmazonS3ObjectMetadata;
 import pl.kurcaba.AccountsSupervisor;
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.HelpersBundle;
 
 public class Synchronizer {
@@ -29,7 +29,7 @@ public class Synchronizer {
 		helpersBundle = aSupportersBundle;
 	}
 	
-	public void addFilesToSynchronize(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile) throws SQLException
+	public void addFilesToSynchronize(ObjectMetadataIf aFileToSynchronize,ObjectMetadataIf aSynchronizeTargetFile) throws SQLException
 	{
 		synchronized(filesToAddToSync)
 		{
@@ -40,7 +40,7 @@ public class Synchronizer {
 		}
 	}
 	
-	public void removeFilesFromSync(ObjectMetaDataIf aFileToSynchronize,ObjectMetaDataIf aSynchronizeTargetFile)
+	public void removeFilesFromSync(ObjectMetadataIf aFileToSynchronize,ObjectMetadataIf aSynchronizeTargetFile)
 	{
 		SyncFileData sourceFile = createSyncData(aFileToSynchronize);
 		SyncFileData targetFile = createSyncData(aSynchronizeTargetFile);
@@ -87,11 +87,11 @@ public class Synchronizer {
 		return isSyncOn;
 	}
 	
-	private SyncFileData createSyncData(ObjectMetaDataIf obj) {
+	private SyncFileData createSyncData(ObjectMetadataIf obj) {
 		SyncFileData file;
-		if(obj.getFileServer() == FileServer.Amazon) file = new S3SyncFileData(obj
+		if(obj.getFileServer() == FileServer.AmazonS3) file = new S3SyncFileData(obj
 				,helpersBundle.getAmazonS3Supporter().getAccountName());
-		else if(obj.getFileServer() == FileServer.Google)
+		else if(obj.getFileServer() == FileServer.GoogleDrive)
 		{
 		file = new SyncFileData(obj,helpersBundle.getGoogleDriveSupporter().getAccountName());
 		}else file = new SyncFileData(obj,null);

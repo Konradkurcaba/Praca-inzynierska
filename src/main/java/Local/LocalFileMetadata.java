@@ -4,9 +4,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 
 import pl.kurcaba.FileServer;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
+public class LocalFileMetadata implements ObjectMetadataIf<File>  {
 
 	private String name;
 	private final String size;
@@ -15,7 +15,7 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 	private final File orginalObject;
 	private boolean isRoot;
 	private FileType fileType;
-	private final FileServer fileServer = FileServer.Local;
+	private final FileServer fileServer = FileServer.Komputer;
 	
 	
 	public LocalFileMetadata(File aOrginalObject) {
@@ -32,7 +32,7 @@ public class LocalFileMetadata implements ObjectMetaDataIf<File>  {
 		path = orginalObject.getPath();
 		if(orginalObject.isDirectory())
 		{
-			size = "Directory";
+			size = "Folder";
 		}
 		else size = String.valueOf(orginalObject.length() / 1024) + " KB";
 		lastModifiedDate = orginalObject.lastModified();

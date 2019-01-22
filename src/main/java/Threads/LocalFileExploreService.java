@@ -1,28 +1,28 @@
 package Threads;
 import java.io.File;
 
-import Local.LocalFileSupporter;
+import Local.LocalFileHelper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import pl.kurcaba.ObjectMetaDataIf;
+import pl.kurcaba.ObjectMetadataIf;
 
-public class LocalFileExploreService extends Service<ObservableList<ObjectMetaDataIf>>{
+public class LocalFileExploreService extends Service<ObservableList<ObjectMetadataIf>>{
 
-	LocalFileSupporter localSupporter;
+	LocalFileHelper localSupporter;
 	
-	public LocalFileExploreService(LocalFileSupporter aLocalSupporter) {
+	public LocalFileExploreService(LocalFileHelper aLocalSupporter) {
 		localSupporter = aLocalSupporter;
 	}
 	
 	
 	@Override
-	protected Task<ObservableList<ObjectMetaDataIf>> createTask() {
-		return new Task<ObservableList<ObjectMetaDataIf>>()
+	protected Task<ObservableList<ObjectMetadataIf>> createTask() {
+		return new Task<ObservableList<ObjectMetadataIf>>()
 		{
 
 			@Override
-			protected ObservableList<ObjectMetaDataIf> call() throws Exception {
+			protected ObservableList<ObjectMetadataIf> call() throws Exception {
 				return localSupporter.getRootsList();
 			}
 			
