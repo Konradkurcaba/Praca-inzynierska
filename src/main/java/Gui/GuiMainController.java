@@ -172,7 +172,7 @@ public class GuiMainController {
 
 	private void showAccountsWindow() throws IOException {
 		if(synchronizer.isSyncOn()) synchronizer.stopCyclicSynch();
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccountsWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/AccountsWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage accountsWindow = new Stage();
@@ -588,7 +588,7 @@ public class GuiMainController {
 	}
 	
 	private void showMessageWindow(String aMessage,String aTitle) throws IOException {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/MessageWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/MessageWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage okWindow = new Stage();
@@ -603,7 +603,7 @@ public class GuiMainController {
 
 	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/InputWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/inputWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage inputWindow = new Stage();
@@ -620,7 +620,7 @@ public class GuiMainController {
 	private void showSyncWindow() throws IOException, SQLException
 	{
 		if(synchronizer.isSyncOn()) synchronizer.stopCyclicSynch();
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/syncWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/syncWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage syncWindow = new Stage();
@@ -638,7 +638,7 @@ public class GuiMainController {
 	{
 		try
 		{
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/yesNoWindow.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/yesNoWindow.fxml"));
 			loader.load();
 			Parent root = loader.getRoot();
 			Stage yesNoWindow = new Stage();

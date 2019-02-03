@@ -2,6 +2,7 @@ package pl.kurcaba;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.google.api.services.drive.Drive;
@@ -9,6 +10,8 @@ import com.google.api.services.drive.Drive;
 import AmazonS3.AmazonAccountInfo;
 import AmazonS3.AmazonS3LogInSupporter;
 import GoogleDrive.GoogleDriveLogInSupporter;
+import Synchronization.DatabaseSupervisor;
+import Threads.CleanAccountsService;
 
 
 public class AccountsSupervisor {
@@ -81,7 +84,9 @@ public class AccountsSupervisor {
 		return isS3LoggedIn;
 	}
 
-	
-	
-	
+	public void clanAccounts() throws SQLException
+	{
+		isDriveLoggedIn = false;
+		isS3LoggedIn = false;
+	}
 }

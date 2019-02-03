@@ -10,12 +10,17 @@ public final class ApplicationConfig {
 
 	public static String WORKING_DIRECTORY = "C:\\working";
 	
-	private final List<String> driveAccounts;
+	private List<String> driveAccounts;
 	private String defaultDriveAccount;
-	private final List<AmazonAccountInfo> s3Accounts;
+	private List<AmazonAccountInfo> s3Accounts;
 	private AmazonAccountInfo defaultS3Account;
 	
 	public ApplicationConfig() throws SQLException {
+		getConfig();
+	}
+	
+	public final void getConfig() throws SQLException
+	{
 		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
 		driveAccounts = dbSupervisor.getDriveAccounts();
 		s3Accounts = dbSupervisor.getS3Accounts();

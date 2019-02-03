@@ -162,10 +162,13 @@ public class DatabaseSupervisor {
 			return false;
 		}
 	}
-	public String getDefaultDriveAccount()
+	
+	public void cleanDatabase() throws SQLException
 	{
-		String sql = "SELECT  FROM app_config JOIN";
-		return null;
+		String sql = "DROP ALL OBJECTS";
+		Statement st = connection.createStatement();
+		st.executeUpdate(sql);
+		createTables();
 	}
 	
 	public List<String> getDriveAccounts() throws SQLException
@@ -395,5 +398,8 @@ public class DatabaseSupervisor {
 			 createTables();
 		}
 	}
+	
+	
+	
 	
 }

@@ -22,6 +22,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 
 public class SyncWindowController {
 	
@@ -36,9 +38,13 @@ public class SyncWindowController {
 	
 	@FXML
 	private TableView<SyncPair> syncTable;
+	
+	@FXML
+	private ProgressIndicator progres;
 
 	private void getSyncInfo() throws SQLException
 	{
+		progres.setVisible(true);
 		GetSyncInfo syncInfoService = new GetSyncInfo(synchronizer);
 		syncInfoService.setOnSucceeded(event ->{
 			ObservableList<SyncPair> items = FXCollections.observableArrayList((syncInfoService.getValue().entrySet().stream()
@@ -46,14 +52,16 @@ public class SyncWindowController {
 						return new SyncPair(entry.getKey(),entry.getValue());
 					})
 					.collect(Collectors.toList())));
-			
+			progres.setVisible(false);
 			 syncTable.setItems(items);
 		});
+		syncInfoService.setOnFailed(event -> progres.setVisible(false));
 		syncInfoService.start();
 	}
 	
 	private void initTable()
 	{
+		 syncTable.setPlaceholder(new Label(""));
 		 TableColumn<SyncPair,String> sourceFileColumn = new TableColumn<SyncPair,String>("Plik Ÿrod³owy");
 		 sourceFileColumn.setCellValueFactory(new PropertyValueFactory("sourceFileName"));
 		 TableColumn<SyncPair,String> targetFileColumn = new TableColumn<SyncPair,String>("Plik docelowy");

@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import com.amazonaws.regions.Regions;
 
 import AmazonS3.AmazonAccountInfo;
+import Synchronization.DatabaseSupervisor;
 import Threads.ChangeAmazonAccountService;
 import Threads.ChangeDriveService;
+import Threads.CleanAccountsService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,6 +29,7 @@ import pl.kurcaba.ObjectMetadataIf;
 import pl.kurcaba.TextColor;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 
 public class AccountsWindowController {
@@ -43,6 +46,9 @@ public class AccountsWindowController {
 	@FXML
 	private ComboBox s3Combo;
 	
+	@FXML
+	private Button deleteButton;
+	
 	
 	private ApplicationConfig applicationConfig;
 	private AccountsSupervisor accountsSupervisor;
@@ -53,6 +59,7 @@ public class AccountsWindowController {
 		applicationConfig = aAppConfig;
 		accountsSupervisor = aAccountsSupervisor;
 		initComboBoxes();
+		initButton();
 		refreshStatus();
 	}
 	
@@ -185,7 +192,7 @@ public class AccountsWindowController {
 	
 	private String showInputWindow(String aWindowTitle, String aMessage) throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/InputWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/inputWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage inputWindow = new Stage();
@@ -201,7 +208,7 @@ public class AccountsWindowController {
 	
 	private AmazonAccountInfo showAmazonWindow() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/amazonAccountWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/amazonAccountWindow.fxml"));
 		loader.load();
 		Parent root = loader.getRoot();
 		Stage amazonWindow = new Stage();
@@ -219,6 +226,20 @@ public class AccountsWindowController {
 		}else return null;
 	}
 	
+	private void initButton()
+	{
+		
+		deleteButton.setOnMouseClicked(event ->{
+
+		CleanAccountsService cleanAccounts = new CleanAccountsService(accountsSupervisor,applicationConfig);
+		cleanAccounts.setOnSucceeded(success -> {
+			initComboBoxes();
+			refreshStatus();
+		});
+			cleanAccounts.start();
+			refreshStatus();
+		});
+	}
 	
 	
 }

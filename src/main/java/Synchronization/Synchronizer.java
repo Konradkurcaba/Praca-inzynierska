@@ -73,6 +73,7 @@ public class Synchronizer {
 	{
 		DatabaseSupervisor dbSupervisor = new DatabaseSupervisor();
 		dbSupervisor.updateFileKey(aOldKey, aNewKey);
+		dbSupervisor.closeConnection();
 	}
 	
 	public Map<SyncFileData, SyncFileData> getSyncInfo() throws SQLException

@@ -1,4 +1,4 @@
-package pl.kurcaba;
+package Gui;
 
 import java.io.IOException;
 import javafx.application.Application;
@@ -29,7 +29,6 @@ import GoogleDrive.GoogleDriveFileDownloader;
 import GoogleDrive.GoogleDriveHelper;
 import GoogleDrive.GoogleFileConverter;
 import GoogleDrive.GoogleFileMetadata;
-import Gui.GuiMainController;
 import Synchronization.DatabaseSupervisor;
 
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -46,7 +45,8 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		  FXMLLoader loader = new FXMLLoader(getClass().getResource("/GuiFilesList.fxml"));
+		  FXMLLoader loader = new FXMLLoader();
+		  loader.setLocation(getClass().getResource("fxml/GuiFilesList.fxml"));
 		  loader.load();
 		  Parent root = loader.getRoot();
 		  primaryStage.setTitle("Klient us³ug chmurowych");

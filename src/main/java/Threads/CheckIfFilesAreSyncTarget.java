@@ -45,12 +45,17 @@ public class CheckIfFilesAreSyncTarget extends Service<Boolean> {
 	private SyncFileData createSyncFileData(ObjectMetadataIf aObj)
 	{
 		SyncFileData file = null;
-		if(aObj.getFileServer() == FileServer.AmazonS3) file = new S3SyncFileData(aObj
+		if(aObj.getFileServer() == FileServer.AmazonS3)
+		{
+			file = new S3SyncFileData(aObj
 				,supportersBundle.getAmazonS3Supporter().getAccountName());
+		}
 		else if(aObj.getFileServer() == FileServer.GoogleDrive)
 		{
-		file = new SyncFileData(aObj,supportersBundle.getGoogleDriveSupporter().getAccountName());
-		}else file = new SyncFileData(sourceFile,null);
+			file = new SyncFileData(aObj,supportersBundle.getGoogleDriveSupporter().getAccountName());
+		}else {
+			file = new SyncFileData(aObj,null);
+		}
 		return file;
 	}
 }

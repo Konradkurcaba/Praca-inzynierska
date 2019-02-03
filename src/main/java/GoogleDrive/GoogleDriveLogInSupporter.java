@@ -26,7 +26,7 @@ public class GoogleDriveLogInSupporter {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String CREDENTIALS_PATH = "credentials.json";
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
-    private static final String TOKENS_PATH = "tokens";
+    private static final String TOKENS_PATH = "data";
     
 
 	public Drive getDriveService(String aAccountAlias) throws GeneralSecurityException, IOException
@@ -39,7 +39,7 @@ public class GoogleDriveLogInSupporter {
 	}
 	
 	private Credential getCredentials(NetHttpTransport aHttpTransport,String aAccountAlias) throws IOException {
-        InputStream inputStream = ClassLoader.getSystemResourceAsStream(CREDENTIALS_PATH);
+        InputStream inputStream = getClass().getResourceAsStream(CREDENTIALS_PATH);
         GoogleClientSecrets googleClientSecrets = null;
         googleClientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(inputStream));
         
