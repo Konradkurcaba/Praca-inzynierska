@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="507.0" prefWidth="814.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Gui.GuiMainController">
+   <children>
+      <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="453.0" prefWidth="309.0">
+               <children>
+                  <SplitPane dividerPositions="0.5027359781121752" prefHeight="428.0" prefWidth="294.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                    <items>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="453.0" prefWidth="111.0">
+                           <children>
+                              <SplitPane dividerPositions="0.2511737089201878" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <items>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <ComboBox fx:id="filesServerComboL" layoutX="24.0" layoutY="46.0" prefWidth="150.0" />
+                                          <Text layoutX="60.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Źródło danych" />
+                                       </children>
+                                    </AnchorPane>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <TextField fx:id="selectedFileSizeTextFieldL" alignment="CENTER" editable="false" layoutX="27.0" layoutY="25.0" />
+                                          <Text layoutX="80.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rozmiar" />
+                                          <TextField fx:id="lastModifiedTimeTextViewL" alignment="CENTER" editable="false" layoutX="27.0" layoutY="83.0" />
+                                          <Text layoutX="33.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data ostatniej modyfikacji" />
+                                       </children>
+                                    </AnchorPane>
+                                </items>
+                              </SplitPane>
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                           <children>
+                              <ListView fx:id="filesListViewL" layoutX="14.0" layoutY="14.0" prefHeight="428.0" prefWidth="383.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="453.0" prefWidth="309.0">
+               <children>
+                  <SplitPane dividerPositions="0.5027359781121752" prefHeight="428.0" prefWidth="294.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                     <items>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                           <children>
+                              <ListView fx:id="filesListViewR" layoutX="14.0" layoutY="14.0" prefHeight="428.0" prefWidth="383.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="453.0" prefWidth="111.0">
+                           <children>
+                              <SplitPane dividerPositions="0.2511737089201878" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <items>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <ComboBox fx:id="filesServerComboR" layoutX="23.0" layoutY="46.0" prefWidth="150.0" />
+                                          <Text layoutX="60.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Źródło danych" />
+                                       </children>
+                                    </AnchorPane>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <TextField fx:id="selectedFileSizeTextFieldR" alignment="CENTER" editable="false" layoutX="27.0" layoutY="25.0" />
+                                          <TextField fx:id="lastModifiedTimeTextViewR" alignment="CENTER" editable="false" layoutX="27.0" layoutY="83.0" />
+                                          <ProgressIndicator fx:id="progressIndicator" layoutX="152.0" layoutY="299.0" prefHeight="54.0" prefWidth="33.0" />
+                                          <Text layoutX="75.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rozmiar" />
+                                          <Text layoutX="29.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data ostatniej modyfikacji" />
+                                       </children>
+                                    </AnchorPane>
+                                 </items>
+                              </SplitPane>
+                           </children>
+                        </AnchorPane>
+                     </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+      <MenuBar layoutY="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Ustawienia">
+            <items>
+              <MenuItem fx:id="accountsMenuItem" mnemonicParsing="false" text="Zarządzanie kontami" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Synchronizacja">
+            <items>
+                  <CheckMenuItem fx:id="syncSwitch" mnemonicParsing="false" text="Synchronizacja" />
+                  <MenuItem fx:id="syncMenu" mnemonicParsing="false" text="Panel Synchronizacji" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </children>
+</AnchorPane>
